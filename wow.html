@@ -3,9 +3,30 @@
 <head>
     <meta charset="utf-8" />
     <title>와!</title>
+    <style>
+        html
+        {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background-color: black;
+        }
+        canvas
+        {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px, solid;
+        }
+    </style>
 </head>
     <body>
-        <canvas id = "myCanvas" width="480" height="320" style="border: 1px solid black"></canvas>
+        <canvas id = "canvas"></canvas>
         <script src = "script.js"></script>
     </body>
 </html>
