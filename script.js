@@ -157,16 +157,9 @@ var playerMoving = function() // 작업중
     {
         player[0].velocity.y -= player[0].speed / 5;
     }  
-    if(!(upKeyDown))
+    else if(!(upKeyDown))
     {
-        if(player[0].velocity.y <= 0)
-        {
-            player[0].velocity.y += player[0].speed / 5;
-        }
-        else
-        {
-            player[0].velocity.y = 0;
-        }
+        player[0].velocity.y = 0;
     }
     if(leftKeyDown)
     {
@@ -180,12 +173,9 @@ var playerMoving = function() // 작업중
     {
         player[0].velocity.y += player[0].speed / 5;
     }
-    if(!(downKeyDown))
+    else if(!(downKeyDown))
     {
-        if(player[0].velocity.y >= 0)
-        {
-            player[0].velocity.y -= player[0].speed / 5;
-        }
+        player[0].velocity.y = 0;
     }
     if(rightKeyDown)
     {
