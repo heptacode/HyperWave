@@ -151,8 +151,14 @@ Vector.cross = function(a, b) {
 
 var Lkeys = {};
 var keys = {};
+
+
+// mouse
+
 var mouseX = 0;
 var mouseY = 0;
+var mouseLValue = 0;
+var mouseValue = 0;
 
 var keyDownFunc = function(e)
 {
@@ -189,6 +195,7 @@ var updateKeys = function()
         }
     }
 }
+
 var mouseXY = function()
 {
     if (window.Event)
@@ -197,7 +204,6 @@ var mouseXY = function()
 	}
 	document.onmousemove = getCursorXY;
 }
-
 var getCursorXY = function(e)
 {
 	mouseX = (window.Event) ? e.pageX : event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
@@ -205,17 +211,36 @@ var getCursorXY = function(e)
 }
 var mouseClickDown = function()
 {
-    
+    mouseLValue = 1;
 }
 var mouseClickUp = function()
 {
-    
+    mouseLValue = -1;
+}
+var updateMouse = function()
+{
+    if(mouseLValue == 1 && mouseValue == 0) // 전엔 안눌렀는데 지금 눌렀다 -> 누른 순간
+    {
+        mouseValue = 1;
+    }
+    else if(mouseLValue == 1 && mouseValue == 1) // 전에 눌렀고 지금도 누르고 있다 -> 누르는 중
+    {
+        mouseValue = 2;
+    }
+    else if(mouseLValue == -1 && mouseValue == -1) // 전에 안눌렀고 지금도 안눌렀다 -> 때고 있는 중
+    {
+        mouseValue = 0;
+        mouseLValue = 0;
+    }
+    else if(mouseLValue == -1) // 전엔 눌렀는데 지금은 안눌렀다 -> 키를 땐 순간
+    {
+        mouseValue = -1;
+    }
 }
 
 document.addEventListener("keydown", keyDownFunc, false);
 document.addEventListener("keyup", keyUpFunc, false);
 document.addEventListener("mousemove", mouseXY, false);
-document.addEventListener("click", mouseClickDown, false);
 document.addEventListener("mousedown", mouseClickDown, false);
 document.addEventListener("mouseup", mouseClickUp, false);
 
@@ -243,10 +268,9 @@ class GameImage
         this.scale = {x : 1, y : 1};
         this.rot = 0;
         this.z = 0;
-        this.anchor = {x : 0.5, y : 0.5};
         this.type = type;
         this.isDelete = false;
-
+        
         if(this.type == "enemy" || this.type == "object")
         {
             collisionList.push(this);
@@ -266,6 +290,7 @@ class GameImage
         {
             this.image = imageList[path].image;
         }
+        this.anchor = {x : -this.image.width / 2, y : -this.image.height / 2};
     }
     render()
     {
@@ -273,13 +298,18 @@ class GameImage
         {
             return;
         }
-        let dx = this.image.width * this.anchor.x;
-        let dy = this.image.height * this.anchor.y;
+        let dx = this.image.width + this.anchor.x;
+        let dy = this.image.height + this.anchor.y;
         ctx.resetTransform();
         ctx.translate(this.pos.x + dx, this.pos.y + dy);
         ctx.rotate(this.rot);
         ctx.transform(this.scale.x, 0, 0, this.scale.y, -dx * this.scale.x, -dy * this.scale.y);
         ctx.drawImage(this.image, 0, 0);
+    }
+    setAnchor(x, y)
+    {
+        this.anchor.x = x;
+        this.anchor.y = y;
     }
     setZ(newZ)
     {
@@ -289,12 +319,25 @@ class GameImage
             return a.z - b.z;
         });
     }
+    setBasic(rot, ancX, ancY)
+    {
+        this.rot = rot;
+        this.anchor.x = ancX;
+        this.anchor.y = ancY;
+    }
     getCenter(pos)
     {
         if(pos == "x")
             return this.pos.x + this.image.width / 2;
         else if(pos == "y")
             return this.pos.y + this.image.height / 2;
+    }
+    update()
+    {
+        if(this.type == "player")
+        {
+            console.log("^");
+        }
     }
 }
 
@@ -355,6 +398,7 @@ var gameLoop = function()
     deltaTime = (RTime - LTime) / 1000;
     LTime = RTime;
     updateKeys();
+    updateMouse();
     update();
     ctx.resetTransform();
     ctx.clearRect(0, 0, canvas.width, canvas.height)
