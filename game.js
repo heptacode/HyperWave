@@ -5,7 +5,27 @@ class Weapon extends GameImage
     constructor(path, _x, _y)
     {
         super(path, _x, _y, "weapon");
-        this.angle = 0;
+        this.angle = 100;
+        this.attackAngle = -90;
+        this.attackLTime = Date.now();
+        this.attackRTime = 0;
+        this.attackTime = 0.3;
+        this.attackPattern = 1;
+    }
+    update()
+    {
+        this.attackLTime = Date.now();
+        this.rot =  nowScene.player.rot + this.angle / 180 * Math.PI;
+        this.pos.x = nowScene.player.rightHand.pos.x;
+        this.pos.y = nowScene.player.rightHand.pos.y;
+
+        this.setZ(3);
+    }
+    setBasic()
+    {
+        this.angle = 100;
+        this.attackRTime = 0;
+        this.attackPattern = 1;
     }
 }
 
@@ -14,7 +34,20 @@ class PlayerHand extends GameImage
     constructor(path, _x, _y)
     {
         super(path, _x, _y, "playerHand");
-        this.playerToThis = 43;
+        this.playerToThis1 = 42;
+        this.playerToThis2 = 42;
+
+        this.attackPoint1 = 0;
+        this.attackPoint2 = 0;
+    }
+    setAttackPoint(num, point)
+    {
+        eval("this.attackPoint" + num + " = " + "this.playerToThis" + num + " - " + point + ";");
+    }
+    setBasic()
+    {
+        this.playerToThis1 = 42;
+        this.playerToThis2 = 42;
     }
 }
 
@@ -25,37 +58,74 @@ class Player extends GameImage
         super(path, _x, _y, "player");
         this.leftHand = nowScene.addImage(new PlayerHand("playerHand.png", _x, _y));
         this.rightHand = nowScene.addImage(new PlayerHand("playerHand.png", _x, _y));
+        this.leftHand.setAttackPoint(1, 12);
+        this.leftHand.setAttackPoint(2, 55);
+        this.rightHand.setAttackPoint(1, 77);
+        this.rightHand.setAttackPoint(2, -40);
 
         this.pos.x -= this.image.width / 2;
         this.pos.y -= this.image.height / 2;
 
         this.move = {speed : 500, crash : false, collideAngle : 0};
         this.velocity = new Vector(0, 0);
+        this.playerToMouseAngle = 0;
         
-        this.attack = {canAttack : true, attacking : false, attackAngle : 0, weapon : nowScene.addImage(new Weapon("sword.png", this.rightHand.getCenter("x"), this.rightHand.getCenter("y")))};
+        this.attack = {canAttack : true, attacking : false, click : false, weapon : nowScene.addImage(new Weapon("sword.png", this.rightHand.getCenter("x"), this.rightHand.getCenter("y")))};
         this.attack.weapon.setAnchor(-this.image.width - this.rightHand.image.width / 2, -this.attack.weapon.image.height / 2);
     }
     basicAttack() // 작업중
     {
-        
-        this.attack.canAttack = false;
+        if(this.attack.weapon.attackPattern == 1)
+        {
+            if(this.rightHand.playerToThis1 <= 77 && this.rightHand.playerToThis2 >= -40)
+            {
+                this.rightHand.playerToThis1 -= this.rightHand.attackPoint1 / 10 * 2;
+                this.rightHand.playerToThis2 -= this.rightHand.attackPoint2 / 10 * 2;
+                this.attack.weapon.angle += this.attack.weapon.attackAngle / 7 * 2;
+            }
+            else if(this.attack.weapon.attackLTime >= this.attack.weapon.attackRTime + this.attack.weapon.attackTime * 1000)
+            {
+                this.attack.weapon.attackPattern++;
+                this.attack.canAttack = true;
+            }
+        }
+        else if(this.attack.weapon.attackPattern == 2)
+        {
+            if(this.rightHand.playerToThis1 >= 42 && this.rightHand.playerToThis2 <= 42)
+            {
+                this.rightHand.playerToThis1 += this.rightHand.attackPoint1 / 10 / 1.5;
+                this.rightHand.playerToThis2 += this.rightHand.attackPoint2 / 10 / 1.5;
+                this.attack.weapon.angle -= this.attack.weapon.attackAngle / 7 / 1.5;
+            }
+            else
+            {
+                this.rightHand.setBasic();
+                this.attack.weapon.setBasic();
+                this.attack.attacking = false;
+            }
+        }
     }
     playerAttack()
     {
-        if(mouseValue == 1)
+        if(mouseValue == 1 && this.attack.canAttack == true)
+        {
+            this.rightHand.setBasic();
+            this.attack.canAttack = false;
+            this.attack.attacking = true;
+            this.attack.click = true;
+            this.attack.weapon.attackRTime = Date.now();
+        }
+        if(this.attack.attacking == true)
         {
             this.basicAttack();
         }
     }
     setAngle()
     {
-        let playerToMouseAngle = Math.atan2(nowScene.cursor.getCenter("y") - this.getCenter("y"), nowScene.cursor.getCenter("x") - this.getCenter("x"));
-        this.rot = playerToMouseAngle;
-        this.leftHand.rot = playerToMouseAngle;
-        if(this.attack.attacking == false)
-        {
-            this.rightHand.rot = playerToMouseAngle;
-        }
+        this.playerToMouseAngle = Math.atan2(nowScene.cursor.getCenter("y") - this.getCenter("y"), nowScene.cursor.getCenter("x") - this.getCenter("x"));
+        this.rot = this.playerToMouseAngle;
+        this.leftHand.rot = this.playerToMouseAngle;
+        this.rightHand.rot = this.playerToMouseAngle;
     }
     moving()
     {
@@ -90,34 +160,22 @@ class Player extends GameImage
     }
     handMove()
     {
-        let leftHandPos = {x : this.getCenter("x") - this.leftHand.image.width / 2, y : this.getCenter("y") - this.leftHand.image.height / 2};
-        let rightHandPos = {x : this.getCenter("x") - this.rightHand.image.width / 2, y : this.getCenter("y") - this.rightHand.image.height / 2};
-        let handAngle = Math.atan2(nowScene.cursor.getCenter("y") - (this.getCenter("y")), nowScene.cursor.getCenter("x") - (this.getCenter("x")));
+        this.leftHand.pos = {x : this.getCenter("x") - this.leftHand.image.width / 2, y : this.getCenter("y") - this.leftHand.image.height / 2};
+        this.rightHand.pos = {x : this.getCenter("x") - this.rightHand.image.width / 2, y : this.getCenter("y") - this.rightHand.image.height / 2};
 
-        this.leftHand.pos = leftHandPos;
-        this.rightHand.pos = rightHandPos;
+        this.leftHand.pos.x += Math.cos(this.playerToMouseAngle) * this.leftHand.playerToThis1;
+        this.leftHand.pos.y += Math.sin(this.playerToMouseAngle) * this.leftHand.playerToThis1;
+        let leftHandAngle = this.playerToMouseAngle * (180 / Math.PI) - (this.playerToMouseAngle < -90 ? (-270) : (90));
+        this.leftHand.pos.x += Math.cos(leftHandAngle / 180 * Math.PI) * this.leftHand.playerToThis2;
+        this.leftHand.pos.y += Math.sin(leftHandAngle / 180 * Math.PI) * this.leftHand.playerToThis2;
+        this.leftHand.setZ(4);
 
-        this.leftHand.pos.x += Math.cos(handAngle) * this.leftHand.playerToThis;
-        this.leftHand.pos.y += Math.sin(handAngle) * this.leftHand.playerToThis;
-        let leftHandAngle = handAngle * (180 / Math.PI) - (handAngle < -90 ? (-270) : (90));
-        this.leftHand.pos.x += Math.cos(leftHandAngle / 180 * Math.PI) * 32;
-        this.leftHand.pos.y += Math.sin(leftHandAngle / 180 * Math.PI) * 32;
-        this.leftHand.setZ(3);
-
-        this.rightHand.pos.x += Math.cos(handAngle) * this.rightHand.playerToThis;
-        this.rightHand.pos.y += Math.sin(handAngle) * this.rightHand.playerToThis;
-        let rightHandAngle = handAngle * (180 / Math.PI) - (handAngle > 90 ? (270) : (-90));
-        this.rightHand.pos.x += Math.cos(rightHandAngle / 180 * Math.PI) * 32;
-        this.rightHand.pos.y += Math.sin(rightHandAngle / 180 * Math.PI) * 32;
-        this.rightHand.setZ(3);
-    }
-    weaponUpdate()
-    {
-        this.attack.weapon.rot = this.rot + (this.attack.weapon.angle / 180 * Math.PI);
-        this.attack.weapon.pos.x = this.rightHand.pos.x;
-        this.attack.weapon.pos.y = this.rightHand.pos.y;
-
-        this.attack.weapon.setZ(4);
+        this.rightHand.pos.x += Math.cos(this.playerToMouseAngle) * this.rightHand.playerToThis1;
+        this.rightHand.pos.y += Math.sin(this.playerToMouseAngle) * this.rightHand.playerToThis1;
+        let rightHandAngle = this.playerToMouseAngle * (180 / Math.PI) - (this.playerToMouseAngle > 90 ? (270) : (-90));
+        this.rightHand.pos.x += Math.cos(rightHandAngle / 180 * Math.PI) * this.rightHand.playerToThis2;
+        this.rightHand.pos.y += Math.sin(rightHandAngle / 180 * Math.PI) * this.rightHand.playerToThis2;
+        this.rightHand.setZ(4);
     }
     collisionSet()
     {
@@ -144,15 +202,12 @@ class Player extends GameImage
     }
     update()
     {
-        this.setAngle();
         this.moving();
         this.collisionSet();
+        this.attack.weapon.update();
+        this.playerAttack();
+        this.setAngle();
         this.handMove();
-        this.weaponUpdate();
-        if(this.attack.canAttack == true)
-        {
-            this.playerAttack();
-        }
         this.setZ(2);
     }
 }
