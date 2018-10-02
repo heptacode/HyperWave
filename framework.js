@@ -158,7 +158,11 @@ var keys = {};
 var mouseX = 0;
 var mouseY = 0;
 var mouseLValue = 0;
-var mouseValue = 0;
+var mouseLeftValue = 0;
+var mouseRValue = 0;
+var mouseRightValue = 0;
+var mouseLValue = {};
+var mouseValue = {};
 
 var keyDownFunc = function(e)
 {
@@ -211,30 +215,59 @@ var getCursorXY = function(e)
 }
 var mouseClickDown = function()
 {
-    mouseLValue = 1;
+    switch(event.button)
+    {
+        case 0: mouseLValue["Left"] = 1; if(!mouseValue.hasOwnProperty("Left")){mouseValue["Left"] = 0;}; break;
+        case 2: mouseLValue["Right"] = 1; if(!mouseValue.hasOwnProperty("Right")){mouseValue["Right"] = 0;}; break;
+    }
 }
 var mouseClickUp = function()
 {
-    mouseLValue = -1;
+    switch(event.button)
+    {
+        case 0: mouseLValue["Left"] = -1; break;
+        case 2: mouseLValue["Right"] = -1; break;
+    }
 }
 var updateMouse = function()
 {
-    if(mouseLValue == 1 && mouseValue == 0) // 전엔 안눌렀는데 지금 눌렀다 -> 누른 순간
+
+    //left
+    if(mouseLValue["Left"] == 1 && mouseValue["Left"] == 0) // 전엔 안눌렀는데 지금 눌렀다 -> 누른 순간
     {
-        mouseValue = 1;
+        mouseValue["Left"] = 1;
     }
-    else if(mouseLValue == 1 && mouseValue == 1) // 전에 눌렀고 지금도 누르고 있다 -> 누르는 중
+    else if(mouseLValue["Left"] == 1 && mouseValue["Left"] == 1) // 전에 눌렀고 지금도 누르고 있다 -> 누르는 중
     {
-        mouseValue = 2;
+        mouseValue["Left"] = 2;
     }
-    else if(mouseLValue == -1 && mouseValue == -1) // 전에 안눌렀고 지금도 안눌렀다 -> 때고 있는 중
+    else if(mouseLValue["Left"] == -1 && mouseValue["Left"] == -1) // 전에 안눌렀고 지금도 안눌렀다 -> 때고 있는 중
     {
-        mouseValue = 0;
-        mouseLValue = 0;
+        mouseValue["Left"] = 0;
+        mouseLValue["Left"] = 0;
     }
-    else if(mouseLValue == -1) // 전엔 눌렀는데 지금은 안눌렀다 -> 키를 땐 순간
+    else if(mouseLValue["Left"] == -1) // 전엔 눌렀는데 지금은 안눌렀다 -> 키를 땐 순간
     {
-        mouseValue = -1;
+        mouseValue["Left"] = -1;
+    }
+
+    //right
+    if(mouseLValue["Right"] == 1 && mouseValue["Right"] == 0) // 전엔 안눌렀는데 지금 눌렀다 -> 누른 순간
+    {
+        mouseValue["Right"] = 1;
+    }
+    else if(mouseLValue["Right"] == 1 && mouseValue["Right"] == 1) // 전에 눌렀고 지금도 누르고 있다 -> 누르는 중
+    {
+        mouseValue["Right"] = 2;
+    }
+    else if(mouseLValue["Right"] == -1 && mouseValue["Right"] == -1) // 전에 안눌렀고 지금도 안눌렀다 -> 때고 있는 중
+    {
+        mouseValue["Right"] = 0;
+        mouseLValue["Right"] = 0;
+    }
+    else if(mouseLValue["Right"] == -1) // 전엔 눌렀는데 지금은 안눌렀다 -> 키를 땐 순간
+    {
+        mouseValue["Right"] = -1;
     }
 }
 
@@ -243,7 +276,10 @@ document.addEventListener("keyup", keyUpFunc, false);
 document.addEventListener("mousemove", mouseXY, false);
 document.addEventListener("mousedown", mouseClickDown, false);
 document.addEventListener("mouseup", mouseClickUp, false);
-
+document.addEventListener('contextmenu', function()
+{
+    event.preventDefault();
+});
 
 var preloadImage = function(path)
 {

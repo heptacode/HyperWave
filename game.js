@@ -2,10 +2,11 @@ var gameScene = new Scene();
 
 class Weapon extends GameImage
 {
-    constructor(path, _x, _y)
+    constructor(path, _x, _y, _angle)
     {
         super(path, _x, _y, "weapon");
-        this.angle = 100;
+        this.angle = _angle;
+        this.TempAngle = this.angle;
         this.attackAngle = -90;
         this.attackLTime = Date.now();
         this.attackRTime = 0;
@@ -23,7 +24,7 @@ class Weapon extends GameImage
     }
     setBasic()
     {
-        this.angle = 100;
+        this.angle = this.TempAngle;
         this.attackRTime = 0;
         this.attackPattern = 1;
     }
@@ -69,45 +70,46 @@ class Player extends GameImage
         this.move = {speed : 500, crash : false, collideAngle : 0};
         this.velocity = new Vector(0, 0);
         this.playerToMouseAngle = 0;
-        
-        this.attack = {canAttack : true, attacking : false, click : false, weapon : nowScene.addImage(new Weapon("sword.png", this.rightHand.getCenter("x"), this.rightHand.getCenter("y")))};
+        this.class = "Warrior";
+
+        this.attack = {canAttack : true, attacking : false, click : false, weapon : nowScene.addImage(new Weapon("sword.png", this.rightHand.getCenter("x"), this.rightHand.getCenter("y"), 100))};
         this.attack.weapon.setAnchor(-this.image.width - this.rightHand.image.width / 2, -this.attack.weapon.image.height / 2);
     }
     basicAttack() // 작업중
     {
-        if(this.attack.weapon.attackPattern == 1)
-        {
-            if(this.rightHand.playerToThis1 <= 77 && this.rightHand.playerToThis2 >= -40)
-            {
-                this.rightHand.playerToThis1 -= this.rightHand.attackPoint1 / 10 * 2;
-                this.rightHand.playerToThis2 -= this.rightHand.attackPoint2 / 10 * 2;
-                this.attack.weapon.angle += this.attack.weapon.attackAngle / 7 * 2;
-            }
-            else if(this.attack.weapon.attackLTime >= this.attack.weapon.attackRTime + this.attack.weapon.attackTime * 1000)
-            {
-                this.attack.weapon.attackPattern++;
-                this.attack.canAttack = true;
-            }
-        }
-        else if(this.attack.weapon.attackPattern == 2)
-        {
-            if(this.rightHand.playerToThis1 >= 42 && this.rightHand.playerToThis2 <= 42)
-            {
-                this.rightHand.playerToThis1 += this.rightHand.attackPoint1 / 10 / 1.5;
-                this.rightHand.playerToThis2 += this.rightHand.attackPoint2 / 10 / 1.5;
-                this.attack.weapon.angle -= this.attack.weapon.attackAngle / 7 / 1.5;
-            }
-            else
-            {
-                this.rightHand.setBasic();
-                this.attack.weapon.setBasic();
-                this.attack.attacking = false;
-            }
-        }
+        // if(this.attack.weapon.attackPattern == 1)
+        // {
+        //     if(this.rightHand.playerToThis1 <= 77 && this.rightHand.playerToThis2 >= -40)
+        //     {
+        //         this.rightHand.playerToThis1 -= this.rightHand.attackPoint1 / 10 * 2;
+        //         this.rightHand.playerToThis2 -= this.rightHand.attackPoint2 / 10 * 2;
+        //         this.attack.weapon.angle += this.attack.weapon.attackAngle / 7 * 2;
+        //     }
+        //     else if(this.attack.weapon.attackLTime >= this.attack.weapon.attackRTime + this.attack.weapon.attackTime * 1000)
+        //     {
+        //         this.attack.weapon.attackPattern++;
+        //         this.attack.canAttack = true;
+        //     }
+        // }
+        // else if(this.attack.weapon.attackPattern == 2)
+        // {
+        //     if(this.rightHand.playerToThis1 >= 42 && this.rightHand.playerToThis2 <= 42)
+        //     {
+        //         this.rightHand.playerToThis1 += this.rightHand.attackPoint1 / 10 / 1.5;
+        //         this.rightHand.playerToThis2 += this.rightHand.attackPoint2 / 10 / 1.5;
+        //         this.attack.weapon.angle -= this.attack.weapon.attackAngle / 7 / 1.5;
+        //     }
+        //     else
+        //     {
+        //         this.rightHand.setBasic();
+        //         this.attack.weapon.setBasic();
+        //         this.attack.attacking = false;
+        //     }
+        // }
     }
     playerAttack()
     {
-        if(mouseValue == 1 && this.attack.canAttack == true)
+        if(mouseValue["Left"] == 1 && this.attack.canAttack == true && this.attack.attacking == false)
         {
             this.rightHand.setBasic();
             this.attack.canAttack = false;
@@ -210,6 +212,42 @@ class Player extends GameImage
         this.handMove();
         this.setZ(2);
     }
+}
+var setAttackMotion = function(this)
+{
+    switch(this.class)
+    {
+        case
+    }
+    if(this.attack.weapon.attackPattern == 1)
+        {
+            if(this.rightHand.playerToThis1 <= 77 && this.rightHand.playerToThis2 >= -40)
+            {
+                this.rightHand.playerToThis1 -= this.rightHand.attackPoint1 / 10 * 2;
+                this.rightHand.playerToThis2 -= this.rightHand.attackPoint2 / 10 * 2;
+                this.attack.weapon.angle += this.attack.weapon.attackAngle / 7 * 2;
+            }
+            else if(this.attack.weapon.attackLTime >= this.attack.weapon.attackRTime + this.attack.weapon.attackTime * 1000)
+            {
+                this.attack.weapon.attackPattern++;
+                this.attack.canAttack = true;
+            }
+        }
+        else if(this.attack.weapon.attackPattern == 2)
+        {
+            if(this.rightHand.playerToThis1 >= 42 && this.rightHand.playerToThis2 <= 42)
+            {
+                this.rightHand.playerToThis1 += this.rightHand.attackPoint1 / 10 / 1.5;
+                this.rightHand.playerToThis2 += this.rightHand.attackPoint2 / 10 / 1.5;
+                this.attack.weapon.angle -= this.attack.weapon.attackAngle / 7 / 1.5;
+            }
+            else
+            {
+                this.rightHand.setBasic();
+                this.attack.weapon.setBasic();
+                this.attack.attacking = false;
+            }
+        }
 }
 class Enemy extends GameImage
 {
