@@ -8,7 +8,6 @@ var RTime = 0;
 
 var deltaTime = 0.016;
 var imageList = {};
-var collisionList = [];
 
 
 // Vector
@@ -144,7 +143,25 @@ Vector.cross = function(a, b) {
 
 // function
 
-
+var setList = function(cls)
+{
+    if(cls.type == "enemy" || cls.type == "object")
+    {
+        nowScene.collisionList.push(cls);
+    }
+    if(cls.type == "enemy" || cls.type == "player")
+    {
+        nowScene.playerAndEnemyList.push(cls);
+    }
+    if(cls.type == "enemy")
+    {
+        nowScene.enemyList.push(cls);
+    }
+    if(cls.type == "enemy" || cls.type == "player" || cls.type == "cursor")
+    {
+        nowScene.updateList.push(cls);
+    }
+}
 
 
 // key
@@ -281,36 +298,37 @@ document.addEventListener('contextmenu', function()
     event.preventDefault();
 });
 
-var preloadImage = function(path)
+var preloadImage = function()
 {
-    var _image = new Image();
-    _image.src = path;
-    imageList[path] = {image : _image, isLoaded : false};
-    _image.addEventListener('load', function()
+    for(let i = 0; i < arguments.length; i++)
     {
-        imageList[path].isLoaded = true;
-    }, false);
-}
+        var _image = new Image();
+        _image.src = arguments[i];
+        imageList[_image.src] = {image : _image, isLoaded : false};
+        _image.addEventListener('load', function()
+        {
+            imageList[_image.src].isLoaded = true;
+        }, false);
+    }
+}   
 
 
 // class
 
 class GameImage
 {
-    constructor(path, _x, _y, type)
+    constructor(path, _x, _y, _type)
     {
         this.path = path;
         this.pos = {x : _x, y : _y};
         this.scale = {x : 1, y : 1};
         this.rot = 0;
         this.z = 0;
-        this.type = type;
+        this.type = _type;
         this.isDelete = false;
-        
-        if(this.type == "enemy" || this.type == "object")
-        {
-            collisionList.push(this);
-        }
+
+        setList(this);
+
         if(imageList[path] == undefined)
         {
             this.image = new Image();
@@ -368,14 +386,8 @@ class GameImage
         else if(pos == "y")
             return this.pos.y + this.image.height / 2;
     }
-    update()
-    {
-        if(this.type == "player")
-        {
-            console.log("^");
-        }
-    }
 }
+
 
 
 // scene
@@ -404,6 +416,42 @@ class Scene
     {
         this.sceneImageList.push(image);
         return image;
+    }
+    deleteImage(index, arr)
+    {
+            arr.splice(index, 1);
+            return;
+    }
+    checkDeleteImage()
+    {
+        for(let i = 0; i < this.sceneImageList.length; i++)
+        {
+            if(this.sceneImageList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.sceneImageList);
+            }
+        }
+        for(let i = 0; i < this.playerAndEnemyList.length; i++)
+        {
+            if(this.playerAndEnemyList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.playerAndEnemyList);
+            }
+        }
+        for(let i = 0; i < this.collisionList.length; i++)
+        {
+            if(this.collisionList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.collisionList);
+            }
+        }
+        for(let i = 0; i < this.enemyList.length; i++)
+        {
+            if(this.enemyList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.enemyList);
+            }
+        }
     }
     render()
     {
