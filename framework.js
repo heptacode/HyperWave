@@ -149,6 +149,10 @@ var setList = function(cls)
     {
         nowScene.collisionList.push(cls);
     }
+    if(cls.type == "enemy" || cls.type == "object" || cls.type == "effect")
+    {
+        nowScene.moveList.push(cls);
+    }
     if(cls.type == "enemy" || cls.type == "player")
     {
         nowScene.playerAndEnemyList.push(cls);
@@ -160,6 +164,10 @@ var setList = function(cls)
     if(cls.type == "enemy" || cls.type == "player" || cls.type == "cursor")
     {
         nowScene.updateList.push(cls);
+    }
+    if(cls.type == "effect")
+    {
+        nowScene.effectList.push(cls);
     }
 }
 
@@ -450,6 +458,20 @@ class Scene
             if(this.enemyList[i].isDelete == true)
             {
                 this.deleteImage(i, this.enemyList);
+            }
+        }
+        for(let i = 0; i < this.effectList.length; i++)
+        {
+            if(this.effectList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.effectList);
+            }
+        }
+        for(let i = 0; i < this.moveList.length; i++)
+        {
+            if(this.moveList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.moveList);
             }
         }
     }

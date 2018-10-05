@@ -1,5 +1,46 @@
 var gameScene = new Scene();
 
+class Effect extends GameImage
+{
+    constructor(path, _x, _y, _showTime, _player)
+    {
+        super(path, _x, _y, "effect");
+        this.yourPlayer = _player;
+
+        this.LTime = Date.now();
+        this.RTime = 0;
+        this.showTime = _showTime;
+
+        this.information = [path, _x, _y, _showTime, _player];
+
+        this.effectOn = false;
+    }
+    firstSet()
+    {
+        this.pos.x = this.yourPlayer.pos.x;
+        this.pos.y = this.yourPlayer.pos.y + (this.yourPlayer.image.height / 2 - this.image.height / 2);
+        this.pos.x += Math.cos(this.yourPlayer.rot) * 150;
+        this.pos.y += Math.sin(this.yourPlayer.rot) * 150;
+
+        this.rot = this.yourPlayer.rot;
+        this.setZ(5);
+
+        return this;
+    }
+    update()
+    {
+        this.LTime = Date.now();
+        if(this.effectOn == false)
+        {
+            this.RTime = this.LTime + this.showTime * 1000;
+            this.effectOn = true;
+        }
+        if(this.LTime >= this.RTime)
+        {
+            console.log("^");
+        }
+    }
+}
 class Weapon extends GameImage
 {
     constructor(path, _x, _y, _angle, _attackAngle, _attackTime, _player)
@@ -14,6 +55,7 @@ class Weapon extends GameImage
         this.attackPattern = 1;
         this.damage = 10;
         this.yourPlayer = _player;
+        this.attackEffect = new Effect("swordEffect.png", this.yourPlayer.pos.x, this.yourPlayer.pos.y, 0.3, this.yourPlayer);
     }
     setBasic()
     {
@@ -138,10 +180,10 @@ class Player extends GameImage
         this.velocity.set(vX, vY);
         this.velocity.fixSpeed(this.move.speed);
 
-        for(let i = 0; i < nowScene.collisionList.length; i++)
+        for(let i = 0; i < nowScene.moveList.length; i++)
         {
-            nowScene.collisionList[i].pos.x += this.velocity.x * deltaTime;
-            nowScene.collisionList[i].pos.y += this.velocity.y * deltaTime;
+            nowScene.moveList[i].pos.x += this.velocity.x * deltaTime;
+            nowScene.moveList[i].pos.y += this.velocity.y * deltaTime;
         }
     }
     handMove()
@@ -161,10 +203,10 @@ class Player extends GameImage
                     this.velocity.set(Math.cos(this.move.collideAngle), Math.sin(this.move.collideAngle));
                     this.velocity.fixSpeed(this.move.speed);
 
-                    for(let i = 0; i < nowScene.collisionList.length; i++)
+                    for(let i = 0; i < nowScene.moveList.length; i++)
                     {
-                        nowScene.collisionList[i].pos.x -= this.velocity.x * 1.25 * deltaTime;
-                        nowScene.collisionList[i].pos.y -= this.velocity.y * 1.25 * deltaTime;
+                        nowScene.moveList[i].pos.x -= this.velocity.x * 1.25 * deltaTime;
+                        nowScene.moveList[i].pos.y -= this.velocity.y * 1.25 * deltaTime;
                     }
                     break;
                 }
@@ -261,9 +303,11 @@ gameScene.init = function()
     preloadImage("player.png", "playerHand.png", "sword.png", "spear.png", "enemy1.png", "cursor.png");
 
     this.collisionList = [];
+    this.moveList = [];
     this.playerAndEnemyList = [];
     this.enemyList = [];
     this.updateList = [];
+    this.effectList = [];
 
     this.setAttackHandPoint = function(player)
     {
@@ -272,8 +316,8 @@ gameScene.init = function()
             case "Warrior" :
                 player.leftHand.setAttackPoint(1, 12);
                 player.leftHand.setAttackPoint(2, 55);
-                player.rightHand.setAttackPoint(1, 77);
-                player.rightHand.setAttackPoint(2, -40); break;
+                player.rightHand.setAttackPoint(1, 60);
+                player.rightHand.setAttackPoint(2, -30); break;
             case "SpearMan" :
                 player.leftHand.setAttackPoint(1, 12);
                 player.leftHand.setAttackPoint(2, 55);
@@ -344,6 +388,10 @@ gameScene.init = function()
                     {
                         if(player.attack.click == true)
                         {
+                            let tempAttackEffect = player.weapon.attackEffect.firstSet();
+                            nowScene.addImage(tempAttackEffect);
+
+
                             player.leftHand.playerToThis1 -= player.leftHand.attackPoint1;
                             player.leftHand.playerToThis2 -= player.leftHand.attackPoint2;
     
@@ -380,21 +428,24 @@ gameScene.init = function()
                             player.attack.attacking = false;
                         }
                     }
+                    player.weapon.attackEffect.update();
                 }; break;
             case "SpearMan":
                 player.basicAttack = function()
                     {
                         if(player.weapon.attackPattern == 1)
                         {
-                            if(player.rightHand.playerToThis1 <= (player.rightHand.tempPTT1 - player.rightHand.attackPoint1) && player.rightHand.playerToThis2 >= (player.rightHand.tempPTT2 - player.rightHand.attackPoint2))
+                            if(player.attack.click == true)
                             {
-                                player.leftHand.playerToThis1 -= player.leftHand.attackPoint1 / (10 * 4);
-                                player.leftHand.playerToThis2 -= player.leftHand.attackPoint2 / (10 * 4);
+                                player.leftHand.playerToThis1 -= player.leftHand.attackPoint1;
+                                player.leftHand.playerToThis2 -= player.leftHand.attackPoint2;
 
-                                player.rightHand.playerToThis1 -= player.rightHand.attackPoint1 / (10 * 4);
-                                player.rightHand.playerToThis2 -= player.rightHand.attackPoint2 / (10 * 4);
+                                player.rightHand.playerToThis1 -= player.rightHand.attackPoint1;
+                                player.rightHand.playerToThis2 -= player.rightHand.attackPoint2;
 
-                                player.weapon.angle += player.weapon.attackAngle / 7 * 2;
+                                player.weapon.angle += player.weapon.attackAngle;
+
+                                player.attack.click = false;
                             }
                             else if(player.weapon.attackLTime >= player.weapon.attackRTime + player.weapon.attackTime * 1000)
                             {
@@ -406,13 +457,13 @@ gameScene.init = function()
                         {
                             if(player.rightHand.playerToThis1 >= player.rightHand.tempPTT1 && player.rightHand.playerToThis2 <= player.rightHand.tempPTT2)
                             {
-                                player.leftHand.playerToThis1 += player.leftHand.attackPoint1 / 10 / 1.5;
-                                player.leftHand.playerToThis2 += player.leftHand.attackPoint2 / 10 / 1.5;
+                                player.leftHand.playerToThis1 += player.leftHand.attackPoint1 * player.weapon.attackTime * deltaTime * 100;
+                                player.leftHand.playerToThis2 += player.leftHand.attackPoint2 * player.weapon.attackTime * deltaTime * 100;
 
-                                player.rightHand.playerToThis1 += player.rightHand.attackPoint1 / 10 / 1.5;
-                                player.rightHand.playerToThis2 += player.rightHand.attackPoint2 / 10 / 1.5;
+                                player.rightHand.playerToThis1 += player.rightHand.attackPoint1 * player.weapon.attackTime * deltaTime * 100;
+                                player.rightHand.playerToThis2 += player.rightHand.attackPoint2 * player.weapon.attackTime * deltaTime * 100;
 
-                                player.weapon.angle -= player.weapon.attackAngle / 7 / 1.5;
+                                player.weapon.angle -= player.weapon.attackAngle * player.weapon.attackTime * deltaTime * 100;
                             }
                             else
                             {
@@ -431,7 +482,7 @@ gameScene.init = function()
         switch(player.job)
         {
             case "Warrior" :
-                player.weapon = nowScene.addImage(new Weapon("sword.png", player.rightHand.getCenter("x"), player.rightHand.getCenter("y"), 100, -90, 0.3, player));
+                player.weapon = nowScene.addImage(new Weapon("sword.png", player.rightHand.getCenter("x"), player.rightHand.getCenter("y"), 70, -90, 0.3, player));
                 player.weapon.setAnchor(-player.image.width - player.rightHand.image.width / 2, -player.weapon.image.height / 2);
                 player.weapon.update = function()
                 {
