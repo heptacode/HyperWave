@@ -141,7 +141,7 @@ Vector.cross = function(a, b) {
 };
 
 
-// function
+// list
 
 var setList = function(cls)
 {
@@ -149,7 +149,7 @@ var setList = function(cls)
     {
         nowScene.collisionList.push(cls);
     }
-    if(cls.type == "enemy" || cls.type == "object" || cls.type == "effect")
+    if(cls.type == "enemy" || cls.type == "object" || cls.type == "effect" || cls.type == "maker")
     {
         nowScene.moveList.push(cls);
     }
@@ -161,13 +161,17 @@ var setList = function(cls)
     {
         nowScene.enemyList.push(cls);
     }
-    if(cls.type == "enemy" || cls.type == "player" || cls.type == "cursor")
+    if(cls.type == "enemy" || cls.type == "player" || cls.type == "cursor" || cls.type == "maker")
     {
         nowScene.updateList.push(cls);
     }
     if(cls.type == "effect")
     {
         nowScene.effectList.push(cls);
+    }
+    if(cls.type == "maker")
+    {
+        nowScene.makerList.push(cls);
     }
 }
 
@@ -183,9 +187,7 @@ var keys = {};
 var mouseX = 0;
 var mouseY = 0;
 var mouseLValue = 0;
-var mouseLeftValue = 0;
 var mouseRValue = 0;
-var mouseRightValue = 0;
 var mouseLValue = {};
 var mouseValue = {};
 
@@ -306,6 +308,10 @@ document.addEventListener('contextmenu', function()
     event.preventDefault();
 });
 
+
+
+// function
+
 var preloadImage = function()
 {
     for(let i = 0; i < arguments.length; i++)
@@ -319,6 +325,10 @@ var preloadImage = function()
         }, false);
     }
 }   
+var moveInformation = function()
+{
+
+}
 
 
 // class
@@ -396,6 +406,19 @@ class GameImage
     }
 }
 
+class MousePoint extends GameImage
+{
+    constructor(path, _x, _y)
+    {
+        super(path, _x, _y, "cursor");
+    }
+    update()
+    {
+        this.pos.x = mouseX - this.image.width / 2;
+        this.pos.y = mouseY - this.image.height / 2;
+        this.setZ(10);
+    }
+}
 
 
 // scene
@@ -485,7 +508,6 @@ class Scene
 }
 var nullScene = new Scene();
 nowScene = nullScene;
-
 
 
 // gameLoop
