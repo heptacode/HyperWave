@@ -186,8 +186,6 @@ var keys = {};
 
 var mouseX = 0;
 var mouseY = 0;
-var mouseLValue = 0;
-var mouseRValue = 0;
 var mouseLValue = {};
 var mouseValue = {};
 
@@ -333,6 +331,115 @@ var moveInformation = function()
 
 // class
 
+class Camera
+{
+    constructor(_target)
+    {
+        this.target = _target;
+        this.pos = {x : 0, y : 0};
+        this.power = {x : 0, y : 0};
+        this.nowPower = {x : 0, y : 0};
+    }
+    setBasic()
+    {
+        this.power.x = 0;
+        this.power.y = 0;
+    }
+    shaking(_x, _y, _time)
+    {
+        this.power.x = _x;
+        this.power.y = _y;
+    }
+    update()
+    {
+        this.pos = {
+            x : this.target.pos.x + this.target.image.width / 2 - canvas.width / 2,
+            y : this.target.pos.y + this.target.image.height / 2 - canvas.height / 2
+        }
+        this.nowPower = {
+            x : this.power.x * (Math.random() * 2 - 1),
+            y : this.power.y * (Math.random() * 2 - 1)
+        }
+    }
+}
+
+class GameText
+{
+    constructor(_x, _y, _style, _text)
+    {
+        // x, y, style, text
+        if (arguments.length === 4)
+        {
+            this.pos = {x : arguments[0], y : arguments[1]};
+            this.style = arguments[2];
+            this.text = arguments[3];
+            this.gradient = null;
+        }
+
+        // x, y, style, text, gradient
+        else if (arguments.length === 5)
+        {
+            this.pos = {x : arguments[0], y : arguments[1]};
+            this.style = arguments[2];
+            this.text = arguments[3];
+            this.gradient = arguments[4];
+
+            /*
+            gradient = [
+                {   pos : 0,
+                    color : "red"
+                },
+                {   pos : 0.5,
+                    color : "blue"
+                },
+                {   pos : 1,
+                    color : "yellow"
+                }
+            ]
+            
+            */
+        }
+
+        this.scale = {x : 1, y : 1};
+        this.rot = 0;
+        this.z = 0;
+
+        this.isDelete = false;
+        this.isFixed = false;
+    }
+    render()
+    {
+        ctx.resetTransform();
+        ctx.font = this.style;
+
+        if (this.gradient != null)
+        {
+            let grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            this.gradient.forEach(element => {
+                grad.addColorStop(element.pos, element.color);
+            })
+            ctx.fillStyle = grad;
+        }
+
+        if (this.isFixed)
+            ctx.fillText(this.text, this.pos.x, this.pos.y);
+        else
+        {
+            let cameraPosX = - nowScene.cam.pos.x + nowScene.cam.nowPower.x;
+            let cameraPosY = - nowScene.cam.pos.y + nowScene.cam.nowPower.y;
+            ctx.fillText(this.text, this.pos.x + cameraPosX, this.pos.y + cameraPosY);
+        }
+    }
+    setZ(newZ)
+    {
+        this.z = newZ;
+        nowScene.sceneTextList.sort(function(a, b)
+        {
+            return a.z - b.z;
+        });
+    }
+}
+
 class GameImage
 {
     constructor(path, _x, _y, _type)
@@ -344,6 +451,7 @@ class GameImage
         this.z = 0;
         this.type = _type;
         this.isDelete = false;
+        this.isFixed = false;
 
         setList(this);
 
@@ -373,15 +481,24 @@ class GameImage
         let dx = this.image.width + this.anchor.x;
         let dy = this.image.height + this.anchor.y;
         ctx.resetTransform();
-        ctx.translate(this.pos.x + dx, this.pos.y + dy);
+        if (this.isFixed == true)
+        {
+            ctx.translate(this.pos.x + dx, this.pos.y + dy);
+        }
+        else
+        {
+            let cameraPosX = - nowScene.cam.pos.x + nowScene.cam.nowPower.x;
+            let cameraPosY = - nowScene.cam.pos.y + nowScene.cam.nowPower.y;
+            ctx.translate(this.pos.x + dx + cameraPosX, this.pos.y + dy + cameraPosY);
+        }
         ctx.rotate(this.rot);
         ctx.transform(this.scale.x, 0, 0, this.scale.y, -dx * this.scale.x, -dy * this.scale.y);
         ctx.drawImage(this.image, 0, 0);
     }
-    setAnchor(x, y)
+    setAnchor(_x, _y)
     {
-        this.anchor.x = x;
-        this.anchor.y = y;
+        this.anchor.x += _x;
+        this.anchor.y += _y;
     }
     setZ(newZ)
     {
@@ -429,6 +546,8 @@ class Scene
     constructor()
     {
         this.sceneImageList = [];
+        this.sceneTextList = [];
+        this.cam;
     }
     init()
     {
@@ -441,17 +560,21 @@ class Scene
     }
     update()
     {
-
     }
     addImage(image)
     {
         this.sceneImageList.push(image);
         return image;
     }
+    addText(text)
+    {
+        this.sceneTextList.push(text);
+        return text;
+    }
     deleteImage(index, arr)
     {
-            arr.splice(index, 1);
-            return;
+        arr.splice(index, 1);
+        return;
     }
     checkDeleteImage()
     {
@@ -462,32 +585,11 @@ class Scene
                 this.deleteImage(i, this.sceneImageList);
             }
         }
-        for(let i = 0; i < this.playerAndEnemyList.length; i++)
-        {
-            if(this.playerAndEnemyList[i].isDelete == true)
-            {
-                this.deleteImage(i, this.playerAndEnemyList);
-            }
-        }
         for(let i = 0; i < this.collisionList.length; i++)
         {
             if(this.collisionList[i].isDelete == true)
             {
                 this.deleteImage(i, this.collisionList);
-            }
-        }
-        for(let i = 0; i < this.enemyList.length; i++)
-        {
-            if(this.enemyList[i].isDelete == true)
-            {
-                this.deleteImage(i, this.enemyList);
-            }
-        }
-        for(let i = 0; i < this.effectList.length; i++)
-        {
-            if(this.effectList[i].isDelete == true)
-            {
-                this.deleteImage(i, this.effectList);
             }
         }
         for(let i = 0; i < this.moveList.length; i++)
@@ -497,13 +599,46 @@ class Scene
                 this.deleteImage(i, this.moveList);
             }
         }
+        for(let i = 0; i < this.playerAndEnemyList.length; i++)
+        {
+            if(this.playerAndEnemyList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.playerAndEnemyList);
+            }
+        }
+        for(let i = 0; i < this.enemyList.length; i++)
+        {
+            if(this.enemyList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.enemyList);
+            }
+        }
+        for(let i = 0; i < this.updateList.length; i++)
+        {
+            if(this.updateList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.updateList);
+            }
+        }
+        for(let i = 0; i < this.effectList.length; i++)
+        {
+            if(this.effectList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.effectList);
+            }
+        }
+        for(let i = 0; i < this.makerList.length; i++)
+        {
+            if(this.makerList[i].isDelete == true)
+            {
+                this.deleteImage(i, this.makerList);
+            }
+        }
     }
     render()
     {
-        for(let i = 0; i < this.sceneImageList.length; i++)
-        {
-            this.sceneImageList[i].render();
-        }
+        this.sceneImageList.forEach(element => element.render());
+        this.sceneTextList.forEach(element => element.render());
     }
 }
 var nullScene = new Scene();

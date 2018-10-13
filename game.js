@@ -1,6 +1,5 @@
 var gameScene = new Scene();
 
-
 gameScene.init = function()
 {
     class Effect extends GameImage
@@ -98,13 +97,15 @@ gameScene.init = function()
     }
     class PlayerHand extends GameImage
     {
-        constructor(path, _x, _y, _PPT1, _PPT2)
+        constructor(path, _player, _PPT1, _PPT2)
         {
-            super(path, _x, _y, "playerHand");
+            super(path, _player.pos.x, _player.pos.y, "playerHand");
             this.playerToThis1 = _PPT1;
             this.playerToThis2 = _PPT2;
             this.tempPTT1 = this.playerToThis1;
             this.tempPTT2 = this.playerToThis2;
+
+            this.yourPlayer = _player;
 
             this.attackPoint1 = 0;
             this.attackPoint2 = 0;
@@ -133,7 +134,7 @@ gameScene.init = function()
             this.velocity = new Vector(0, 0);
             this.playerToMouseAngle = 0;
 
-            this.hp = 5;
+            this.hp = 10;
             this.damaged = false;
             this.InvincibleTime = 0.3;
             this.damagedLTime = Date.now();
@@ -141,6 +142,11 @@ gameScene.init = function()
 
             this.attack = {canAttack : true, attacking : false, click : false};
             this.firstSet();
+
+            this.information = {hp : nowScene.addText(new GameText(this.pos.x, this.pos.y, "Arial", ("hp : " + this.hp)))};
+
+            nowScene.cam = new Camera(this);
+
         }
         firstSet()
         {
@@ -171,7 +177,7 @@ gameScene.init = function()
         }
         setAngle()
         {
-            this.playerToMouseAngle = Math.atan2(nowScene.cursor.getCenter("y") - this.getCenter("y"), nowScene.cursor.getCenter("x") - this.getCenter("x"));
+            this.playerToMouseAngle = Math.atan2(nowScene.cursor.getCenter("y") - this.getCenter("y") + nowScene.cam.pos.y, nowScene.cursor.getCenter("x") - this.getCenter("x") + nowScene.cam.pos.x);
             this.rot = this.playerToMouseAngle;
             this.leftHand.rot = this.playerToMouseAngle;
             this.rightHand.rot = this.playerToMouseAngle;
@@ -183,29 +189,26 @@ gameScene.init = function()
 
             if(keys["KeyW"] > 0)
             {
-                vY += 10;
+                vY -= 10;
             }
             else if(keys["KeyS"] > 0)
             {
-                vY -= 10;
+                vY += 10;
             }
             if(keys["KeyA"] > 0)
             {
-                vX += 10;
+                vX -= 10;
             }
             else if(keys["KeyD"] > 0)
             {
-                vX -= 10;
+                vX += 10;
             }
 
             this.velocity.set(vX, vY);
             this.velocity.fixSpeed(this.move.speed);
 
-            for(let i = 0; i < nowScene.moveList.length; i++)
-            {
-                nowScene.moveList[i].pos.x += this.velocity.x * deltaTime;
-                nowScene.moveList[i].pos.y += this.velocity.y * deltaTime;
-            }
+            this.pos.x += this.velocity.x * deltaTime;
+            this.pos.y += this.velocity.y * deltaTime;
         }
         handMove()
         {
@@ -235,11 +238,8 @@ gameScene.init = function()
                     this.velocity.set(Math.cos(this.move.collideAngle), Math.sin(this.move.collideAngle));
                     this.velocity.fixSpeed(this.move.speed);
 
-                    for(let i = 0; i < nowScene.moveList.length; i++)
-                    {
-                        nowScene.moveList[i].pos.x -= this.velocity.x * 1.5 * deltaTime;
-                        nowScene.moveList[i].pos.y -= this.velocity.y * 1.5 * deltaTime;
-                    }
+                    this.pos.x += this.velocity.x * 1.5 * deltaTime;
+                    this.pos.y += this.velocity.y * 1.5 * deltaTime;
                     if(nowScene.collisionList[i].type == "enemy" && this.damaged == false)
                     {
                         this.hp -= 1;
@@ -250,14 +250,22 @@ gameScene.init = function()
                 }
             }
         }
+        showInformation()
+        {
+            this.information.hp
+            this.information.hp.text = ("hp : " + this.hp);
+            this.information.hp.pos.x = this.pos.x;
+            this.information.hp.pos.y = this.pos.y - 20;
+        }
         update()
         {
             this.moving();
             this.collisionSet();
-            this.weapon.update();
             this.playerAttack();
             this.setAngle();
             this.handMove();
+            this.showInformation();
+            this.weapon.update();
             this.setZ(2);
         }
     }
@@ -365,31 +373,17 @@ gameScene.init = function()
             }
         }
     }
-
     class GameController
     {
-        constructor()
+        constructor(_restTime)
         {
-            this.wave = 1;
-            this.waveStart = true;
+            this.wave = 0;
+            this.waveStart = false;
 
             this.restLTime = Date.now();
             this.restRTime = 0;
-            this.restTime = 0;
-            this.canRest = false;
-        }
-        update()
-        {
-            if(this.waveStart == true)
-            {
-                this.startSpawn(this.wave);
-                this.waveStart = false;
-            }
-            else if(this.canRest == true)
-            {
-                this.restLTime = Date.now();
-                this.startRest(this.restTime);
-            }
+            this.restTime = _restTime;
+            this.startRest = true;
         }
         startSpawn(_wave)
         {
@@ -399,13 +393,32 @@ gameScene.init = function()
                 nowScene.makerList[i].spawnCount = 0;
             }
         }
-        startRest(_time)
+        setStartRest(_time)
+        {
+            this.restRTime = this.restLTime + _time * 1000;
+            this.startRest = false;
+        }
+        rest()
         {
             if(this.restLTime >= this.restRTime)
             {
-                this.canRest = false;
                 this.wave++;
                 this.waveStart = true;
+            }
+        }
+        update()
+        {
+            if(this.waveStart == false)
+            {
+                if(this.startRest == true)
+                {
+                    this.setStartRest(this.restTime);
+                }
+                this.rest()
+            }
+            else if(this.waveStart == true)
+            {
+                this.startSpawn(this.wave);
             }
         }
     }
@@ -441,8 +454,8 @@ gameScene.init = function()
         switch(player.job)
         {
             case "Warrior" :
-                player.leftHand = nowScene.addImage(new PlayerHand("playerHand.png", player.pos.x, player.pos.y, 42, 42));
-                player.rightHand = nowScene.addImage(new PlayerHand("playerHand.png", player.pos.x, player.pos.y, 42, 42));
+                player.leftHand = nowScene.addImage(new PlayerHand("playerHand.png", player, 42, 42));
+                player.rightHand = nowScene.addImage(new PlayerHand("playerHand.png", player, 42, 42));
 
                 player.handMove = function()
                 {
@@ -464,8 +477,8 @@ gameScene.init = function()
                     player.rightHand.setZ(4);
                 }; break;
             case "SpearMan" :
-                player.leftHand = nowScene.addImage(new PlayerHand("playerHand.png", player.pos.x, player.pos.y, 42, 42));
-                player.rightHand = nowScene.addImage(new PlayerHand("playerHand.png", player.pos.x, player.pos.y, 32, 47));
+                player.leftHand = nowScene.addImage(new PlayerHand("playerHand.png", player, 42, 42));
+                player.rightHand = nowScene.addImage(new PlayerHand("playerHand.png", player, 32, 47));
 
                 player.handMove = function()
                 {
@@ -596,19 +609,18 @@ gameScene.init = function()
         switch(player.job)
         {
             case "Warrior" :
-                player.weapon = nowScene.addImage(new Weapon("sword.png", player.rightHand.getCenter("x"), player.rightHand.getCenter("y"), 120, -100, 0.3, player));
-                player.weapon.setAnchor(-player.image.width - player.rightHand.image.width / 2, -player.weapon.image.height / 2);
+            player.weapon = nowScene.addImage(new Weapon("sword.png", player.rightHand.getCenter("x"), player.rightHand.getCenter("y"), 120, -100, 0.3, player));
+            player.weapon.setAnchor((player.rightHand.pos.x - player.getCenter("x")), 0);
                 player.weapon.update = function()
                 {
                     player.weapon.attackLTime = Date.now();
                     player.weapon.rot =  player.rot + player.weapon.angle / 180 * Math.PI;
-                    player.weapon.pos.x = player.rightHand.pos.x;
-                    player.weapon.pos.y = player.rightHand.pos.y;
+                    player.weapon.pos = player.rightHand.pos;
                     player.weapon.setZ(3);
                 }; break;
             case "SpearMan" :
                 player.weapon = nowScene.addImage(new Weapon("spear.png", player.rightHand.getCenter("x"), player.rightHand.getCenter("y"), -10, 0, 0.15, player));
-                player.weapon.setAnchor(-player.image.width - player.rightHand.image.width * 3 / 2, -player.weapon.image.height / 2);
+                player.weapon.setAnchor((player.rightHand.pos.x - player.getCenter("x")), 0);
                 player.weapon.update = function()
                 {
                     player.weapon.attackLTime = Date.now();
@@ -638,6 +650,10 @@ gameScene.init = function()
                     {
                         basicPlayerRot += 360;
                     }
+                    else if((basicPlayerRot > 360 + player.weapon.attackAngle / 2) && playerToEnemy < -player.weapon.attackAngle / 2)
+                    {
+                        basicPlayerRot -= 360;
+                    }
 
                     let minusAngle = (basicPlayerRot + player.weapon.attackAngle / 2);
                     let plusAngle = (basicPlayerRot - player.weapon.attackAngle / 2);
@@ -659,14 +675,14 @@ gameScene.init = function()
             {
                 if(!((i > 0) && (i < (_height / tempImage.height - 1))) || !((j > 0) && (j < (_width / tempImage.width - 1))))
                 {
-                    eval("this." + _name + (count++) + " = " + "nowScene.addImage(new GameImage(" + "\"" + _image + "\", " + (j * tempImage.width) + ", " + (i * tempImage.height) + ", " + "\"" + _type + "\"));");
+                    this[toString(_name) + (count++)] = nowScene.addImage(new GameImage(_image, (j * tempImage.width - this.player.pos.x), (i * tempImage.height - this.player.pos.y), _type));
                 }
             }
         }
     }
     this.makeEnemy = function(_name, _image, _x, _y)
     {
-        eval("this." + _name + (nowScene.enemyList.length) + " = " + "nowScene.addImage(new Enemy(\"" + _image + "\", " + _x + ", " + _y + ", " + "this.player" + "));");
+        this[toString(_name) + (nowScene.enemyList.length)] = nowScene.addImage(new Enemy(_image, _x, _y, this.player))
     }
     this.getAngleBasic = function(_angle)
     {
@@ -683,12 +699,13 @@ gameScene.init = function()
         this.gameController.canRest = true;
     }
 
-    this.player = nowScene.addImage(new Player("player.png", canvas.width / 2, canvas.height / 2, "Warrior"));
+    this.player = nowScene.addImage(new Player("player.png", canvas.width / 2, canvas.height / 2, "SpearMan"));
     this.cursor = nowScene.addImage(new MousePoint("cursor.png", mouseX, mouseY));
-    this.monsterMaker1 = nowScene.addImage(new monsterMaker("playerHand.png", 200, 2000));
-    this.monsterMaker1 = nowScene.addImage(new monsterMaker("playerHand.png", 1720, 2000));
+    this.cursor.isFixed = true;
+    this.monsterMaker1 = nowScene.addImage(new monsterMaker("playerHand.png", 200, 500));
+    this.monsterMaker2 = nowScene.addImage(new monsterMaker("playerHand.png", 1720, 500));
 
-    this.gameController = new GameController();
+    this.gameController = new GameController(2);
 }
 gameScene.update = function()
 {
@@ -704,10 +721,19 @@ gameScene.update = function()
         {
             this.makeShape("object", "playerHand.png", canvas.width, canvas.height, "object");
         }
+        this.cam.update();
     }
-    else
-    {
-        gameoverScene.start();
-    }
+    // else
+    // {
+    //     this.sceneImageList.length = 0;
+    //     this.collisionList = 0;
+    //     this.moveList.length = 0;
+    //     this.playerAndEnemyList.length = 0;
+    //     this.enemyList.length = 0;
+    //     this.updateList.length = 0;
+    //     this.effectList.length = 0;
+    //     this.makerList.length = 0;
+    //     gameoverScene.start();
+    // }
 }
 gameScene.start();
