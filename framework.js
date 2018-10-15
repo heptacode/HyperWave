@@ -1,5 +1,6 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -11,133 +12,67 @@ var imageList = {};
 
 
 // Vector
-function Vector(x, y) {
-	this.x = x || 0;
-	this.y = y || 0;
+function Vector(_x, _y) 
+{
+	this.x = _x || 0;
+	this.y = _y || 0;
 }
-
-/* INSTANCE METHODS */
-
-Vector.prototype = {
-	negative: function() {
-		this.x = -this.x;
-		this.y = -this.y;
-		return this;
-	},
-	add: function(v) {
-		if (v instanceof Vector) {
-			this.x += v.x;
-			this.y += v.y;
-		} else {
-			this.x += v;
-			this.y += v;
-		}
-		return this;
-	},
-	subtract: function(v) {
-		if (v instanceof Vector) {
-			this.x -= v.x;
-			this.y -= v.y;
-		} else {
-			this.x -= v;
-			this.y -= v;
-		}
-		return this;
-	},
-	multiply: function(v) {
-		if (v instanceof Vector) {
+Vector.prototype = 
+{
+    multiply : function(v) 
+    {
+        if (v instanceof Vector) 
+        {
 			this.x *= v.x;
 			this.y *= v.y;
-		} else {
+        } 
+        else 
+        {
 			this.x *= v;
 			this.y *= v;
 		}
 		return this;
 	},
-	divide: function(v) {
-		if (v instanceof Vector) {
+    divide : function(v) 
+    {
+        if (v instanceof Vector) 
+        {
 			if(v.x != 0) this.x /= v.x;
 			if(v.y != 0) this.y /= v.y;
-		} else {
-			if(v != 0) {
+        } 
+        else 
+        {
+            if(v != 0) 
+            {
 				this.x /= v;
 				this.y /= v;
 			}
 		}
 		return this;
 	},
-	equals: function(v) {
-		return this.x == v.x && this.y == v.y;
-	},
-	dot: function(v) {
+    dot : function(v) 
+    {
 		return this.x * v.x + this.y * v.y;
 	},
-	cross: function(v) {
-		return this.x * v.y - this.y * v.x
-	},
-	length: function() {
+    length : function() 
+    {
 		return Math.sqrt(this.dot(this));
 	},
-	normalize: function() {
+    normalize : function() 
+    {
 		return this.divide(this.length());
 	},
-	min: function() {
-		return Math.min(this.x, this.y);
-	},
-	max: function() {
-		return Math.max(this.x, this.y);
-	},
-	toAngles: function() {
-		return -Math.atan2(-this.y, this.x);
-	},
-	angleTo: function(a) {
-		return Math.acos(this.dot(a) / (this.length() * a.length()));
-	},
-	toArray: function(n) {
-		return [this.x, this.y].slice(0, n || 2);
-	},
-	clone: function() {
-		return new Vector(this.x, this.y);
-	},
-	set: function(x, y) {
+    set : function(x, y) 
+    {
 		this.x = x; this.y = y;
 		return this;
     },
-    fixSpeed: function(s) {
+    fixSpeed : function(s) 
+    {
         this.normalize();
         this.multiply(s);
         return;
     }
-};
-
-/* STATIC METHODS */
-Vector.negative = function(v) {
-	return new Vector(-v.x, -v.y);
-};
-Vector.add = function(a, b) {
-	if (b instanceof Vector) return new Vector(a.x + b.x, a.y + b.y);
-	else return new Vector(a.x + v, a.y + v);
-};
-Vector.subtract = function(a, b) {
-	if (b instanceof Vector) return new Vector(a.x - b.x, a.y - b.y);
-	else return new Vector(a.x - v, a.y - v);
-};
-Vector.multiply = function(a, b) {
-	if (b instanceof Vector) return new Vector(a.x * b.x, a.y * b.y);
-	else return new Vector(a.x * v, a.y * v);
-};
-Vector.divide = function(a, b) {
-	if (b instanceof Vector) return new Vector(a.x / b.x, a.y / b.y);
-	else return new Vector(a.x / v, a.y / v);
-};
-Vector.equals = function(a, b) {
-	return a.x == b.x && a.y == b.y;
-};
-Vector.dot = function(a, b) {
-	return a.x * b.x + a.y * b.y;
-};
-Vector.cross = function(a, b) {
-	return a.x * b.y - a.y * b.x;
 };
 
 
@@ -322,10 +257,6 @@ var preloadImage = function()
             imageList[_image.src].isLoaded = true;
         }, false);
     }
-}   
-var moveInformation = function()
-{
-
 }
 
 
@@ -339,30 +270,40 @@ class Camera
         this.pos = {x : 0, y : 0};
         this.power = {x : 0, y : 0};
         this.nowPower = {x : 0, y : 0};
+
+        this.LTime = Date.now();
+        this.RTime = 0;
+        this.actTime = 0;
+
+        this.isShaking = false;
     }
     setBasic()
     {
-        this.power.x = 0;
-        this.power.y = 0;
+        this.power = {x : 0, y : 0};
+        this.actTime = 0;
+        this.isShaking = false;
     }
     shaking(_x, _y, _time)
     {
-        this.power.x = _x;
-        this.power.y = _y;
+        this.power = {x : _x, y : _y};
+        this.actTime = _time;
+        this.RTime = this.LTime + this.actTime * 1000;
+        this.isShaking = true;
     }
     update()
     {
-        this.pos = {
-            x : this.target.pos.x + this.target.image.width / 2 - canvas.width / 2,
-            y : this.target.pos.y + this.target.image.height / 2 - canvas.height / 2
-        }
-        this.nowPower = {
-            x : this.power.x * (Math.random() * 2 - 1),
-            y : this.power.y * (Math.random() * 2 - 1)
+        this.LTime = Date.now();
+        this.pos = {x : this.target.pos.x + this.target.image.width / 2 - canvas.width / 2, y : this.target.pos.y + this.target.image.height / 2 - canvas.height / 2};
+        this.nowPower = {x : this.power.x * (Math.random() * 2 - 1), y : this.power.y * (Math.random() * 2 - 1)};
+        if(this.isShaking == true)
+        {
+            if(this.LTime >= this.RTime)
+            {
+                this.setBasic();
+            }
         }
     }
 }
-
 class GameText
 {
     constructor(_x, _y, _style, _text)
@@ -449,6 +390,7 @@ class GameImage
         this.scale = {x : 1, y : 1};
         this.rot = 0;
         this.z = 0;
+        this.opacity = 1;
         this.type = _type;
         this.isDelete = false;
         this.isFixed = false;
@@ -493,12 +435,12 @@ class GameImage
         }
         ctx.rotate(this.rot);
         ctx.transform(this.scale.x, 0, 0, this.scale.y, -dx * this.scale.x, -dy * this.scale.y);
+        ctx.globalAlpha = this.opacity;
         ctx.drawImage(this.image, 0, 0);
     }
     setAnchor(_x, _y)
     {
-        this.anchor.x += _x;
-        this.anchor.y += _y;
+        this.anchor = {x : this.anchor.x + _x, y : this.anchor.y + _y};
     }
     setZ(newZ)
     {
@@ -511,8 +453,7 @@ class GameImage
     setBasic(rot, ancX, ancY)
     {
         this.rot = rot;
-        this.anchor.x = ancX;
-        this.anchor.y = ancY;
+        this.anchor = {x : ancX, y : ancY};
     }
     getCenter(pos)
     {
@@ -520,6 +461,13 @@ class GameImage
             return this.pos.x + this.image.width / 2;
         else if(pos == "y")
             return this.pos.y + this.image.height / 2;
+    }
+    getImageLength(widthHeight)
+    {
+        if(widthHeight == "width")
+            return this.image.width * this.scale.x;
+        else if(widthHeight == "height")
+            return this.image.height * this.scale.y
     }
 }
 
@@ -531,8 +479,7 @@ class MousePoint extends GameImage
     }
     update()
     {
-        this.pos.x = mouseX - this.image.width / 2;
-        this.pos.y = mouseY - this.image.height / 2;
+        this.pos = { x : mouseX - this.image.width / 2, y : mouseY - this.image.height / 2}
         this.setZ(10);
     }
 }
