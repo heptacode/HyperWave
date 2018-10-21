@@ -159,7 +159,6 @@ var updateKeys = function()
         }
     }
 }
-
 var mouseXY = function()
 {
     if (window.Event)
@@ -242,7 +241,6 @@ document.addEventListener('contextmenu', function()
 });
 
 
-
 // function
 
 var preloadImage = function()
@@ -270,24 +268,25 @@ class Camera
         this.pos = {x : 0, y : 0};
         this.power = {x : 0, y : 0};
         this.nowPower = {x : 0, y : 0};
+        this.powerArray = [];
 
         this.LTime = Date.now();
         this.RTime = 0;
-        this.actTime = 0;
 
         this.isShaking = false;
     }
-    setBasic()
+    setBasic(_powerX, _powerY, _index)
     {
-        this.power = {x : 0, y : 0};
-        this.actTime = 0;
-        this.isShaking = false;
+        this.power.x -= _powerX;
+        this.power.y -= _powerY;
+        this.powerArray.splice(_index, 1);
     }
     shaking(_x, _y, _time)
     {
-        this.power = {x : _x, y : _y};
-        this.actTime = _time;
-        this.RTime = this.LTime + this.actTime * 1000;
+        let info = {powerX : _x, powerY : _y, RTime : (Date.now() + _time * 1000)};
+        this.powerArray.push(info);
+        this.power.x += _x;
+        this.power.y += _y;
         this.isShaking = true;
     }
     update()
@@ -295,11 +294,19 @@ class Camera
         this.LTime = Date.now();
         this.pos = {x : this.target.pos.x + this.target.image.width / 2 - canvas.width / 2, y : this.target.pos.y + this.target.image.height / 2 - canvas.height / 2};
         this.nowPower = {x : this.power.x * (Math.random() * 2 - 1), y : this.power.y * (Math.random() * 2 - 1)};
+
+        if(this.power.x == 0 && this.power.y == 0)
+        {
+            this.isShaking = false;
+        }
         if(this.isShaking == true)
         {
-            if(this.LTime >= this.RTime)
+            for(let i = 0; i < this.powerArray.length; i++)
             {
-                this.setBasic();
+                if(this.LTime >= this.powerArray[i].RTime)
+                {
+                    this.setBasic(this.powerArray[i].powerX, this.powerArray[i].powerY, i);
+                }
             }
         }
     }
