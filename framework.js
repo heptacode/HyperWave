@@ -8,6 +8,7 @@ var LTime = Date.now();
 var RTime = 0;
 
 var deltaTime = 0.016;
+var frame = 60;
 var imageList = {};
 
 
@@ -387,7 +388,6 @@ class GameText
         });
     }
 }
-
 class GameImage
 {
     constructor(path, _x, _y, _type)
@@ -477,12 +477,36 @@ class GameImage
             return this.image.height * this.scale.y
     }
 }
+class Button extends GameImage
+{
+    constructor(path, _x, _y)
+    {
+        super(path, _x, _y, "button");
+        this.pos.x -= this.image.width / 2;
+        this.pos.y -= this.image.height / 2;
+
+        setList(this);
+        this.clickFunc = function(){};
+    }
+    clickEventSet(_func)
+    {
+        this.clickFunc = _func;
+    }
+    update()
+    {
+        if(mouseValue["Left"] == 1 && Collision.dotToRect(nowScene.cursor, this))
+        {
+            this.clickFunc();
+        }
+    }
+}
 
 class MousePoint extends GameImage
 {
     constructor(path, _x, _y)
     {
         super(path, _x, _y, "cursor");
+        this.isFixed = true;
     }
     update()
     {
@@ -613,6 +637,7 @@ var gameLoop = function()
 {
     RTime = Date.now();
     deltaTime = (RTime - LTime) / 1000;
+    frame = 1 / deltaTime;
     LTime = RTime;
     updateKeys();
     updateMouse();
@@ -620,6 +645,7 @@ var gameLoop = function()
     ctx.resetTransform();
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     render();
+
 }
 
 setInterval(gameLoop, 0);

@@ -1,5 +1,11 @@
 var gameScene = new Scene();
 
+
+// 무기마다 자세를 바꿔주는 함수 만들꺼임
+
+
+// class
+
 class Skill
 {
     constructor(_coolTime, _key, _player)
@@ -8,81 +14,129 @@ class Skill
         this.coolTime = _coolTime;
         this.lTime = Date.now();
         this.rTime = 0;
+        this.DTime;
+        this.DRTime;
+        this.maxCnt;
+        this.nowCnt;
         this.key = _key;
         this.canAttack = true;
+        this.attacking = false;
+        this.pattern = 0;
+        this.patternRTime = 0;
+    }
+    start()
+    {
+
+    }
+    updating()
+    {
+
+    }
+    pattern1()
+    {
+
+    }
+    pattern2()
+    {
+
     }
     update()
     {
         this.lTime = Date.now();
         if (keys[this.key] == 1 && this.lTime >= this.rTime)
         {
-            this.cast();
+            this.start();
             this.rTime = this.lTime + this.coolTime * 1000;
+            this.attacking = true;
+        }
+        if(this.pattern == 1)
+        {
+            this.pattern1();
+        }
+        else if(this.pattern == 2)
+        {
+            this.pattern2();
+        }
+        if(this.attacking == true && nowScene.LTime >= this.DRTime && this.nowCnt < this.maxCnt && this.last == false)
+        {
+            this.making();
+        }
+        if(this.attacking == true)
+        {
+            this.updating();
         }
     }
 }
-class Skill1 extends Skill
+class SwordShot extends Skill
 {
     constructor(_key, _player)
     {
-        super(1, _key, _player);
+        super(2, _key, _player);
         this.effect = new Effect("swordEffect.png", this.yourPlayer.pos.x, this.yourPlayer.pos.y, 2, this.yourPlayer);
         this.maxCnt = 3;
         this.nowCnt = 0;
-        this.DTime = 0.3;
+        this.DTime = 0.1;
+        this.DRTime = 0;
         this.RTime = 0;
+        this.DRTime2 = 0;
+        this.last = false;
         this.moveSpeed = 2;
     }
-    cast()
+    start()
     { 
-        this.canAttack = true;
-        let tempEffect = new Effect(this.effect.image.src, this.yourPlayer.pos.x, this.yourPlayer.pos.y, this.effect.showTime, this.yourPlayer);
-        tempEffect.firstSet = () =>
-        {
-            tempEffect.pos = {x : this.yourPlayer.pos.x, y : this.yourPlayer.pos.y + this.yourPlayer.getImageLength("height") / 2 - tempEffect.getImageLength("height") / 2};
-            tempEffect.angle = this.yourPlayer.rot;
-            tempEffect.rot = tempEffect.angle;
-            Util.moveByAngle(tempEffect.pos, tempEffect.angle, this.yourPlayer.image.width / 2 + this.yourPlayer.weapon.image.width);
-            tempEffect.setZ(5);
-            
-            tempEffect.update = () =>
-            {
-                if(this.canAttack == true)
-                {
-                    if(this.lTime >= this.RTime && this.nowCnt <= this.maxCnt)
-                    {
-                        this.yourPlayer.playerHandsBasic();
-                        this.cast();
-                        this.nowCnt++;
-                        this.playerHandsMove();
-                        nowScene.cam.shaking(10, 10, this.DTime);
-                        this.RTime = this.lTime + this.DTime * 1000;
-                    }
-                    if(this.nowCnt == this.maxCnt)
-                    {
-                        this.yourPlayer.weapon.attackRTime = nowScene.LTime + this.yourPlayer.weapon.attackTime * 1000 / 2;
-                    }
-                }
-                if(this.nowCnt == this.maxCnt)
-                {
-                    this.nowCnt = 0;
-                    this.canAttack = false;
-                    this.yourPlayer.playerHandSlowBasic(this.yourPlayer.weapon.attackTime, this.yourPlayer.weapon.attackRTime);
-                }
-                Util.moveByAngle(tempEffect.pos, tempEffect.angle, this.moveSpeed);
-                tempEffect.basicSet();
-            }
-        }
+        this.canAttack = false;
+        this.pattern = 1;
+    }
+    making()
+    {
+        let tempEffect = new Effect(this.effect.image.src, 0, 0, this.effect.showTime, this.yourPlayer);
+        tempEffect.tempAngle = this.yourPlayer.playerToMouseAngle;
         nowScene.effectList.push(nowScene.addImage(tempEffect));
         tempEffect.firstSet();
-    }
-    update()
-    {
-        this.lTime = Date.now();
-        if (keys[this.key] == 1 && this.lTime >= this.rTime)
+        tempEffect.update = () =>
         {
-            this.cast();
-            this.rTime = this.lTime + this.coolTime * 1000;
+            tempEffect.basicSet();
+            Util.moveByAngle(tempEffect.pos, tempEffect.tempAngle, this.moveSpeed);
+        }
+    }
+    updating()
+    {
+        if(nowScene.LTime >= this.DRTime && this.nowCnt <= this.maxCnt)
+        {
+            this.nowCnt++;
+            this.DRTime = nowScene.LTime + this.DTime * 1000;
+        }
+        if(this.nowCnt >= this.maxCnt && this.last == false)
+        {
+            this.DRTime2 = nowScene.LTime + this.DTime * 1000;
+            this.last = true;
+        }
+        if(this.nowCnt >= this.maxCnt && nowScene.LTime >= this.DRTime2)
+        {
+            this.RTime = nowScene.LTime + this.yourPlayer.weapon.attackTime * 1000 / 2;
+            this.pattern = 2;
+            this.nowCnt = 0;
+            this.last = false;
+            this.canAttack = true;
+        }
+    }
+    pattern1()
+    {
+        console.log("pattern1");
+        this.yourPlayer.playerHandsBasic();
+        this.playerHandsMove();
+    }
+    pattern2()
+    {
+        console.log("pattern2");
+        if(this.yourPlayer.playerHandSlowBasic(this.yourPlayer.weapon.attackTime, this.RTime) == true)
+        {
+            this.DTime = 0.1;
+            this.DRTime = 0;
+            this.RTime = 0;
+            this.DRTime2 = 0;
+            this.pattern = 0;
+            this.attacking = false;
         }
     }
     playerHandsMove()
@@ -109,7 +163,6 @@ class Skill1 extends Skill
         }
     }
 }
-
 class Effect extends GameImage
 {
     constructor(path, _x, _y, _showTime, _player)
@@ -280,18 +333,18 @@ class Player extends GameImage
     }
     playerHandSlowBasic(_Time, _RTime)
     {
-        this.leftHand.playerToThis1 += this.leftHand.attackPoint1 / _Time / 100;
-        this.leftHand.playerToThis2 += this.leftHand.attackPoint2 / _Time / 100;
+        this.leftHand.playerToThis1 += this.leftHand.attackPoint1 / (_Time * frame);
+        this.leftHand.playerToThis2 += this.leftHand.attackPoint2 / (_Time * frame);
 
-        this.rightHand.playerToThis1 += this.rightHand.attackPoint1 / _Time / 100;
-        this.rightHand.playerToThis2 += this.rightHand.attackPoint2 / _Time / 100;
+        this.rightHand.playerToThis1 += this.rightHand.attackPoint1 / (_Time * frame);
+        this.rightHand.playerToThis2 += this.rightHand.attackPoint2 / (_Time * frame);
 
-        this.weapon.angle -= this.weapon.attackAngle / _Time / 100;
+        this.weapon.angle -= this.weapon.attackAngle / (_Time * frame);
         
         if(nowScene.LTime >= _RTime)
         {
             this.playerHandsBasic();
-            this.attack.attacking = false;
+            return true;
         }
     }
     basicAttack()
@@ -474,94 +527,41 @@ class Enemy extends GameImage
         this.collisionSet();
     }
 }
-class monsterMaker extends GameImage
+class monsterMaker
 {
-    constructor(path, _x, _y)
+    constructor(_x, _y)
     {
-        super(path, _x, _y, "maker");
-        this.pos.x -= this.getImageLength("width") / 2;
-        this.pos.y -= this.getImageLength("height") / 2;
-        this.setZ(1);
+        this.pos = {x : _x, y : _y};
 
         this.spawnLTime = Date.now();
         this.spawnRTime = 0;
         this.spawnDelay = 1;
         this.spawnCount = 0;
         this.spawnMax = 0;
-        this.canSpawn = true;
+        this.startSpawn = false;
 
-        
+        nowScene.updateList.push(this);
     }
-    update()
+    spawnMonsters()
     {
-        if(this.spawnCount < this.spawnMax)
-        {
-            this.spawnMonster();
-        }
-    }
-    spawnMonster()
-    {
-        this.spawnLTime = Date.now();
-        if(this.canSpawn == true)
-        {
-            nowScene.makeEnemy("enemy", "enemy1.png", this.pos.x - this.getImageLength("width") / 2, this.pos.y - this.getImageLength("height") / 2);
-            this.spawnRTime = this.spawnLTime + this.spawnDelay * 1000;
-            this.spawnCount++;
-            this.canSpawn = false;
-        }
         if(this.spawnLTime >= this.spawnRTime)
         {
-            this.canSpawn = true;
-            nowScene.restWave();
+            nowScene.makeEnemy("enemy", "enemy1.png", this.pos.x, this.pos.y);
+            this.spawnRTime = this.spawnLTime + this.spawnDelay * 1000;
+            this.spawnCount++;
         }
     }
-}
-class GameController
-{
-    constructor(_restTime)
+    setWaveStart(_max, _delay)
     {
-        this.wave = 0;
-        this.waveStart = false;
-
-        this.restLTime = Date.now();
-        this.restRTime = 0;
-        this.restTime = _restTime;
-        this.startRest = true;
-    }
-    startSpawn(_wave)
-    {
-        for(let i = 0; i < nowScene.makerList.length; i++)
-        {
-            nowScene.makerList[i].spawnMax = (_wave * 2 + 2);
-            nowScene.makerList[i].spawnCount = 0;
-        }
-    }
-    setStartRest(_time)
-    {
-        this.restRTime = this.restLTime + _time * 1000;
-        this.startRest = false;
-    }
-    rest()
-    {
-        if(this.restLTime >= this.restRTime)
-        {
-            this.wave++;
-            this.waveStart = true;
-        }
+        this.spawnMax = _max;
+        this.spawnDelay = _delay;
     }
     update()
     {
-        if(this.waveStart == false)
+        this.spawnLTime = Date.now();
+        if(this.spawnCount < this.spawnMax && this.startSpawn == true)
         {
-            if(this.startRest == true)
-            {
-                this.setStartRest(this.restTime);
-            }
-            this.rest()
-        }
-        else if(this.waveStart == true)
-        {
-            this.startSpawn(this.wave);
+            this.spawnMonsters();
         }
     }
 }
@@ -621,33 +621,26 @@ var JobWarrior =
                 }
                 if(player.weapon.attackLTime >= player.weapon.attackRTime + player.weapon.attackTime * 1000)
                 {
-                    player.weapon.attackRTime = nowScene.LTime + player.weapon.attackTime * 1000 / 2;
+                    player.weapon.attackRTime = nowScene.LTime + (player.weapon.attackTime / 2) * 1000;
                     player.weapon.attackPattern++;
                     player.attack.canAttack = true;
                 }
             }
             else if(player.weapon.attackPattern == 2)
-            {           
-                // player.leftHand.playerToThis1 += player.leftHand.attackPoint1 * player.weapon.attackTime * deltaTime * 100;
-                // player.leftHand.playerToThis2 += player.leftHand.attackPoint2 * player.weapon.attackTime * deltaTime * 100;
-
-                // player.rightHand.playerToThis1 += player.rightHand.attackPoint1 * player.weapon.attackTime * deltaTime * 100;
-                // player.rightHand.playerToThis2 += player.rightHand.attackPoint2 * player.weapon.attackTime * deltaTime * 100;
-
-                // player.weapon.angle -= player.weapon.attackAngle * player.weapon.attackTime * deltaTime * 100;
-                
-                // if(player.rightHand.playerToThis1 <= player.rightHand.tempPTT1 && player.rightHand.playerToThis2 >= player.rightHand.tempPTT2 && player.weapon.angle <= player.weapon.tempAngle)
-                // {
-                //     player.playerHandsBasic();
-                //     player.attack.attacking = false;
-                // }
-                player.playerHandSlowBasic(player.weapon.attackTime, player.weapon.attackRTime);
+            {
+                if(player.playerHandSlowBasic(player.weapon.attackTime / 2, player.weapon.attackRTime) == true)
+                {
+                    player.attack.attacking = false;
+                };
             }
         }
     },
     setWeapon : (player) =>
     {
-        player.weapon = nowScene.addImage(new Weapon("sword.png", player.rightHand.pos.x, player.rightHand.pos.y, 120, -100, 0.3, player));
+        player.weapon = nowScene.addImage(new Weapon("sword.png", player.rightHand.pos.x, player.rightHand.pos.y, 120, -90, 0.3, player));
+        player.weapon.damage = 10;
+        player.weapon.attackEffect = new Effect("swordEffect.png", player.pos.x, player.pos.y, 0.3, player);
+        player.weapon.attackLength = player.image.width / 2 + player.weapon.image.width + player.weapon.attackEffect.image.width;
         player.weapon.setAnchor((-player.weapon.getImageLength("width") / 2 + player.rightHand.getImageLength("width") / 2), (-player.weapon.getImageLength("height") / 2 + player.rightHand.getImageLength("height") / 2));
         player.weapon.update = () =>
         {
@@ -670,8 +663,8 @@ var JobWarrior =
         }
         player.weapon.isInAngle = (_index) =>
         {
-            let basicPlayerRot = nowScene.getAngleBasic(player.rot * 180 / Math.PI);
-            let playerToEnemy = nowScene.getAngleBasic(Util.getAngle(player, nowScene.enemyList[_index]));
+            let basicPlayerRot = Util.getAngleBasic(player.rot * 180 / Math.PI);
+            let playerToEnemy = Util.getAngleBasic(Util.getAngle(player, nowScene.enemyList[_index]));
     
             if((basicPlayerRot < -player.weapon.attackAngle / 2) && playerToEnemy > (360 + player.weapon.attackAngle / 2))
             {
@@ -690,10 +683,10 @@ var JobWarrior =
     },
     setSkills : (player) => 
     {
-        player.skills.push(new Skill1("KeyK", player));
+        player.skills.push(new SwordShot("KeyK", player));
     }
 }
-var JobSpearMan = 
+var JobSpearMan =
 {
     setPlayerHand : (player) =>
     {
@@ -789,8 +782,8 @@ var JobSpearMan =
         }
         player.weapon.isInAngle = (_index) =>
         {
-            let basicPlayerRot = nowScene.getAngleBasic(player.rot * 180 / Math.PI);
-            let playerToEnemy = nowScene.getAngleBasic(Util.getAngle(player, nowScene.enemyList[_index]));
+            let basicPlayerRot = Util.getAngleBasic(player.rot * 180 / Math.PI);
+            let playerToEnemy = Util.getAngleBasic(Util.getAngle(player, nowScene.enemyList[_index]));
     
             if((basicPlayerRot < -player.weapon.attackAngle / 2) && playerToEnemy > (360 + player.weapon.attackAngle / 2))
             {
@@ -817,11 +810,15 @@ var setJob = function(player)
     }
 }
 
+var setMonsterList = function(_monster)
+{
+    monsterList[_monster.path] = _monster;
+}
+
+var monsterList = {}
 
 gameScene.init = function()
 {
-    preloadImage("player.png", "playerHand.png", "sword.png", "spear.png", "enemy1.png", "cursor.png");
-
     this.collisionList = [];
     this.moveList = [];
     this.playerAndEnemyList = [];
@@ -857,25 +854,12 @@ gameScene.init = function()
     {
         return (_angle < 0 ? (360 + _angle) : _angle);
     }
-    this.windowShaking = function(_count, _power)
-    {
-        
-    }
-    this.restWave = function()
-    {
-        this.gameController.restTime = 5;
-        this.gameController.restRTime = this.gameController.restLTime + this.gameController.restTime * 1000;
-        this.gameController.canRest = true;
-    }
 
     this.player = nowScene.addImage(new Player("player.png", canvas.width / 2, canvas.height / 2, "Warrior"));
     
     this.cursor = nowScene.addImage(new MousePoint("cursor.png", mouseX, mouseY));
-    this.cursor.isFixed = true;
-    this.monsterMaker1 = nowScene.addImage(new monsterMaker("playerHand.png", 200, 500));
-    this.monsterMaker2 = nowScene.addImage(new monsterMaker("playerHand.png", 1720, 500));
 
-    this.gameController = new GameController(2);
+    this.gameController = new GameController();
 }
 gameScene.update = function()
 {
@@ -902,4 +886,3 @@ gameScene.update = function()
     //     gameoverScene.start();
     // }
 }
-gameScene.start();

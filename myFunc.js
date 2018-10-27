@@ -36,6 +36,10 @@ class Util
         return Math.atan2(Util.getCenter(obj2, "y") - Util.getCenter(obj1, "y"), Util.getCenter(obj2, "x") - Util.getCenter(obj1, "x")) * 180 / Math.PI;
         //Math.atan2(Util.getCenter(nowScene.enemyList[_index], "y") - Util.getCenter(player, "y"), Util.getCenter(nowScene.enemyList[_index], "x") - Util.getCenter(player, "x")) * 180 / Math.PI
     }
+    static getAngleBasic(_angle)
+    {
+        return (_angle < 0 ? (360 + _angle) : _angle);
+    }
 }
 
 class Collision
@@ -57,5 +61,9 @@ class Collision
     static arc(obj1, obj2)
     {
         //return ()
+    }
+    static dotToRect(dot, obj)
+    {
+        return (dot.getCenter("x") >= obj.pos.x && dot.getCenter("x") <= (obj.pos.x + obj.image.width) && dot.getCenter("y") >= obj.pos.y && dot.getCenter("y") <= obj.pos.x + obj.image.height);
     }
 }
