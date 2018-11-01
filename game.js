@@ -67,12 +67,12 @@ class Skill
         }
     }
 }
-class SwordShot extends Skill
+class SwordShot extends Skill // 작업중
 {
     constructor(_key, _player)
     {
         super(2, _key, _player);
-        this.effect = new Effect("image/effect/swordEffect.png", this.yourPlayer.pos.x, this.yourPlayer.pos.y, 2, this.yourPlayer);
+        this.effect = {image : "image/effect/swordEffect.png", showTime : 2};
         this.maxCnt = 3;
         this.nowCnt = 0;
         this.DTime = 0.1;
@@ -89,13 +89,13 @@ class SwordShot extends Skill
     }
     making()
     {
-        let tempEffect = new Effect(this.effect.image.src, 0, 0, this.effect.showTime, this.yourPlayer);
+        let tempEffect = new Effect(this.effect.image, 0, 0, this.effect.showTime, this.yourPlayer);
         tempEffect.tempAngle = this.yourPlayer.playerToMouseAngle;
         nowScene.effectList.push(nowScene.addImage(tempEffect));
         tempEffect.firstSet();
-        tempEffect.update = () =>
+        Util.moveByAngle(tempEffect.pos, this.yourPlayer.rot, this.yourPlayer.image.width / 2 + this.yourPlayer.weapon.image.width);
+        tempEffect.move = () =>
         {
-            tempEffect.basicSet();
             Util.moveByAngle(tempEffect.pos, tempEffect.tempAngle, this.moveSpeed);
         }
     }
@@ -165,25 +165,22 @@ class SwordShot extends Skill
 }
 class Effect extends GameImage
 {
-    constructor(path, _x, _y, _showTime, _player)
+    constructor(path, _x, _y, _showTime, _unit)
     {
         super(path, _x, _y, "effect");
-        this.yourPlayer = _player;
+        this.unit = _unit;
         
         this.LTime = Date.now();
         this.RTime = 0;
         this.showTime = _showTime;
         
-        this.information = [path, _x, _y, _showTime, _player];
-        
         this.effectOn = false;
     }
     firstSet()
     {
-        this.pos = {x : this.yourPlayer.pos.x, y : this.yourPlayer.pos.y + this.yourPlayer.getImageLength("height") / 2 - this.getImageLength("height") / 2};
-        Util.moveByAngle(this.pos, this.yourPlayer.rot, this.yourPlayer.getImageLength("width") / 2 + this.yourPlayer.weapon.getImageLength("width"));
+        this.pos = {x : this.unit.pos.x, y : this.unit.pos.y + this.unit.image.height / 2 - this.image.height / 2};
 
-        this.rot = this.yourPlayer.rot;
+        this.rot = this.unit.rot;
         this.setZ(5);
     }
     basicSet()
@@ -203,8 +200,13 @@ class Effect extends GameImage
             this.isDelete = true;
         }
     }
+    move()
+    {
+
+    }
     update()
     {
+        this.move();
         this.basicSet();
     }
 }
@@ -510,7 +512,14 @@ class Enemy extends GameImage
         this.damagedLTime = Date.now();
         this.damagedRTime = 0;
 
+        this.enemyToPlayerAngle = Math.atan2(this.yourPlayer.pos.y - this.pos.y, this.yourPlayer.pos.x - this.pos.x);
+
         this.information = {hp : nowScene.addImage(new HpBar("image/EnemyHpBarIn.png", "image/hpBarOut.png", this))};
+    }
+    watchPlayer()
+    {
+        this.enemyToPlayerAngle = Math.atan2(this.yourPlayer.pos.y - this.pos.y, this.yourPlayer.pos.x - this.pos.x);
+        this.rot = this.enemyToPlayerAngle;
     }
     collisionSet()
     {
@@ -555,19 +564,17 @@ class Enemy extends GameImage
         this.showInformation();
     }
 }
-class Enemy1 extends Enemy
+class TrackingEnemy extends Enemy
 {
     constructor(_x, _y)
     {
-        super("image/enemy/enemy1.png", _x, _y, nowScene.player);
+        super("image/enemy/trackingEnemy.png", _x, _y, nowScene.player);
         this.trackOn = true;
         this.maxHp = 30;
         this.hp = 30;
     }
     playerTracking()
     {
-        let enemyToPlayerAngle = Math.atan2(this.yourPlayer.pos.y - this.pos.y, this.yourPlayer.pos.x - this.pos.x);
-        this.rot = enemyToPlayerAngle;
         let vX = this.yourPlayer.pos.x - this.pos.x;
         let vY = this.yourPlayer.pos.y - this.pos.y;
         this.velocity.set(vX, vY);
@@ -577,10 +584,86 @@ class Enemy1 extends Enemy
     }
     attack()
     {
+        this.watchPlayer();
         if(this.trackOn == true)
         {
             this.playerTracking();
         }
+    }
+}
+class ShootingEnemy extends Enemy
+{
+    constructor(_x, _y)
+    {
+        super("image/enemy/shootingEnemy.png", _x, _y, nowScene.player);
+
+        this.pattern = 1;
+
+        this.range = 400;
+        this.attackRange = 600;
+        this.bullet = {image : "image/effect/enemyBullet1.png", showTime : 5};
+        this.shotSpeed = 1.5;
+        this.shotRTime = 0;
+        this.shotDelay = 2;
+
+        this.maxHp = 20;
+        this.hp = 20;
+    }
+    playerTracking()
+    {
+        let vX = this.yourPlayer.pos.x - this.pos.x;
+        let vY = this.yourPlayer.pos.y - this.pos.y;
+        this.velocity.set(vX, vY);
+        this.velocity.fixSpeed(1);
+        this.pos.x += this.velocity.x;
+        this.pos.y += this.velocity.y;
+    }
+    shooting()
+    {
+        let tempBullet = new Effect(this.bullet.image, 0, 0, this.bullet.showTime, this);
+        tempBullet.tempAngle = this.enemyToPlayerAngle;
+        nowScene.effectList.push(nowScene.addImage(tempBullet));
+        tempBullet.firstSet();
+        Util.moveByAngle(tempBullet.pos, tempBullet.rot, tempBullet.image.width / 2 + tempBullet.image.width / 2);
+        tempBullet.move = () =>
+        {
+            Util.moveByAngle(tempBullet.pos, tempBullet.tempAngle, this.shotSpeed);
+        }
+        this.shotRTime = nowScene.LTime + this.shotDelay * 1000;
+    }
+    checkRange()
+    {
+        if(this.pattern == 1)
+        {
+            if(Collision.circle(this, this.yourPlayer, this.range, this.yourPlayer.image.width))
+            {
+                this.pattern = 2;
+                this.shotRTime = nowScene.LTime + this.shotDelay * 1000;
+            }
+        }
+        else if(this.pattern == 2)
+        {
+            if(Collision.circle(this, this.yourPlayer, this.attackRange, this.yourPlayer.image.width) == false)
+            {
+                this.pattern = 1;
+            }
+        }
+    }
+    attack()
+    {
+        this.watchPlayer();
+        if(this.pattern == 1)
+        {
+            this.playerTracking();
+        }
+        else if(this.pattern == 2)
+        {
+            if(nowScene.LTime >= this.shotRTime)
+            {
+                this.shooting();
+            }
+        }
+        this.checkRange();
     }
 }
 class monsterMaker
@@ -594,7 +677,7 @@ class monsterMaker
         this.spawnDelay = 1;
         this.spawnCount = 0;
         this.spawnMax = 0;
-        this.spawnMonsterType = "Enemy1";
+        this.spawnMonsterType = "TrackingEnemy";
         this.startSpawn = false;
 
         nowScene.updateList.push(this);
@@ -669,6 +752,7 @@ var JobWarrior =
                     player.weapon.attackCheck();
                     let tempEffect = new Effect(player.weapon.attackEffect.image.src, 0, 0, player.weapon.attackEffect.showTime, player);
                     tempEffect.firstSet();
+                    Util.moveByAngle(tempEffect.pos, player.rot, player.image.width / 2 + player.weapon.image.width);
                     nowScene.effectList.push(nowScene.addImage(tempEffect));
     
                     player.leftHand.playerToThis1 -= player.leftHand.attackPoint1;
@@ -712,10 +796,6 @@ var JobWarrior =
             player.weapon.pos = player.rightHand.pos;
             Util.moveByAngle(player.weapon.pos, player.playerToMouseAngle, (player.weapon.getImageLength("height") - player.rightHand.getImageLength("height")) / 2)
             player.weapon.setZ(3);
-            for(let i = 0; i < nowScene.effectList.length; i++)
-            {
-                nowScene.effectList[i].update();
-            }
         }
     },
     setAttackRange : (player) =>
@@ -912,7 +992,8 @@ gameScene.init = function()
     {
         switch(_type)
         {
-            case "Enemy1" : nowScene.addImage(new Enemy1(_pos.x, _pos.y));
+            case "TrackingEnemy" : nowScene.addImage(new TrackingEnemy(_pos.x, _pos.y));
+            case "ShootingEnemy" : nowScene.addImage(new ShootingEnemy(_pos.x, _pos.y));
         }
     }
     this.getAngleBasic = function(_angle)

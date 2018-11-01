@@ -4,9 +4,9 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["Enemy1", 1, 1, 0, "Enemy1", 1, 1, 0.5],
-    ["Enemy1", 2, 1, 0, "Enemy1", 2, 1, 0.5],
-    ["Enemy1", 3, 1, 0, "Enemy1", 3, 1, 0.5]
+    ["ShootingEnemy", 1, 1, 0, "ShootingEnemy", 1, 1, 2],
+    ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
+    ["TrackingEnemy", 3, 1, 0, "TrackingEnemy", 3, 1, 0.5]
 ];
 
 
@@ -22,7 +22,7 @@ class GameController
 
         this.restLTime = Date.now();
         this.restRTime = 0;
-        this.restTime = 3;
+        this.restTime = 5;
         this.startRest = false;
         this.monsterMakers = 
         [
@@ -73,6 +73,7 @@ class GameController
     // player가 죽거나 마지막 웨이브가 끝나면 실행 // 작업중
     endGame()
     {
+
         nowScene.sceneImageList.length = 0;
         nowScene.collisionList.length = 0;
         nowScene.moveList.length = 0;
@@ -117,7 +118,7 @@ class GameController
         {
             this.restStart();
         }
-        if(nowScene.player.isDelete == true)
+        if(nowScene.player.isDelete == true || this.wave >= waveInfo.length)
         {
             this.endGame();
         }
@@ -126,7 +127,13 @@ class GameController
 
 startScene.init = function()
 {
-    preloadImage("image/player/player.png", "image/player/playerHand.png", "image/weapon/sword.png", "image/weapon/spear.png", "image/enemy/enemy1.png", "image/cursor.png", "image/hpBarOut.png", "image/PlayerHpBarIn.png", "image/EnemyHpBarIn.png");
+    preloadImage("image/player/player.png", "image/player/playerHand.png", 
+                "image/weapon/sword.png", "image/weapon/spear.png",   
+                "image/enemy/trackingEnemy.png", 
+                "image/enemy/shootingEnemy.png", "image/effect/enemyBullet1.png",
+                "image/EnemyHpBarIn.png", 
+                "image/cursor.png", 
+                "image/hpBarOut.png", "image/PlayerHpBarIn.png");
 
     this.updateList = [];
 
