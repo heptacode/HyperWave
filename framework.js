@@ -236,7 +236,7 @@ document.addEventListener("keyup", keyUpFunc, false);
 document.addEventListener("mousemove", mouseXY, false);
 document.addEventListener("mousedown", mouseClickDown, false);
 document.addEventListener("mouseup", mouseClickUp, false);
-document.addEventListener('contextmenu', function()
+document.addEventListener("contextmenu", function()
 {
     event.preventDefault();
 });
@@ -251,7 +251,7 @@ var preloadImage = function()
         var _image = new Image();
         _image.src = arguments[i];
         imageList[_image.src] = {image : _image, isLoaded : false};
-        _image.addEventListener('load', function()
+        _image.addEventListener("load", function()
         {
             imageList[_image.src].isLoaded = true;
         }, false);
@@ -369,7 +369,8 @@ class GameText
             })
             ctx.fillStyle = grad;
         }
-
+        //ctx.transform(this.scale.x, 0, 0, this.scale.y, -dx * this.scale.x, -dy * this.scale.y);
+        ctx.transform(this.scale.x, 0, 0, this.scale.y, this.scale.x, this.scale.y);
         if (this.isFixed)
             ctx.fillText(this.text, this.pos.x, this.pos.y);
         else
@@ -409,7 +410,7 @@ class GameImage
             this.image = new Image();
             this.image.src = path;
             imageList[path] = {image : this.image, isLoaded : false};
-            this.image.addEventListener('load',         // 이미지 로딩됌
+            this.image.addEventListener("load",         // 이미지 로딩됌
             function()
             {
                 imageList[path].isLoaded = true;
@@ -442,6 +443,7 @@ class GameImage
         }
         ctx.rotate(this.rot);
         ctx.transform(this.scale.x, 0, 0, this.scale.y, -dx * this.scale.x, -dy * this.scale.y);
+        //ctx.transform(1, 0, 0, 1, -dx, -dy);
         ctx.globalAlpha = this.opacity;
         ctx.drawImage(this.image, 0, 0);
     }
@@ -549,67 +551,74 @@ class Scene
         this.sceneTextList.push(text);
         return text;
     }
-    deleteImage(index, arr)
+    delete(index, arr)
     {
         arr.splice(index, 1);
         return;
     }
-    checkDeleteImage()
+    checkDelete()
     {
         for(let i = 0; i < this.sceneImageList.length; i++)
         {
             if(this.sceneImageList[i].isDelete == true)
             {
-                this.deleteImage(i, this.sceneImageList);
+                this.delete(i, this.sceneImageList);
             }
         }
         for(let i = 0; i < this.collisionList.length; i++)
         {
             if(this.collisionList[i].isDelete == true)
             {
-                this.deleteImage(i, this.collisionList);
+                this.delete(i, this.collisionList);
             }
         }
         for(let i = 0; i < this.moveList.length; i++)
         {
             if(this.moveList[i].isDelete == true)
             {
-                this.deleteImage(i, this.moveList);
+                this.delete(i, this.moveList);
             }
         }
         for(let i = 0; i < this.playerAndEnemyList.length; i++)
         {
             if(this.playerAndEnemyList[i].isDelete == true)
             {
-                this.deleteImage(i, this.playerAndEnemyList);
+                this.delete(i, this.playerAndEnemyList);
             }
         }
         for(let i = 0; i < this.enemyList.length; i++)
         {
             if(this.enemyList[i].isDelete == true)
             {
-                this.deleteImage(i, this.enemyList);
+                this.delete(i, this.enemyList);
             }
         }
         for(let i = 0; i < this.updateList.length; i++)
         {
             if(this.updateList[i].isDelete == true)
             {
-                this.deleteImage(i, this.updateList);
+                this.delete(i, this.updateList);
             }
         }
         for(let i = 0; i < this.effectList.length; i++)
         {
             if(this.effectList[i].isDelete == true)
             {
-                this.deleteImage(i, this.effectList);
+                this.delete(i, this.effectList);
             }
         }
         for(let i = 0; i < this.makerList.length; i++)
         {
             if(this.makerList[i].isDelete == true)
             {
-                this.deleteImage(i, this.makerList);
+                this.delete(i, this.makerList);
+            }
+        }
+        for(let i = 0; i < this.sceneTextList.length; i++)
+        {
+            if(this.sceneTextList[i].isDelete == true)
+            {
+                this.delete(i, this.sceneTextList);
             }
         }
     }

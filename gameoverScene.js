@@ -2,15 +2,18 @@ var gameoverScene = new Scene();
 
 gameoverScene.init = function()
 {
-    preloadImage("cursor.png");
+    preloadImage("image/cursor.png");
 
     this.updateList = [];
+    
+    this.cam = new Camera();
+    this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
 
-    this.cursor = nowScene.addImage(new MousePoint("cursor.png", mouseX, mouseY));
-
-    this.LTIme = Date.now();
-    this.Time = 10;
-    this.RTime = this.LTIme + this.Time * 1000;
+    this.reStartButton = nowScene.addImage(new Button("image/player/playerHand.png", canvas.width / 2, canvas.height / 2));
+    this.reStartButton.clickEventSet(function()
+    {
+        gameScene.start();
+    })
 }
 gameoverScene.update = function()
 {
@@ -18,12 +21,5 @@ gameoverScene.update = function()
     {
         this.updateList[i].update();
     }
-
-    this.LTIme = Date.now();
-    if(this.LTIme >= this.RTime)
-    {
-        this.sceneImageList.length = 0;
-        this.updateList.length = 0;
-        gameScene.start();
-    }
+    this.reStartButton.update();
 }

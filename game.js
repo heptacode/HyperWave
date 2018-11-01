@@ -72,7 +72,7 @@ class SwordShot extends Skill
     constructor(_key, _player)
     {
         super(2, _key, _player);
-        this.effect = new Effect("swordEffect.png", this.yourPlayer.pos.x, this.yourPlayer.pos.y, 2, this.yourPlayer);
+        this.effect = new Effect("image/effect/swordEffect.png", this.yourPlayer.pos.x, this.yourPlayer.pos.y, 2, this.yourPlayer);
         this.maxCnt = 3;
         this.nowCnt = 0;
         this.DTime = 0.1;
@@ -223,7 +223,7 @@ class Weapon extends GameImage
         this.attackPattern = 1;
         this.damage = 10;
         this.yourPlayer = _player;
-        this.attackEffect = new Effect("swordEffect.png", this.yourPlayer.pos.x, this.yourPlayer.pos.y, 0.3, this.yourPlayer);
+        this.attackEffect = new Effect("image/effect/swordEffect.png", this.yourPlayer.pos.x, this.yourPlayer.pos.y, 0.3, this.yourPlayer);
         this.attackLength = this.yourPlayer.image.width / 2 + this.image.width + this.attackEffect.image.width;
     }
     firstSet()
@@ -286,6 +286,34 @@ class PlayerHand extends GameImage
         this.playerToThis2 = this.tempPTT2;
     }
 }
+class HpBar extends GameImage
+{
+    constructor(_inPath, _outPath, _unit)
+    {
+        super(_inPath, _unit.pos.x, _unit.pos.y, "hpBar");
+        this.unit = _unit;
+        this.hpBarOut = nowScene.addImage(new GameImage(_outPath, this.unit.pos.x, this.unit.pos.y, "hpBar"));
+
+        this.setAnchor(-this.image.width / 2, -this.image.height / 2);
+        this.tempScaleX = this.scale.x;
+
+        this.setZ(19);
+        this.hpBarOut.setZ(20);
+    }
+    update()
+    {
+        this.pos = {x : this.unit.getCenter("x") - this.image.width / 2, y : this.unit.pos.y - this.unit.image.height / 2};
+        this.hpBarOut.pos = this.pos;
+
+        let ratio = this.tempScaleX / this.unit.maxHp;
+        this.scale.x = ratio * this.unit.hp;
+        if(this.unit.isDelete == true)
+        {
+            this.hpBarOut.isDelete = true;
+            this.isDelete = true;
+        }
+    }
+}
 class Player extends GameImage
 {
     constructor(path, _x, _y, _job)
@@ -300,7 +328,8 @@ class Player extends GameImage
         this.velocity = new Vector(0, 0);
         this.playerToMouseAngle = 0;
 
-        this.hp = 1000000000;
+        this.maxHp = 10;
+        this.hp = 10;
         this.damaged = false;
         this.InvincibleTime = 0.3;
         this.damagedLTime = Date.now();
@@ -310,10 +339,9 @@ class Player extends GameImage
         this.skills = [];
         this.firstSet();
         
-        this.information = {hp : nowScene.addText(new GameText(this.pos.x, this.pos.y, "Arial", ("hp : " + this.hp)))};
+        this.information = {hp : nowScene.addImage(new HpBar("image/PlayerHpBarIn.png", "image/hpBarOut.png", this))};
         
         nowScene.cam = new Camera(this);
-        
     }
     firstSet()
     {
@@ -422,6 +450,7 @@ class Player extends GameImage
             this.leftHand.isDelete = true;
             this.rightHand.isDelete = true;
             this.weapon.isDelete = true;
+            this.information.hp.isDelete = true;
         }
 
         for(let i = 0; i < nowScene.collisionList.length; i++)
@@ -447,10 +476,11 @@ class Player extends GameImage
     }
     showInformation()
     {
-        this.information.hp
-        this.information.hp.text = ("hp : " + this.hp);
-        this.information.hp.pos.x = this.pos.x;
-        this.information.hp.pos.y = this.pos.y - 20;
+        this.information.hp.update();
+    }
+    deadCheck()
+    {
+
     }
     update()
     {
@@ -472,24 +502,15 @@ class Enemy extends GameImage
         super(path, _x, _y, "enemy");
         this.velocity = new Vector(0, 0);
         this.yourPlayer = _player;
-        this.trackingOn = true;
 
+        this.maxHp = 10;
         this.hp = 10;
         this.damaged = false;
         this.InvincibleTime = 0.1;
         this.damagedLTime = Date.now();
         this.damagedRTime = 0;
-    }
-    playerTracking()
-    {
-        let enemyToPlayerAngle = Math.atan2(this.yourPlayer.pos.y - this.pos.y, this.yourPlayer.pos.x - this.pos.x);
-        this.rot = enemyToPlayerAngle;
-        let vX = this.yourPlayer.pos.x - this.pos.x;
-        let vY = this.yourPlayer.pos.y - this.pos.y;
-        this.velocity.set(vX, vY);
-        this.velocity.fixSpeed(1);
-        this.pos.x += this.velocity.x;
-        this.pos.y += this.velocity.y;
+
+        this.information = {hp : nowScene.addImage(new HpBar("image/EnemyHpBarIn.png", "image/hpBarOut.png", this))};
     }
     collisionSet()
     {
@@ -501,6 +522,7 @@ class Enemy extends GameImage
         if(this.hp <= 0)
         {
             this.isDelete = true;
+            this.information.hp.isDelete = true;
         }
         for(let i = 0; i < nowScene.collisionList.length; i++)
         {
@@ -518,13 +540,47 @@ class Enemy extends GameImage
             }
         }
     }
+    attack()
+    {
+
+    }
+    showInformation()
+    {
+        this.information.hp.update();
+    }
     update()
     {
-        if(this.trackingOn)
+        this.attack();
+        this.collisionSet();
+        this.showInformation();
+    }
+}
+class Enemy1 extends Enemy
+{
+    constructor(_x, _y)
+    {
+        super("image/enemy/enemy1.png", _x, _y, nowScene.player);
+        this.trackOn = true;
+        this.maxHp = 30;
+        this.hp = 30;
+    }
+    playerTracking()
+    {
+        let enemyToPlayerAngle = Math.atan2(this.yourPlayer.pos.y - this.pos.y, this.yourPlayer.pos.x - this.pos.x);
+        this.rot = enemyToPlayerAngle;
+        let vX = this.yourPlayer.pos.x - this.pos.x;
+        let vY = this.yourPlayer.pos.y - this.pos.y;
+        this.velocity.set(vX, vY);
+        this.velocity.fixSpeed(1);
+        this.pos.x += this.velocity.x;
+        this.pos.y += this.velocity.y;
+    }
+    attack()
+    {
+        if(this.trackOn == true)
         {
             this.playerTracking();
         }
-        this.collisionSet();
     }
 }
 class monsterMaker
@@ -538,6 +594,7 @@ class monsterMaker
         this.spawnDelay = 1;
         this.spawnCount = 0;
         this.spawnMax = 0;
+        this.spawnMonsterType = "Enemy1";
         this.startSpawn = false;
 
         nowScene.updateList.push(this);
@@ -546,15 +603,21 @@ class monsterMaker
     {
         if(this.spawnLTime >= this.spawnRTime)
         {
-            nowScene.makeEnemy("enemy", "enemy1.png", this.pos.x, this.pos.y);
+            nowScene.makeEnemy(this.spawnMonsterType, this.pos);
             this.spawnRTime = this.spawnLTime + this.spawnDelay * 1000;
             this.spawnCount++;
         }
     }
-    setWaveStart(_max, _delay)
+    spawnFinish()
     {
+        return (this.spawnCount >= this.spawnMax);
+    }
+    setWaveStart(_type, _max, _delay, _firstD)
+    {
+        this.spawnMonsterType = _type;
         this.spawnMax = _max;
         this.spawnDelay = _delay;
+        this.spawnRTime = Date.now() + _firstD * 1000;
     }
     update()
     {
@@ -570,8 +633,8 @@ var JobWarrior =
 {
     setPlayerHand : (player) =>
     {
-        player.leftHand = nowScene.addImage(new PlayerHand("playerHand.png", player, 42, 42));
-        player.rightHand = nowScene.addImage(new PlayerHand("playerHand.png", player, 42, 42));
+        player.leftHand = nowScene.addImage(new PlayerHand("image/player/playerHand.png", player, 42, 42));
+        player.rightHand = nowScene.addImage(new PlayerHand("image/player/playerHand.png", player, 42, 42));
         player.handMove = () =>
         {
             player.leftHand.pos = {x : Util.getCenter(player, "x") - player.leftHand.image.width / 2, y : Util.getCenter(player, "y") - player.leftHand.image.height / 2};
@@ -637,9 +700,9 @@ var JobWarrior =
     },
     setWeapon : (player) =>
     {
-        player.weapon = nowScene.addImage(new Weapon("sword.png", player.rightHand.pos.x, player.rightHand.pos.y, 120, -90, 0.3, player));
+        player.weapon = nowScene.addImage(new Weapon("image/weapon/sword.png", player.rightHand.pos.x, player.rightHand.pos.y, 120, -90, 0.3, player));
         player.weapon.damage = 10;
-        player.weapon.attackEffect = new Effect("swordEffect.png", player.pos.x, player.pos.y, 0.3, player);
+        player.weapon.attackEffect = new Effect("image/effect/swordEffect.png", player.pos.x, player.pos.y, 0.3, player);
         player.weapon.attackLength = player.image.width / 2 + player.weapon.image.width + player.weapon.attackEffect.image.width;
         player.weapon.setAnchor((-player.weapon.getImageLength("width") / 2 + player.rightHand.getImageLength("width") / 2), (-player.weapon.getImageLength("height") / 2 + player.rightHand.getImageLength("height") / 2));
         player.weapon.update = () =>
@@ -690,8 +753,8 @@ var JobSpearMan =
 {
     setPlayerHand : (player) =>
     {
-        player.leftHand = nowScene.addImage(new PlayerHand("playerHand.png", player, 42, 42));
-        player.rightHand = nowScene.addImage(new PlayerHand("playerHand.png", player, 42, 42));
+        player.leftHand = nowScene.addImage(new PlayerHand("image/player/playerHand.png", player, 42, 42));
+        player.rightHand = nowScene.addImage(new PlayerHand("image/player/playerHand.png", player, 42, 42));
         player.handMove = () =>
         {
             player.leftHand.pos = {x : Util.getCenter(player, "x") - player.leftHand.image.width / 2, y : Util.getCenter(player, "y") - player.leftHand.image.height / 2};
@@ -763,7 +826,7 @@ var JobSpearMan =
     },
     setWeapon : (player) =>
     {
-        player.weapon = nowScene.addImage(new Weapon("spear.png", Util.getCenter(player.rightHand, "x"), Util.getCenter(player.rightHand, "y"), -10, 0, 0.15, player));
+        player.weapon = nowScene.addImage(new Weapon("image/weapon/spear.png", Util.getCenter(player.rightHand, "x"), Util.getCenter(player.rightHand, "y"), -10, 0, 0.15, player));
         player.weapon.setAnchor((player.rightHand.pos.x - Util.getCenter(player, "x")), 0);
         player.weapon.update = function()
         {
@@ -809,7 +872,6 @@ var setJob = function(player)
         case "SpearMan" : player.job = JobSpearMan; break;
     }
 }
-
 var setMonsterList = function(_monster)
 {
     monsterList[_monster.path] = _monster;
@@ -846,18 +908,21 @@ gameScene.init = function()
             }
         }
     }
-    this.makeEnemy = function(_name, _image, _x, _y)
+    this.makeEnemy = function(_type, _pos)
     {
-        this[toString(_name) + (nowScene.enemyList.length)] = nowScene.addImage(new Enemy(_image, _x, _y, this.player))
+        switch(_type)
+        {
+            case "Enemy1" : nowScene.addImage(new Enemy1(_pos.x, _pos.y));
+        }
     }
     this.getAngleBasic = function(_angle)
     {
         return (_angle < 0 ? (360 + _angle) : _angle);
     }
 
-    this.player = nowScene.addImage(new Player("player.png", canvas.width / 2, canvas.height / 2, "Warrior"));
+    this.player = nowScene.addImage(new Player("image/player/player.png", canvas.width / 2, canvas.height / 2, "Warrior"));
     
-    this.cursor = nowScene.addImage(new MousePoint("cursor.png", mouseX, mouseY));
+    this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
 
     this.gameController = new GameController();
 }
@@ -872,17 +937,5 @@ gameScene.update = function()
     nowScene.effectList.forEach(effect => effect.update());
     this.gameController.update();
     this.cam.update();
-    this.checkDeleteImage();
-    // if(this.player.isDelete == true)
-    // {
-    //     this.sceneImageList.length = 0;
-    //     this.collisionList = 0;
-    //     this.moveList.length = 0;
-    //     this.playerAndEnemyList.length = 0;
-    //     this.enemyList.length = 0;
-    //     this.updateList.length = 0;
-    //     this.effectList.length = 0;
-    //     this.makerList.length = 0;
-    //     gameoverScene.start();
-    // }
+    this.checkDelete();
 }
