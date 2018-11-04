@@ -34,7 +34,6 @@ class Util
     static getAngle(obj1, obj2)
     {
         return Math.atan2(Util.getCenter(obj2, "y") - Util.getCenter(obj1, "y"), Util.getCenter(obj2, "x") - Util.getCenter(obj1, "x")) * 180 / Math.PI;
-        //Math.atan2(Util.getCenter(nowScene.enemyList[_index], "y") - Util.getCenter(player, "y"), Util.getCenter(nowScene.enemyList[_index], "x") - Util.getCenter(player, "x")) * 180 / Math.PI
     }
     static getAngleBasic(_angle)
     {
@@ -54,9 +53,6 @@ class Collision
         {
             return (Math.sqrt(Math.pow(Util.getCenter(obj1, "x") - Util.getCenter(obj2, "x"), 2) + Math.pow(Util.getCenter(obj1, "y") - Util.getCenter(obj2, "y"), 2)) <= (arguments[2] + arguments[3]));
         }
-        //      Math.sqrt(Math.pow(Util.getCenter(this, "x") - Util.getCenter(nowScene.collisionList[i], "x"), 2) + 
-        //      Math.pow(Util.getCenter(this, "y") - Util.getCenter(nowScene.collisionList[i], "y"), 2)) <= 
-        //      (this.getImageLength("height") / 2 + nowScene.collisionList[i].getImageLength("height") / 2)
     }
     static arc(obj1, obj2)
     {

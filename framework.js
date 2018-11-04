@@ -81,7 +81,7 @@ Vector.prototype =
 
 var setList = function(cls)
 {
-    if(cls.type == "enemy" || cls.type == "object")
+    if(cls.type == "enemy" || cls.type == "object" || cls.type == "player")
     {
         nowScene.collisionList.push(cls);
     }
@@ -535,6 +535,8 @@ class Scene
     }
     start()
     {
+        this.sceneImageList.length = 0;
+        this.sceneTextList.length = 0;
         nowScene = this;
         this.init();
     }

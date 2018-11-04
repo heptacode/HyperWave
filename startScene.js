@@ -4,7 +4,7 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["ShootingEnemy", 1, 1, 0, "ShootingEnemy", 1, 1, 2],
+    ["ShootingEnemy", 1, 1, 3, "ShootingEnemy", 1, 1, 5],
     ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
     ["TrackingEnemy", 3, 1, 0, "TrackingEnemy", 3, 1, 0.5]
 ];
@@ -59,7 +59,7 @@ class GameController
                 num++;
             }
         }
-        return (num == this.monsterMakers.length ? true : false);
+        return (num == this.monsterMakers.length);
     }
     // restTime만큼 기다림
     restStart()

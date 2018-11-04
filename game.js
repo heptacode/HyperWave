@@ -178,7 +178,7 @@ class Effect extends GameImage
     }
     firstSet()
     {
-        this.pos = {x : this.unit.pos.x, y : this.unit.pos.y + this.unit.image.height / 2 - this.image.height / 2};
+        this.pos = {x : this.unit.pos.x + this.unit.image.width / 2 - this.image.width / 2, y : this.unit.pos.y + this.unit.image.height / 2 - this.image.height / 2};
 
         this.rot = this.unit.rot;
         this.setZ(5);
@@ -200,6 +200,10 @@ class Effect extends GameImage
             this.isDelete = true;
         }
     }
+    collsion()
+    {
+
+    }
     move()
     {
 
@@ -207,6 +211,7 @@ class Effect extends GameImage
     update()
     {
         this.move();
+        this.collsion();
         this.basicSet();
     }
 }
@@ -253,7 +258,7 @@ class Weapon extends GameImage
             if(this.isInRange(nowScene.enemyList[i]) && this.isInAngle(i))
             {
                 nowScene.enemyList[i].hp -= this.damage;
-                nowScene.enemyList[i].damaged = true;
+                nowScene.enemyList[i].isDamaged = true;
                 nowScene.enemyList[i].damagedRTime = nowScene.enemyList[i].damagedLTime + nowScene.enemyList[i].InvincibleTime * 1000;
             }
         }
@@ -325,14 +330,14 @@ class Player extends GameImage
         
         this.pos = {x : this.pos.x - this.getImageLength("width") / 2, y : this.pos.y - this.getImageLength("height") / 2};
         
-        this.move = {speed : 500, crash : false, collideAngle : 0};
+        this.move = {speed : 500, crash : false};
         this.setHandMove = false;
         this.velocity = new Vector(0, 0);
         this.playerToMouseAngle = 0;
 
         this.maxHp = 10;
         this.hp = 10;
-        this.damaged = false;
+        this.isDamaged = false;
         this.InvincibleTime = 0.3;
         this.damagedLTime = Date.now();
         this.damagedRTime = 0;
@@ -439,12 +444,21 @@ class Player extends GameImage
     {
         
     }
+    damaged(_damge)
+    {
+        if(this.isDamaged == false)
+        {
+            this.hp -= _damge;
+            this.isDamaged = true;
+            this.damagedRTime = this.damagedLTime + this.InvincibleTime * 1000;
+        }
+    }
     collisionSet()
     {
         this.damagedLTime = Date.now();
-        if(this.damaged == true && (this.damagedLTime >= this.damagedRTime))
+        if(this.isDamaged == true && (this.damagedLTime >= this.damagedRTime))
         {
-            this.damaged = false;
+            this.isDamaged = false;
         }
         if(this.hp <= 0)
         {
@@ -457,22 +471,22 @@ class Player extends GameImage
 
         for(let i = 0; i < nowScene.collisionList.length; i++)
         {
-            if(Collision.circle(this, nowScene.collisionList[i]))
+            if(nowScene.collisionList[i] != this)
             {
-                this.move.crash = true;
-                this.move.collideAngle = Math.atan2(this.pos.y - nowScene.collisionList[i].pos.y, this.pos.x - nowScene.collisionList[i].pos.x);
-                this.velocity.set(Math.cos(this.move.collideAngle), Math.sin(this.move.collideAngle));
-                this.velocity.fixSpeed(this.move.speed);
-
-                this.pos.x += this.velocity.x * 1.25 * deltaTime;
-                this.pos.y += this.velocity.y * 1.25 * deltaTime;
-                if(nowScene.collisionList[i].type == "enemy" && this.damaged == false)
+                if(Collision.circle(this, nowScene.collisionList[i]))
                 {
-                    this.hp -= 1;
-                    this.damaged = true;
-                    this.damagedRTime = this.damagedLTime + this.InvincibleTime * 1000;
+                    this.move.crash = true;
+                    let collideAngle = Math.atan2(this.pos.y - nowScene.collisionList[i].pos.y, this.pos.x - nowScene.collisionList[i].pos.x);
+                    this.velocity.set(Math.cos(collideAngle), Math.sin(collideAngle));
+                    this.velocity.fixSpeed(this.move.speed);
+    
+                    this.pos.x += this.velocity.x * 1.25 * deltaTime;
+                    this.pos.y += this.velocity.y * 1.25 * deltaTime;
+                    if(nowScene.collisionList[i].type == "enemy")
+                    {
+                        nowScene.collisionList[i].bodyAttack();
+                    }
                 }
-                break;
             }
         }
     }
@@ -507,10 +521,11 @@ class Enemy extends GameImage
 
         this.maxHp = 10;
         this.hp = 10;
-        this.damaged = false;
+        this.isDamaged = false;
         this.InvincibleTime = 0.1;
         this.damagedLTime = Date.now();
         this.damagedRTime = 0;
+        this.bodyDamage = 1;
 
         this.enemyToPlayerAngle = Math.atan2(this.yourPlayer.pos.y - this.pos.y, this.yourPlayer.pos.x - this.pos.x);
 
@@ -524,9 +539,9 @@ class Enemy extends GameImage
     collisionSet()
     {
         this.damagedLTime = Date.now();
-        if(this.damaged == true && (this.damagedLTime >= this.damagedRTime))
+        if(this.isDamaged == true && (this.damagedLTime >= this.damagedRTime))
         {
-            this.damaged = false;
+            this.isDamaged = false;
         }
         if(this.hp <= 0)
         {
@@ -539,7 +554,7 @@ class Enemy extends GameImage
             {
                 if(Collision.circle(this, nowScene.collisionList[i]))
                 {
-                    if(nowScene.collisionList[i].type == "enemy" || nowScene.collisionList[i].type == "object")
+                    if(nowScene.collisionList[i].type == "enemy" || nowScene.collisionList[i].type == "object" || nowScene.collisionList[i].type == "player")
                     {
                         let collideAngle = Math.atan2(nowScene.collisionList[i].pos.y - this.pos.y, nowScene.collisionList[i].pos.x - this.pos.x);
                         this.pos.x -= Math.cos(collideAngle);
@@ -548,6 +563,10 @@ class Enemy extends GameImage
                 }
             }
         }
+    }
+    bodyAttack()
+    {
+        this.yourPlayer.damaged(this.bodyDamage);
     }
     attack()
     {
@@ -602,7 +621,8 @@ class ShootingEnemy extends Enemy
         this.range = 400;
         this.attackRange = 600;
         this.bullet = {image : "image/effect/enemyBullet1.png", showTime : 5};
-        this.shotSpeed = 1.5;
+        this.shotSpeed = 2;
+        this.shotDamage = 2;
         this.shotRTime = 0;
         this.shotDelay = 2;
 
@@ -624,10 +644,17 @@ class ShootingEnemy extends Enemy
         tempBullet.tempAngle = this.enemyToPlayerAngle;
         nowScene.effectList.push(nowScene.addImage(tempBullet));
         tempBullet.firstSet();
-        Util.moveByAngle(tempBullet.pos, tempBullet.rot, tempBullet.image.width / 2 + tempBullet.image.width / 2);
+        Util.moveByAngle(tempBullet.pos, tempBullet.rot, tempBullet.image.width / 2);
         tempBullet.move = () =>
         {
             Util.moveByAngle(tempBullet.pos, tempBullet.tempAngle, this.shotSpeed);
+        }
+        tempBullet.collsion = () =>
+        {
+            if(Collision.circle(tempBullet, this.yourPlayer))
+            {
+                this.yourPlayer.damaged(this.shotDamage);
+            }
         }
         this.shotRTime = nowScene.LTime + this.shotDelay * 1000;
     }
@@ -687,8 +714,8 @@ class monsterMaker
         if(this.spawnLTime >= this.spawnRTime)
         {
             nowScene.makeEnemy(this.spawnMonsterType, this.pos);
-            this.spawnRTime = this.spawnLTime + this.spawnDelay * 1000;
             this.spawnCount++;
+            this.spawnRTime = this.spawnLTime + this.spawnDelay * 1000;
         }
     }
     spawnFinish()
@@ -992,8 +1019,8 @@ gameScene.init = function()
     {
         switch(_type)
         {
-            case "TrackingEnemy" : nowScene.addImage(new TrackingEnemy(_pos.x, _pos.y));
-            case "ShootingEnemy" : nowScene.addImage(new ShootingEnemy(_pos.x, _pos.y));
+            case "TrackingEnemy" : nowScene.addImage(new TrackingEnemy(_pos.x, _pos.y)); break;
+            case "ShootingEnemy" : nowScene.addImage(new ShootingEnemy(_pos.x, _pos.y)); break;
         }
     }
     this.getAngleBasic = function(_angle)
