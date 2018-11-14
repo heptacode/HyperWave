@@ -74,11 +74,11 @@ Vector.prototype =
         this.multiply(s);
         return;
     }
-};
+}
+
 
 
 // list
-
 var setList = function(cls)
 {
     if(cls.type == "enemy" || cls.type == "object" || cls.type == "player")
@@ -400,6 +400,8 @@ class GameImage
         this.z = 0;
         this.opacity = 1;
         this.type = _type;
+        this.strokeStyle = "#ffffff";
+        this.strokeWidth = 0;
         this.isDelete = false;
         this.isFixed = false;
 
@@ -446,6 +448,12 @@ class GameImage
         //ctx.transform(1, 0, 0, 1, -dx, -dy);
         ctx.globalAlpha = this.opacity;
         ctx.drawImage(this.image, 0, 0);
+        if(this.strokeWidth != 0)
+        {
+            ctx.strokeStyle = this.strokeStyle;
+            ctx.lineWidth = this.strokeWidth;
+            ctx.strokeRect(0, 0, this.image.width, this.image.height);
+        }
     }
     setAnchor(_x, _y)
     {
@@ -502,7 +510,6 @@ class Button extends GameImage
         }
     }
 }
-
 class MousePoint extends GameImage
 {
     constructor(path, _x, _y)
@@ -535,6 +542,7 @@ class Scene
     }
     start()
     {
+        this.updateList = [];
         this.sceneImageList.length = 0;
         this.sceneTextList.length = 0;
         nowScene = this;

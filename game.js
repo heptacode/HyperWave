@@ -195,7 +195,7 @@ class Effect extends GameImage
         {
             this.opacity -= 0.01;
         }
-        if(this.opacity <= 0.02)
+        if(this.opacity <= 0)
         {
             this.isDelete = true;
         }
@@ -475,6 +475,10 @@ class Player extends GameImage
             {
                 if(Collision.circle(this, nowScene.collisionList[i]))
                 {
+                    if(nowScene.collisionList[i].type == "enemy")
+                    {
+                        nowScene.collisionList[i].bodyAttack();
+                    }
                     this.move.crash = true;
                     let collideAngle = Math.atan2(this.pos.y - nowScene.collisionList[i].pos.y, this.pos.x - nowScene.collisionList[i].pos.x);
                     this.velocity.set(Math.cos(collideAngle), Math.sin(collideAngle));
@@ -482,10 +486,6 @@ class Player extends GameImage
     
                     this.pos.x += this.velocity.x * 1.25 * deltaTime;
                     this.pos.y += this.velocity.y * 1.25 * deltaTime;
-                    if(nowScene.collisionList[i].type == "enemy")
-                    {
-                        nowScene.collisionList[i].bodyAttack();
-                    }
                 }
             }
         }
@@ -556,6 +556,10 @@ class Enemy extends GameImage
                 {
                     if(nowScene.collisionList[i].type == "enemy" || nowScene.collisionList[i].type == "object" || nowScene.collisionList[i].type == "player")
                     {
+                        if(nowScene.collisionList[i].type == "player")
+                        {
+                            this.bodyAttack();
+                        }
                         let collideAngle = Math.atan2(nowScene.collisionList[i].pos.y - this.pos.y, nowScene.collisionList[i].pos.x - this.pos.x);
                         this.pos.x -= Math.cos(collideAngle);
                         this.pos.y -= Math.sin(collideAngle);
@@ -777,7 +781,7 @@ var JobWarrior =
                 if(player.attack.click == true)
                 {
                     player.weapon.attackCheck();
-                    let tempEffect = new Effect(player.weapon.attackEffect.image.src, 0, 0, player.weapon.attackEffect.showTime, player);
+                    let tempEffect = new Effect(player.weapon.attackEffect.src, 0, 0, player.weapon.attackEffect.showTime, player);
                     tempEffect.firstSet();
                     Util.moveByAngle(tempEffect.pos, player.rot, player.image.width / 2 + player.weapon.image.width);
                     nowScene.effectList.push(nowScene.addImage(tempEffect));
@@ -813,8 +817,8 @@ var JobWarrior =
     {
         player.weapon = nowScene.addImage(new Weapon("image/weapon/sword.png", player.rightHand.pos.x, player.rightHand.pos.y, 120, -90, 0.3, player));
         player.weapon.damage = 10;
-        player.weapon.attackEffect = new Effect("image/effect/swordEffect.png", player.pos.x, player.pos.y, 0.3, player);
-        player.weapon.attackLength = player.image.width / 2 + player.weapon.image.width + player.weapon.attackEffect.image.width;
+        player.weapon.attackEffect = {src : "image/effect/swordEffect.png", showTime : 0.3};    
+        player.weapon.attackLength = player.image.width / 2 + player.weapon.image.width + 50;
         player.weapon.setAnchor((-player.weapon.getImageLength("width") / 2 + player.rightHand.getImageLength("width") / 2), (-player.weapon.getImageLength("height") / 2 + player.rightHand.getImageLength("height") / 2));
         player.weapon.update = () =>
         {
@@ -856,7 +860,7 @@ var JobWarrior =
         player.skills.push(new SwordShot("KeyK", player));
     }
 }
-var JobSpearMan =
+var JobLancer =
 {
     setPlayerHand : (player) =>
     {
@@ -969,6 +973,10 @@ var JobSpearMan =
             
             return (playerToEnemy >= minusAngle && playerToEnemy <= plusAngle);
         }
+    },
+    setSkills : (player) =>
+    {
+
     }
 }
 var setJob = function(player)
@@ -976,7 +984,7 @@ var setJob = function(player)
     switch(player.job)
     {
         case "Warrior" : player.job = JobWarrior; break;
-        case "SpearMan" : player.job = JobSpearMan; break;
+        case "Lancer" : player.job = JobLancer; break;
     }
 }
 var setMonsterList = function(_monster)
@@ -992,7 +1000,6 @@ gameScene.init = function()
     this.moveList = [];
     this.playerAndEnemyList = [];
     this.enemyList = [];
-    this.updateList = [];
     this.effectList = [];
     this.makerList = [];
 
@@ -1027,8 +1034,7 @@ gameScene.init = function()
     {
         return (_angle < 0 ? (360 + _angle) : _angle);
     }
-
-    this.player = nowScene.addImage(new Player("image/player/player.png", canvas.width / 2, canvas.height / 2, "Warrior"));
+    this.player = nowScene.addImage(new Player("image/player/player.png", canvas.width / 2, canvas.height / 2, nowScene.settedJob));
     
     this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
 

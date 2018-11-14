@@ -4,11 +4,10 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["ShootingEnemy", 1, 1, 3, "ShootingEnemy", 1, 1, 5],
+    ["TrackingEnemy", 1, 1, 0],
     ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
-    ["TrackingEnemy", 3, 1, 0, "TrackingEnemy", 3, 1, 0.5]
+    ["ShootingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5]
 ];
-
 
 
 // spawnMonster 관리
@@ -38,8 +37,11 @@ class GameController
         let num = 0;
         for(let i = 0; i < waveInfo[_wave - 1].length; i += 4)
         {
-            this.monsterMakers[num].setWaveStart(waveInfo[_wave - 1][i], waveInfo[_wave - 1][i + 1], waveInfo[_wave - 1][i + 2], waveInfo[_wave - 1][i + 3]);
-            this.monsterMakers[num].startSpawn = true;
+            if(waveInfo[_wave - 1][i] != "")
+            {
+                this.monsterMakers[num].setWaveStart(waveInfo[_wave - 1][i], waveInfo[_wave - 1][i + 1], waveInfo[_wave - 1][i + 2], waveInfo[_wave - 1][i + 3]);
+                this.monsterMakers[num].startSpawn = true;
+            }
             num++;
         }
     }
@@ -118,7 +120,7 @@ class GameController
         {
             this.restStart();
         }
-        if(nowScene.player.isDelete == true || this.wave >= waveInfo.length)
+        if(nowScene.player.isDelete == true || this.wave > waveInfo.length)
         {
             this.endGame();
         }
@@ -128,20 +130,30 @@ class GameController
 startScene.init = function()
 {
     preloadImage("image/player/player.png", "image/player/playerHand.png", 
-                "image/weapon/sword.png", "image/weapon/spear.png",   
+                "image/weapon/sword.png", "image/effect/swordEffect.png", 
+                "image/weapon/spear.png", 
+                "image/player/sample/Warrior.png", "image/player/sample/Lancer.png",  
                 "image/enemy/trackingEnemy.png", 
                 "image/enemy/shootingEnemy.png", "image/effect/enemyBullet1.png",
                 "image/EnemyHpBarIn.png", 
                 "image/cursor.png", 
                 "image/hpBarOut.png", "image/PlayerHpBarIn.png");
 
-    this.updateList = [];
-
-    this.startButton = nowScene.addImage(new Button("image/player/playerHand.png", canvas.width / 2, canvas.height / 2));
-    this.startButton.clickEventSet(function()
+    this.admitButton = nowScene.addImage(new Button("image/tablet.png", canvas.width / 2, canvas.height));
+    this.admitButton.clickEventSet(function()
     {
-        gameScene.start();
-    })
+        this.update = () =>
+        {
+            this.pos.y -= canvas.height / 2 / 200;
+            this.scale.x += 0.7 / 200;
+            this.scale.y += 0.7 / 200;
+            if(this.pos.y <= canvas.height / 2)
+            {
+                readyScene.start();
+            }
+        }
+    });
+    this.admitButton.scale = {x : 0.3, y : 0.3};
 
     this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
     this.cam = new Camera();
@@ -152,6 +164,6 @@ startScene.update = function()
     {
         this.updateList[i].update();
     }
-    this.startButton.update()
+    this.admitButton.update()
 }
 startScene.start();
