@@ -1,6 +1,8 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+
+// canvas 크기설정
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -77,7 +79,6 @@ Vector.prototype =
 }
 
 
-
 // list
 var setList = function(cls)
 {
@@ -97,7 +98,7 @@ var setList = function(cls)
     {
         nowScene.enemyList.push(cls);
     }
-    if(cls.type == "enemy" || cls.type == "player" || cls.type == "cursor" || cls.type == "maker")
+    if(cls.type == "enemy" || cls.type == "player" || cls.type == "cursor" || cls.type == "maker" || cls.type == "parts")
     {
         nowScene.updateList.push(cls);
     }
@@ -113,13 +114,11 @@ var setList = function(cls)
 
 
 // key
-
 var Lkeys = {};
 var keys = {};
 
 
 // mouse
-
 var mouseX = 0;
 var mouseY = 0;
 var mouseLValue = {};
@@ -256,16 +255,21 @@ var preloadImage = function()
             imageList[_image.src].isLoaded = true;
         }, false);
     }
+}// imageList에서 image를 불러옴(이미 추가하려는 image가 있으면 x)
+
+var isLoadedTrue = (_path) =>
+{
+    imageList[_path].isLoaded = true;
 }
 
 
 // class
-
 class Camera
 {
     constructor(_target)
     {
-        this.target = _target;
+        let none = {pos : {x : 0, y : 0}};
+        this.target = _target || none;
         this.pos = {x : 0, y : 0};
         this.power = {x : 0, y : 0};
         this.nowPower = {x : 0, y : 0};
@@ -282,6 +286,7 @@ class Camera
         this.power.y -= _powerY;
         this.powerArray.splice(_index, 1);
     }
+    // _x(int), _y(int), _time(int)  말 그대로 화면을 shaking
     shaking(_x, _y, _time)
     {
         let info = {powerX : _x, powerY : _y, RTime : (Date.now() + _time * 1000)};
@@ -293,8 +298,8 @@ class Camera
     update()
     {
         this.LTime = Date.now();
-        this.pos = {x : this.target.pos.x + this.target.image.width / 2 - canvas.width / 2, y : this.target.pos.y + this.target.image.height / 2 - canvas.height / 2};
-        this.nowPower = {x : this.power.x * (Math.random() * 2 - 1), y : this.power.y * (Math.random() * 2 - 1)};
+        this.pos = {x : this.target.pos.x + this.target.image.width / 2 - canvas.width / 2, y : this.target.pos.y + this.target.image.height / 2 - canvas.height / 2}; // target의 중심
+        this.nowPower = {x : this.power.x * (Math.random() * 2 - 1), y : this.power.y * (Math.random() * 2 - 1)}; // random으로 nowPower 설정
 
         if(this.power.x == 0 && this.power.y == 0)
         {
@@ -304,7 +309,7 @@ class Camera
         {
             for(let i = 0; i < this.powerArray.length; i++)
             {
-                if(this.LTime >= this.powerArray[i].RTime)
+                if(this.LTime >= this.powerArray[i].RTime) // this.powerArray[i]의 시간이 다 되면 powerArray에서 제거
                 {
                     this.setBasic(this.powerArray[i].powerX, this.powerArray[i].powerY, i);
                 }
@@ -314,14 +319,15 @@ class Camera
 }
 class GameText
 {
-    constructor(_x, _y, _style, _text)
+    constructor(_x, _y, _size, _style, _text)
     {
         // x, y, style, text
         if (arguments.length === 4)
         {
             this.pos = {x : arguments[0], y : arguments[1]};
-            this.style = arguments[2];
-            this.text = arguments[3];
+            this.size = arguments[2];
+            this.style = arguments[3];
+            this.text = arguments[4];
             this.gradient = null;
         }
 
@@ -329,9 +335,10 @@ class GameText
         else if (arguments.length === 5)
         {
             this.pos = {x : arguments[0], y : arguments[1]};
-            this.style = arguments[2];
-            this.text = arguments[3];
-            this.gradient = arguments[4];
+            this.size = arguments[2];
+            this.style = arguments[3];
+            this.text = arguments[4];
+            this.gradient = arguments[5];
 
             /*
             gradient = [
@@ -352,14 +359,23 @@ class GameText
         this.scale = {x : 1, y : 1};
         this.rot = 0;
         this.z = 0;
+        this.color = {r : 0, g : 0, b : 0};
+        this.opacity = 1;
+
+        this.setCenter();
 
         this.isDelete = false;
         this.isFixed = false;
     }
-    render()
+    setCenter()
     {
+        this.pos.x -= this.text.length * this.size / 2;
+        this.pos.y += this.size / 2;
+    }
+    render()
+    {   
         ctx.resetTransform();
-        ctx.font = this.style;
+        ctx.font = this.size.toString() + "px " + this.style;
 
         if (this.gradient != null)
         {
@@ -369,10 +385,16 @@ class GameText
             })
             ctx.fillStyle = grad;
         }
-        //ctx.transform(this.scale.x, 0, 0, this.scale.y, -dx * this.scale.x, -dy * this.scale.y);
+        else
+        {
+            ctx.fillStyle = ("rgba(" + this.color.r + ", " + this.color.g + ", " + this.color.b + ", " + this.opacity + ")");
+        }
         ctx.transform(this.scale.x, 0, 0, this.scale.y, this.scale.x, this.scale.y);
+        ctx.globalAlpha = this.opacity;
         if (this.isFixed)
+        {
             ctx.fillText(this.text, this.pos.x, this.pos.y);
+        }
         else
         {
             let cameraPosX = - nowScene.cam.pos.x + nowScene.cam.nowPower.x;
@@ -391,47 +413,53 @@ class GameText
 }
 class GameImage
 {
-    constructor(path, _x, _y, _type)
+    constructor(_path, _x, _y, _type)
     {
-        this.path = path;
+        this.path = _path;
         this.pos = {x : _x, y : _y};
         this.scale = {x : 1, y : 1};
         this.rot = 0;
         this.z = 0;
         this.opacity = 1;
         this.type = _type;
+
+        // stroke
         this.strokeStyle = "#ffffff";
         this.strokeWidth = 0;
-        this.isDelete = false;
-        this.isFixed = false;
+
+        // 상황
+        this.isDelete = false; // isDelete가 true면 모든 array에서 삭제 -> 아예 삭제
+        this.isFixed = false; 
 
         setList(this);
 
-        if(imageList[path] == undefined)
+        this.setImage();
+    }
+    setImage()
+    {
+        if(imageList[this.path] == undefined) // imageList에서 path가 없을 때 imageList에 path를 저장
         {
             this.image = new Image();
-            this.image.src = path;
-            imageList[path] = {image : this.image, isLoaded : false};
-            this.image.addEventListener("load",         // 이미지 로딩됌
-            function()
-            {
-                imageList[path].isLoaded = true;
-            }, false);
+            this.image.src = this.path;
+            imageList[this.path] = {image : this.image, isLoaded : false};
+            this.image.addEventListener("load", isLoadedTrue(this.path), false);
         }
-        else
+        else // imageList에서 path가 있을 때 imageList에서 불러옴
         {
-            this.image = imageList[path].image;
+            this.image = imageList[this.path].image;
         }
-        this.anchor = {x : -this.image.width / 2, y : -this.image.height / 2};
+        this.anchor = {x : -this.image.width / 2, y : -this.image.height / 2}; // anchor는 image의 rot에 따라 움직이는 축(?)
     }
     render()
     {
-        if(!imageList[this.path].isLoaded) // 이미지 로드 안됐으면
+        if(!imageList[this.path].isLoaded) // 이미지 로드 안됬으면 render를 안함
         {
             return;
         }
+
         let dx = this.image.width + this.anchor.x;
         let dy = this.image.height + this.anchor.y;
+
         ctx.resetTransform();
         if (this.isFixed == true)
         {
@@ -445,7 +473,6 @@ class GameImage
         }
         ctx.rotate(this.rot);
         ctx.transform(this.scale.x, 0, 0, this.scale.y, -dx * this.scale.x, -dy * this.scale.y);
-        //ctx.transform(1, 0, 0, 1, -dx, -dy);
         ctx.globalAlpha = this.opacity;
         ctx.drawImage(this.image, 0, 0);
         if(this.strokeWidth != 0)
@@ -467,24 +494,43 @@ class GameImage
             return a.z - b.z;
         });
     }
+    // canvas의 중심으로 이동
+    setCanvasCenter()
+    {
+        this.pos.x = canvas.width / 2 - this.image.width / 2;
+        this.pos.y = canvas.height / 2 - this.image.height / 2;
+    }
     setBasic(rot, ancX, ancY)
     {
         this.rot = rot;
         this.anchor = {x : ancX, y : ancY};
     }
+    setCenter()
+    {
+        this.pos.x -= this.image.width / 2;
+        this.pos.y -= this.image.height / 2;
+    }
     getCenter(pos)
     {
         if(pos == "x")
+        {   
             return this.pos.x + this.image.width / 2;
+        }
         else if(pos == "y")
+        {
             return this.pos.y + this.image.height / 2;
+        }
     }
     getImageLength(widthHeight)
     {
         if(widthHeight == "width")
+        {
             return this.image.width * this.scale.x;
+        }
         else if(widthHeight == "height")
+        {
             return this.image.height * this.scale.y
+        }
     }
 }
 class Button extends GameImage

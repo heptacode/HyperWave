@@ -344,11 +344,10 @@ class Player extends GameImage
         
         this.attack = {canAttack : true, attacking : false, click : false};
         this.skills = [];
+        this.parts = [];
         this.firstSet();
         
         this.information = {hp : nowScene.addImage(new HpBar("image/PlayerHpBarIn.png", "image/hpBarOut.png", this))};
-        
-        nowScene.cam = new Camera(this);
     }
     firstSet()
     {
@@ -979,7 +978,7 @@ var JobLancer =
 
     }
 }
-var setJob = function(player)
+var setJob = (player) =>
 {
     switch(player.job)
     {
@@ -987,7 +986,7 @@ var setJob = function(player)
         case "Lancer" : player.job = JobLancer; break;
     }
 }
-var setMonsterList = function(_monster)
+var setMonsterList = (_monster) =>
 {
     monsterList[_monster.path] = _monster;
 }
@@ -1005,6 +1004,9 @@ gameScene.init = function()
 
     this.LTime = Date.now();
     
+
+    // function
+
     this.makeShape = function(_name, _image, _width, _height, _type)
     {
         let count = 0;
@@ -1034,11 +1036,12 @@ gameScene.init = function()
     {
         return (_angle < 0 ? (360 + _angle) : _angle);
     }
+
     this.player = nowScene.addImage(new Player("image/player/player.png", canvas.width / 2, canvas.height / 2, nowScene.settedJob));
+    this.gameController = new GameController();
     
     this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
-
-    this.gameController = new GameController();
+    this.cam = new Camera(this.player);
 }
 gameScene.update = function()
 {
@@ -1048,7 +1051,7 @@ gameScene.update = function()
     {
         this.updateList[i].update();
     }
-    nowScene.effectList.forEach(effect => effect.update());
+    this.effectList.forEach(effect => effect.update());
     this.gameController.update();
     this.cam.update();
     this.checkDelete();

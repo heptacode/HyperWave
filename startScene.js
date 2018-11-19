@@ -4,7 +4,7 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 1, 1, 0],
+    ["TrackingEnemy", 1, 1, 3],
     ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
     ["ShootingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5]
 ];
@@ -27,8 +27,7 @@ class GameController
         [
             new monsterMaker(200, 200), new monsterMaker(700, 700)
         ];
-        this.information = {wave : nowScene.addText(new GameText(10, 10, "Arial", "wave : " + this.wave))}
-        this.information.wave.scale = {x : 3, y : 3};
+        this.information = {wave : nowScene.addText(new GameText(150, 30, 30, "Arial", "wave : " + this.wave))};
         this.information.wave.isFixed = true;
     }
     // waveStart(현재 웨이브)
@@ -51,7 +50,7 @@ class GameController
         return (nowScene.enemyList.length != 0)
     }
     // monsterMaker가 spawn을 멈춤(spawnCount >= spawnMax) -> true
-    isMonsterMakersStop()
+    areMonsterMakersStop()
     {
         let num = 0;
         for(let i = 0; i < this.monsterMakers.length; i++)
@@ -103,7 +102,7 @@ class GameController
         }
         if(this.startWave == true) // 웨이브 실행 중
         {
-            if(this.isMonsterMakersStop() == true && this.areThereAnyMonsters() == false)
+            if(this.areMonsterMakersStop() == true && this.areThereAnyMonsters() == false)
             {
                 // 초기화 및 rest 시작
                 for(let i = 0; i < this.monsterMakers.length; i++)
@@ -137,26 +136,29 @@ startScene.init = function()
                 "image/enemy/shootingEnemy.png", "image/effect/enemyBullet1.png",
                 "image/EnemyHpBarIn.png", 
                 "image/cursor.png", 
-                "image/hpBarOut.png", "image/PlayerHpBarIn.png");
+                "image/hpBarOut.png", "image/PlayerHpBarIn.png",
+                "image/tablet.png", "image/tabletSample.png",
+                "image/button/leftArrow.png", "image/button/rightArrow.png");
 
-    this.admitButton = nowScene.addImage(new Button("image/tablet.png", canvas.width / 2, canvas.height));
+    this.cam = new Camera();
+    this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
+    
+    this.admitButton = nowScene.addImage(new Button("image/tabletSample.png", canvas.width / 2, canvas.height));
     this.admitButton.clickEventSet(function()
     {
         this.update = () =>
         {
-            this.pos.y -= canvas.height / 2 / 200;
-            this.scale.x += 0.7 / 200;
-            this.scale.y += 0.7 / 200;
-            if(this.pos.y <= canvas.height / 2)
+            this.pos.y -= (canvas.height - this.image.height) / 200;
+            this.scale.x += 1 / 200;
+            this.scale.y += 1 / 200;
+            if((this.pos.y < canvas.height / 2 - this.image.height / 2) || mouseValue["Left"] == 1)
             {
                 readyScene.start();
             }
         }
     });
-    this.admitButton.scale = {x : 0.3, y : 0.3};
+    nowScene.updateList.push(this.admitButton);
 
-    this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
-    this.cam = new Camera();
 }
 startScene.update = function()
 {
@@ -164,6 +166,5 @@ startScene.update = function()
     {
         this.updateList[i].update();
     }
-    this.admitButton.update()
 }
 startScene.start();
