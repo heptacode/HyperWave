@@ -94,11 +94,11 @@ var setList = function(cls)
     {
         nowScene.playerAndEnemyList.push(cls);
     }
-    if(cls.type == "enemy")
+    if(cls.type == "enemy" || cls.type == "boss")
     {
         nowScene.enemyList.push(cls);
     }
-    if(cls.type == "enemy" || cls.type == "player" || cls.type == "cursor" || cls.type == "maker" || cls.type == "parts")
+    if(cls.type == "enemy" || cls.type == "player" || cls.type == "cursor" || cls.type == "maker" || cls.type == "parts" || cls.type == "boss")
     {
         nowScene.updateList.push(cls);
     }
@@ -264,6 +264,7 @@ var isLoadedTrue = (_path) =>
 
 
 // class
+
 class Camera
 {
     constructor(_target)
@@ -452,7 +453,7 @@ class GameImage
     }
     render()
     {
-        if(!imageList[this.path].isLoaded) // 이미지 로드 안됬으면 render를 안함
+        if(!imageList[this.path].isLoaded) // 이미지 로드 안됐으면 render를 안함
         {
             return;
         }

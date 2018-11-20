@@ -62,4 +62,16 @@ class Collision
     {
         return (dot.getCenter("x") >= obj.pos.x && dot.getCenter("x") <= (obj.pos.x + obj.image.width) && dot.getCenter("y") >= obj.pos.y && dot.getCenter("y") <= obj.pos.y + obj.image.height);
     }
+    static circleToRotatedRect(_circle, _rect)
+    {
+        let rectTempRot = Util.getAngleBasic(_rect.rot * 180 / Math.PI) / 180 * Math.PI;
+
+        let unrotatedCircleX = Math.cos(rectTempRot) * (_circle.pos.x - Util.getCenter(_rect, "x")) - Math.sin(rectTempRot) * (_circle.pos.y + _circle.image.height - Util.getCenter(_rect, "y")) + Util.getCenter(_rect, "x");
+        let unrotatedCircleY = Math.sin(rectTempRot) * (_circle.pos.x - Util.getCenter(_rect, "x")) + Math.cos(rectTempRot) * (_circle.pos.y + _circle.image.height - Util.getCenter(_rect, "y")) +Util.getCenter(_rect, "y");
+
+        let deltaX = unrotatedCircleX - Math.max(_rect.pos.x, Math.min(unrotatedCircleX, _rect.pos.x + _rect.image.width));
+        let deltaY = unrotatedCircleY - Math.max(_rect.pos.y, Math.min(unrotatedCircleY, _rect.pos.y + _rect.image.height));
+
+        return (deltaX * deltaX + deltaY * deltaY) < (_circle.image.width * _circle.image.width);
+    }
 }

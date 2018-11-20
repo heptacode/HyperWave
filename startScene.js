@@ -4,7 +4,7 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 1, 1, 3],
+    ["TrackingEnemy", 1, 1, 0],
     ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
     ["ShootingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5]
 ];
@@ -126,24 +126,26 @@ class GameController
     }
 }
 
+var serverAddr = "https://sunrin.hyunwoo.org/dicon/";
+
 startScene.init = function()
 {
-    preloadImage("image/player/player.png", "image/player/playerHand.png", 
-                "image/weapon/sword.png", "image/effect/swordEffect.png", 
-                "image/weapon/spear.png", 
-                "image/player/sample/Warrior.png", "image/player/sample/Lancer.png",  
-                "image/enemy/trackingEnemy.png", 
-                "image/enemy/shootingEnemy.png", "image/effect/enemyBullet1.png",
-                "image/EnemyHpBarIn.png", 
-                "image/cursor.png", 
-                "image/hpBarOut.png", "image/PlayerHpBarIn.png",
-                "image/tablet.png", "image/tabletSample.png",
-                "image/button/leftArrow.png", "image/button/rightArrow.png");
+    preloadImage( "image/player/player.png",  "image/player/playerHand.png", 
+                 "image/weapon/sword.png",  "image/effect/swordEffect.png", 
+                 "image/weapon/spear.png", 
+                 "image/player/sample/Warrior.png",  "image/player/sample/Lancer.png",  
+                 "image/enemy/trackingEnemy.png", 
+                 "image/enemy/shootingEnemy.png",  "image/effect/enemyBullet1.png",
+                 "image/EnemyHpBarIn.png", 
+                 "image/cursor.png", 
+                 "image/hpBarOut.png",  "image/PlayerHpBarIn.png",
+                 "image/tablet.png",  "image/tabletSample.png",
+                 "image/button/leftArrow.png",  "image/button/rightArrow.png");
 
     this.cam = new Camera();
-    this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
+    this.cursor = nowScene.addImage(new MousePoint( "image/cursor.png", mouseX, mouseY));
     
-    this.admitButton = nowScene.addImage(new Button("image/tabletSample.png", canvas.width / 2, canvas.height));
+    this.admitButton = nowScene.addImage(new Button( "image/tabletSample.png", canvas.width / 2, canvas.height));
     this.admitButton.clickEventSet(function()
     {
         this.update = () =>

@@ -1,7 +1,7 @@
 var readyScene = new Scene();
 
 class parts extends GameImage
-{
+{    
 	constructor(_path, _x, _y)
 	{
 		super(_path, _x, _y, "parts");
@@ -20,25 +20,22 @@ class parts extends GameImage
 	{
 		if(mouseValue["Left"] == 1 && Collision.dotToRect(nowScene.cursor, this) && this.isClicked == false)
 		{
-            console.log("1");
 			this.startPos.x = nowScene.cursor.pos.x;
 			this.startPos.y = nowScene.cursor.pos.y;
 			this.isClicked = true;
 		}
 		else if(mouseValue["Left"] <= 0 && this.isClicked == true)
 		{
-            console.log("false");
 			this.isClicked = false;
 		}
 		if(mouseValue["Left"] == 2 && this.isClicked == true)
 		{
-            console.log("2")
 			this.pos.x += nowScene.cursor.pos.x - this.startPos.x;
             this.pos.y += nowScene.cursor.pos.y - this.startPos.y;
             this.startPos.x = nowScene.cursor.pos.x;
 			this.startPos.y = nowScene.cursor.pos.y;
 		}
-	}
+    }
 	update()
 	{
         this.clickMove();
@@ -47,12 +44,16 @@ class parts extends GameImage
         this.status.text = "isClicked : " + this.isClicked;
 	}
 }
-class Helmet extends parts
+class Helmet extends parts // 작업중
 {
 	constructor()
 	{
-		super("image/parts/head/helmet.png", 100, 100); // x : (pannel.pos.x + pannel.range.x * pannel.partsCnt) y : (pannel.pos.y + pannel.range.y * pannel.partsCnt)
-	}
+		super("image/parts/head/helmet.png", 100, 100); // x : (pannel.pos.x + pannel.range.x * pannel.partsCnt) y : (pannel.pos.y + pannel.range.y * pannel.partsCnt) 
+    }
+    ability()
+    {
+
+    }
 }
 
 readyScene.init = function()
@@ -63,12 +64,12 @@ readyScene.init = function()
     this.index = 0;
     this.isSelected = false;
     
-    this.selectPannel = nowScene.addImage(new GameImage("image/tablet.png", 0, 0, ""));
+    this.selectPannel = nowScene.addImage(new GameImage("image/tablet.png", 0, 0, "none"));
     this.selectPannel.name = this.jobs[nowScene.index][1];
     this.selectPannel.setZ(2);
     this.selectPannel.setCanvasCenter();
     
-    this.playerImage = nowScene.addImage(new GameImage("image/player/sample/Warrior.png", canvas.width / 2, canvas.height / 2, "none"));
+    this.playerImage = nowScene.addImage(new GameImage( "image/player/sample/Warrior.png", canvas.width / 2, canvas.height / 2, "none"));
     this.playerImage.setZ(5);
     this.playerImage.setCenter();
     this.playerImage.changeImage = (_leftRight) =>
@@ -85,7 +86,7 @@ readyScene.init = function()
         this.playerImage.setImage();
     }
 
-    this.leftButton = nowScene.addImage(new Button("image/button/leftArrow.png", canvas.width / 2 - 280, canvas.height / 2));
+    this.leftButton = nowScene.addImage(new Button( "image/button/leftArrow.png", canvas.width / 2 - 280, canvas.height / 2));
     this.leftButton.setZ(5);
     this.leftButton.clickEventSet(function()
     {
@@ -98,7 +99,7 @@ readyScene.init = function()
     });
     nowScene.updateList.push(this.leftButton);
 
-    this.rightButton = nowScene.addImage(new Button("image/button/rightArrow.png", canvas.width / 2 + 280, canvas.height / 2));
+    this.rightButton = nowScene.addImage(new Button( "image/button/rightArrow.png", canvas.width / 2 + 280, canvas.height / 2));
     this.rightButton.setZ(5);
     this.rightButton.clickEventSet(function()
     {
@@ -111,7 +112,7 @@ readyScene.init = function()
     });
     nowScene.updateList.push(this.rightButton);
 
-    this.selectButton = nowScene.addImage(new Button("image/player/playerHand.png", canvas.width - 400, canvas.height - 200));
+    this.selectButton = nowScene.addImage(new Button( "image/player/playerHand.png", canvas.width - 400, canvas.height - 200));
     this.selectButton.setZ(5);
     this.selectButton.clickEventSet(function()
     {
@@ -119,7 +120,7 @@ readyScene.init = function()
     });
     nowScene.updateList.push(this.selectButton);
 
-    this.startButton = nowScene.addImage(new Button("image/player/playerHand.png", canvas.width - 200, canvas.height - 200));
+    this.startButton = nowScene.addImage(new Button( "image/player/playerHand.png", canvas.width - 200, canvas.height - 200));
     this.startButton.setZ(5);
     this.startButton.clickEventSet(function()
     {
@@ -152,7 +153,7 @@ readyScene.init = function()
     this.helmet = nowScene.addImage(new Helmet());
 
     this.cam = new Camera();
-    this.cursor = nowScene.addImage(new MousePoint("image/cursor.png", mouseX, mouseY));
+    this.cursor = nowScene.addImage(new MousePoint( "image/cursor.png", mouseX, mouseY));
 }
 readyScene.update = function()
 {
