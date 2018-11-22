@@ -4,7 +4,7 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 1, 1, 0],
+    ["TrackingEnemy", 5, 0.5, 0],
     ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
     ["ShootingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5]
 ];
@@ -27,7 +27,7 @@ class GameController
         [
             new monsterMaker(200, 200), new monsterMaker(700, 700)
         ];
-        this.information = {wave : nowScene.addText(new GameText(150, 30, 30, "Arial", "wave : " + this.wave))};
+        this.information = {wave : nowScene.addThing(new GameText(75, 30, 30, "Arial", "wave : " + this.wave))};
         this.information.wave.isFixed = true;
     }
     // waveStart(현재 웨이브)
@@ -76,13 +76,6 @@ class GameController
     {
 
         nowScene.sceneImageList.length = 0;
-        nowScene.collisionList.length = 0;
-        nowScene.moveList.length = 0;
-        nowScene.playerAndEnemyList.length = 0;
-        nowScene.enemyList.length = 0;
-        nowScene.updateList.length = 0;
-        nowScene.effectList.length = 0;
-        nowScene.makerList.length = 0;
         gameoverScene.start();
     }
     showInformation()
@@ -121,7 +114,31 @@ class GameController
         }
         if(nowScene.player.isDelete == true || this.wave > waveInfo.length)
         {
+            console.log("^");
             this.endGame();
+        }
+    }
+    // readyScene에서 선택한 정보를 옮겨줌 // 작업중
+    static sendInfo(_type, _info)
+    {
+        for(let i = 0; i < arguments.length; i++)
+        {
+            switch(arguments[i])
+            {
+                case "player" : 
+                    switch(arguments[++i])
+                    {
+                        case "job" : gameScene.selectedInfo.player.job = arguments[++i]; break;
+                        case "skill" : 
+                            switch(arguments[++i])
+                            {
+                                case "passive" : gameScene.selectedInfo.player.skill.passive.push(arguments[++i]);
+                                                gameScene.selectedInfo.player.skill.passive.push(arguments[++i]); break;
+                                case "active" : gameScene.selectedInfo.player.skill.active.push(arguments[++i]); 
+                                                gameScene.selectedInfo.player.skill.active.push(arguments[++i]);break;
+                            }
+                    } break;
+            }
         }
     }
 }
@@ -140,13 +157,15 @@ startScene.init = function()
                  "image/cursor.png", 
                  "image/hpBarOut.png",  "image/PlayerHpBarIn.png",
                  "image/tablet.png",  "image/tabletSample.png",
-                 "image/button/leftArrow.png",  "image/button/rightArrow.png");
+                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/selected.png", "image/button/start.png",
+                 "image/icon/notSelected.png", 
+                 "image/icon/warrior/passiveSkill1.png", "image/icon/warrior/passiveSkill2.png");
 
     this.cam = new Camera();
-    this.cursor = nowScene.addImage(new MousePoint( "image/cursor.png", mouseX, mouseY));
+    this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY));
     
-    this.admitButton = nowScene.addImage(new Button( "image/tabletSample.png", canvas.width / 2, canvas.height));
-    this.admitButton.clickEventSet(function()
+    this.admitButton = nowScene.addThing(new Button( "image/tabletSample.png", canvas.width / 2, canvas.height));
+    this.admitButton.setClickEvent(function()
     {
         this.update = () =>
         {
@@ -160,7 +179,6 @@ startScene.init = function()
         }
     });
     nowScene.updateList.push(this.admitButton);
-
 }
 startScene.update = function()
 {

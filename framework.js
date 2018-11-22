@@ -363,15 +363,16 @@ class GameText
         this.color = {r : 0, g : 0, b : 0};
         this.opacity = 1;
 
-        this.setCenter();
-
         this.isDelete = false;
         this.isFixed = false;
+        this.isCenter = false;
+
+        this.type = "text";
     }
     setCenter()
     {
-        this.pos.x -= this.text.length * this.size / 2;
-        this.pos.y += this.size / 2;
+        this.isCenter = true;
+        this.pos.y += this.size * 2 / 7
     }
     render()
     {   
@@ -392,6 +393,7 @@ class GameText
         }
         ctx.transform(this.scale.x, 0, 0, this.scale.y, this.scale.x, this.scale.y);
         ctx.globalAlpha = this.opacity;
+        ctx.textAlign = "center";
         if (this.isFixed)
         {
             ctx.fillText(this.text, this.pos.x, this.pos.y);
@@ -406,7 +408,7 @@ class GameText
     setZ(newZ)
     {
         this.z = newZ;
-        nowScene.sceneTextList.sort(function(a, b)
+        nowScene.sceneThingList.sort(function(a, b)
         {
             return a.z - b.z;
         });
@@ -425,8 +427,8 @@ class GameImage
         this.type = _type;
 
         // stroke
-        this.strokeStyle = "#ffffff";
-        this.strokeWidth = 0;
+        this.strokeStyle = arguments[5] || 0;
+        this.strokeWidth = arguments[4] || 0;
 
         // 상황
         this.isDelete = false; // isDelete가 true면 모든 array에서 삭제 -> 아예 삭제
@@ -490,7 +492,7 @@ class GameImage
     setZ(newZ)
     {
         this.z = newZ;
-        nowScene.sceneImageList.sort(function(a, b)
+        nowScene.sceneThingList.sort(function(a, b)
         {
             return a.z - b.z;
         });
@@ -536,24 +538,59 @@ class GameImage
 }
 class Button extends GameImage
 {
-    constructor(path, _x, _y)
+    constructor(path, _x, _y, _z)
     {
         super(path, _x, _y, "button");
+
         this.pos.x -= this.image.width / 2;
         this.pos.y -= this.image.height / 2;
+        this.setZ(_z);
 
         setList(this);
         this.clickFunc = function(){};
+
+        if(arguments[4] != null)
+        {
+            this.text = nowScene.addThing(new GameText(this.getCenter("x"), this.getCenter("y"), arguments[5] || 30, "Arial", arguments[4] || ""));
+            this.text.setCenter();
+            this.text.setZ(this.z + 1);
+        }
+        
+        this.isChanged = false;
+        this.isClicked = false;
     }
-    clickEventSet(_func)
+    setClickEvent(_func)
     {
         this.clickFunc = _func;
     }
+    setTextCenter()
+    {
+        this.text.pos.x = this.getCenter("x");
+        this.text.pos.y = this.getCenter("y");
+        this.text.setCenter();
+    }
+    changeText(_text)
+    {
+        this.text.text = _text;
+        this.isChanged = true;
+        this.setTextCenter();
+    }
+    updating()
+    {
+
+    }
     update()
     {
-        if(mouseValue["Left"] == 1 && Collision.dotToRect(nowScene.cursor, this))
+        if(this.isDelete == true && this.text != undefined)
+        {
+            this.text.isDelete = true;
+        }
+        this.isClicked = false;
+        this.updating();
+        if(mouseValue["Left"] == 1 && Collision.dotToRect(nowScene.cursor, this) && nowScene.cursor.isOnTop(this) == true)
         {
             this.clickFunc();
+            this.isClicked = true;
         }
     }
 }
@@ -563,6 +600,21 @@ class MousePoint extends GameImage
     {
         super(path, _x, _y, "cursor");
         this.isFixed = true;
+    }
+    isOnTop(obj)
+    {
+        let topObj = obj;
+        for(let i = 0; i < nowScene.sceneThingList.length; i++)
+        {
+            if(nowScene.sceneThingList[i] != this && nowScene.sceneThingList[i].type != "text")
+            {
+                if(Collision.dotToRect(this, nowScene.sceneThingList[i]) && nowScene.sceneThingList[i].z > topObj.z)
+                {
+                    topObj = nowScene.sceneThingList[i];
+                }
+            }
+        }
+        return (topObj == obj ? true : false);
     }
     update()
     {
@@ -579,8 +631,7 @@ class Scene
 {
     constructor()
     {
-        this.sceneImageList = [];
-        this.sceneTextList = [];
+        this.sceneThingList = [];
         this.cam;
     }
     init()
@@ -589,100 +640,33 @@ class Scene
     }
     start()
     {
+        this.arr = [[]]
         this.updateList = [];
-        this.sceneImageList.length = 0;
-        this.sceneTextList.length = 0;
+        this.sceneThingList.length = 0;
         nowScene = this;
         this.init();
     }
     update()
     {
     }
-    addImage(image)
+    addThing(_obj)
     {
-        this.sceneImageList.push(image);
-        return image;
+        this.sceneThingList.push(_obj);
+        return _obj;
     }
-    addText(text)
+    delete(arr)
     {
-        this.sceneTextList.push(text);
-        return text;
-    }
-    delete(index, arr)
-    {
-        arr.splice(index, 1);
-        return;
-    }
-    checkDelete()
-    {
-        for(let i = 0; i < this.sceneImageList.length; i++)
+        for(let i = 0; i < arr.length; i++)
         {
-            if(this.sceneImageList[i].isDelete == true)
+            if(arr[i].isDelete == true)
             {
-                this.delete(i, this.sceneImageList);
-            }
-        }
-        for(let i = 0; i < this.collisionList.length; i++)
-        {
-            if(this.collisionList[i].isDelete == true)
-            {
-                this.delete(i, this.collisionList);
-            }
-        }
-        for(let i = 0; i < this.moveList.length; i++)
-        {
-            if(this.moveList[i].isDelete == true)
-            {
-                this.delete(i, this.moveList);
-            }
-        }
-        for(let i = 0; i < this.playerAndEnemyList.length; i++)
-        {
-            if(this.playerAndEnemyList[i].isDelete == true)
-            {
-                this.delete(i, this.playerAndEnemyList);
-            }
-        }
-        for(let i = 0; i < this.enemyList.length; i++)
-        {
-            if(this.enemyList[i].isDelete == true)
-            {
-                this.delete(i, this.enemyList);
-            }
-        }
-        for(let i = 0; i < this.updateList.length; i++)
-        {
-            if(this.updateList[i].isDelete == true)
-            {
-                this.delete(i, this.updateList);
-            }
-        }
-        for(let i = 0; i < this.effectList.length; i++)
-        {
-            if(this.effectList[i].isDelete == true)
-            {
-                this.delete(i, this.effectList);
-            }
-        }
-        for(let i = 0; i < this.makerList.length; i++)
-        {
-            if(this.makerList[i].isDelete == true)
-            {
-                this.delete(i, this.makerList);
-            }
-        }
-        for(let i = 0; i < this.sceneTextList.length; i++)
-        {
-            if(this.sceneTextList[i].isDelete == true)
-            {
-                this.delete(i, this.sceneTextList);
+                arr.splice(i, 1);
             }
         }
     }
     render()
     {
-        this.sceneImageList.forEach(element => element.render());
-        this.sceneTextList.forEach(element => element.render());
+        this.sceneThingList.forEach(element => element.render());
     }
 }
 var nullScene = new Scene();
@@ -708,10 +692,10 @@ var gameLoop = function()
     updateKeys();
     updateMouse();
     update();
+    nowScene.delete(nowScene.sceneThingList);
     ctx.resetTransform();
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     render();
-
 }
 
 setInterval(gameLoop, 0);
