@@ -114,7 +114,6 @@ class GameController
         }
         if(nowScene.player.isDelete == true || this.wave > waveInfo.length)
         {
-            console.log("^");
             this.endGame();
         }
     }
@@ -143,7 +142,7 @@ class GameController
     }
 }
 
-var serverAddr = "https://sunrin.hyunwoo.org/dicon/";
+var serverAddr = "https://sunrin.hyunwoo.org/dicon/"; // 서버 제작중
 
 startScene.init = function()
 {
@@ -159,12 +158,13 @@ startScene.init = function()
                  "image/tablet.png",  "image/tabletSample.png",
                  "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/selected.png", "image/button/start.png",
                  "image/icon/notSelected.png", 
-                 "image/icon/warrior/passiveSkill1.png", "image/icon/warrior/passiveSkill2.png");
+                 "image/icon/warrior/passiveSkill1.png", "image/icon/warrior/passiveSkill2.png",
+                 "image/icon/warrior/activeSkill1.png", "image/icon/warrior/activeSkill2.png");
 
     this.cam = new Camera();
-    this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY));
+    this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY, ));
     
-    this.admitButton = nowScene.addThing(new Button( "image/tabletSample.png", canvas.width / 2, canvas.height));
+    this.admitButton = nowScene.addThing(new Button( "image/tabletSample.png", canvas.width / 2, canvas.height, 3));
     this.admitButton.setClickEvent(function()
     {
         this.update = () =>

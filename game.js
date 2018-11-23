@@ -10,10 +10,6 @@ class Skill
         this.type = _type;
         this.yourPlayer = _player;
     }
-    afterSetPlayer()
-    {
-
-    }
     start()
     {
 
@@ -217,6 +213,7 @@ class SwiftStrike extends ActiveSkill
     {
         this.activeNowRange = 0;
         this.attackedList.length = 0;
+        this.yourPlayer.InvincibleRTime = Date.now() + 0.5 * 1000;
         this.yourPlayer.setStatus("notCollision", false, "invincible", false);
         this.updating2 = () => {};
     }
@@ -235,6 +232,7 @@ class SwiftStrike extends ActiveSkill
         this.attackRect.pos = {x : this.yourPlayer.getCenter("x") - this.attackRect.image.width / 2, y : this.yourPlayer.getCenter("y") - this.attackRect.image.height / 2};
 
         this.yourPlayer.setStatus("notCollision", true, "invincible", true);
+        this.yourPlayer.isDamaged = true;
 
         nowScene.cam.shaking(5, 5, 0.2);
     }
@@ -305,9 +303,9 @@ class SwiftStrike extends ActiveSkill
 
 class PassiveSkill extends Skill
 {
-    constructor()
+    constructor(_player)
     {
-        super("passive");
+        super(_player, "passive");
     }
 }
 
@@ -526,8 +524,7 @@ class Player extends GameImage
         this.parts = [];
         this.firstSet();
         
-        this.information = {hp : nowScene.addThing(new HpBar( "image/PlayerHpBarIn.png",  "image/hpBarOut.png", this))};
-
+        this.information = {hp : nowScene.addThing(new HpBar("image/PlayerHpBarIn.png", "image/hpBarOut.png", this))};
         this.status = {notCollision : false, invincible : false, cantSkill : false};
     }
     setStatus(_status, _trueFalse)
@@ -622,18 +619,10 @@ class Player extends GameImage
     passiveSkillUpdating()
     {
         this.passiveSkills.forEach(skill => skill.update());
-        for(let i = 0; i < this.passiveSkills.length; i++)
-        {
-            this.passiveSkills[i].update();
-        }
     }
     activeSkillUpdating()
     {
-        //this.activeSkills.forEach(skill => skill.update());
-        for(let i = 0; i < this.activeSkills.length; i++)
-        {
-            this.activeSkills[i].update();
-        }
+        this.activeSkills.forEach(skill => skill.update());
     }
     skillUpdate()
     {

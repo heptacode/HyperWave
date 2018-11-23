@@ -24,16 +24,20 @@ class Util
             }
         }
     }
-    static getCenter(_this)
+    static getCenter(obj)
     {
         if(arguments[1] == "x")
-            return _this.pos.x + _this.image.width / 2;
+        {
+            return (obj.pos.x + obj.image.width / 2);
+        }
         else if(arguments[1] == "y")
-            return _this.pos.y + _this.image.height / 2;
+        {
+            return (obj.pos.y + obj.image.height / 2);
+        }
     }
     static getAngle(obj1, obj2)
     {
-        return Math.atan2(Util.getCenter(obj2, "y") - Util.getCenter(obj1, "y"), Util.getCenter(obj2, "x") - Util.getCenter(obj1, "x")) * 180 / Math.PI;
+        return (Math.atan2(Util.getCenter(obj2, "y") - Util.getCenter(obj1, "y"), Util.getCenter(obj2, "x") - Util.getCenter(obj1, "x")) * 180 / Math.PI);
     }
     static getAngleBasic(_angle)
     {
@@ -53,10 +57,6 @@ class Collision
         {
             return (Math.sqrt(Math.pow(Util.getCenter(obj1, "x") - Util.getCenter(obj2, "x"), 2) + Math.pow(Util.getCenter(obj1, "y") - Util.getCenter(obj2, "y"), 2)) <= (arguments[2] + arguments[3]));
         }
-    }
-    static arc(obj1, obj2)
-    {
-        //return ()
     }
     static dotToRect(dot, obj)
     {

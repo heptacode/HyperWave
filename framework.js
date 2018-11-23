@@ -549,12 +549,13 @@ class Button extends GameImage
         setList(this);
         this.clickFunc = function(){};
 
-        if(arguments[4] != null)
+        if(arguments[5] != undefined)
         {
-            this.text = nowScene.addThing(new GameText(this.getCenter("x"), this.getCenter("y"), arguments[5] || 30, "Arial", arguments[4] || ""));
+            this.text = nowScene.addThing(new GameText(this.getCenter("x"), this.getCenter("y"), arguments[6] || 30, "Arial", arguments[5]));
             this.text.setCenter();
             this.text.setZ(this.z + 1);
         }
+        this.name = arguments[4] || "none";
         
         this.isChanged = false;
         this.isClicked = false;
@@ -585,13 +586,13 @@ class Button extends GameImage
         {
             this.text.isDelete = true;
         }
-        this.isClicked = false;
-        this.updating();
         if(mouseValue["Left"] == 1 && Collision.dotToRect(nowScene.cursor, this) && nowScene.cursor.isOnTop(this) == true)
         {
             this.clickFunc();
             this.isClicked = true;
         }
+        this.updating();
+        this.isClicked = false;
     }
 }
 class MousePoint extends GameImage
@@ -640,7 +641,6 @@ class Scene
     }
     start()
     {
-        this.arr = [[]]
         this.updateList = [];
         this.sceneThingList.length = 0;
         nowScene = this;
