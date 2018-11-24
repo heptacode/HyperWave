@@ -4,9 +4,11 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 5, 0.5, 0],
+    ["TrackingEnemy", 1, 0.5, 0],
     ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
-    ["ShootingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5]
+    ["TrackingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5],
+    ["ShootingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5],
+    ["HyunWoo", 1, 0, 0]
 ];
 
 
@@ -72,11 +74,18 @@ class GameController
         }
     }
     // player가 죽거나 마지막 웨이브가 끝나면 실행 // 작업중
-    endGame()
+    endGame(_ending)
     {
-
-        nowScene.sceneImageList.length = 0;
-        gameoverScene.start();
+        if(_ending == "clear")
+        {
+            nowScene.sceneThingList.length = 0;
+            gameoverScene.start();
+        }
+        else if(_ending == "fail")
+        {
+            nowScene.sceneThingList.length = 0;
+            gameoverScene.start();
+        }
     }
     showInformation()
     {
@@ -112,9 +121,13 @@ class GameController
         {
             this.restStart();
         }
-        if(nowScene.player.isDelete == true || this.wave > waveInfo.length)
+        if(nowScene.player.isDelete == false && this.wave == waveInfo.length && this.areMonsterMakersStop() == true && this.areThereAnyMonsters() == false)
         {
-            this.endGame();
+            this.endGame("clear");
+        }
+        else if(nowScene.player.isDelete == true && this.wave < waveInfo.length && nowScene.enemyList.length != 0)
+        {
+            this.endGame("fail")
         }
     }
     // readyScene에서 선택한 정보를 옮겨줌 // 작업중
@@ -131,8 +144,7 @@ class GameController
                         case "skill" : 
                             switch(arguments[++i])
                             {
-                                case "passive" : gameScene.selectedInfo.player.skill.passive.push(arguments[++i]);
-                                                gameScene.selectedInfo.player.skill.passive.push(arguments[++i]); break;
+                                case "passive" : gameScene.selectedInfo.player.skill.passive.push(arguments[++i]); break;
                                 case "active" : gameScene.selectedInfo.player.skill.active.push(arguments[++i]); 
                                                 gameScene.selectedInfo.player.skill.active.push(arguments[++i]);break;
                             }
@@ -149,32 +161,58 @@ startScene.init = function()
     preloadImage( "image/player/player.png",  "image/player/playerHand.png", 
                  "image/weapon/sword.png",  "image/effect/swordEffect.png", 
                  "image/weapon/spear.png", 
-                 "image/player/sample/Warrior.png",  "image/player/sample/Lancer.png",  
+                 "image/player/sample/player.png",  
                  "image/enemy/trackingEnemy.png", 
                  "image/enemy/shootingEnemy.png",  "image/effect/enemyBullet1.png",
                  "image/EnemyHpBarIn.png", 
                  "image/cursor.png", 
                  "image/hpBarOut.png",  "image/PlayerHpBarIn.png",
                  "image/tablet.png",  "image/tabletSample.png",
-                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/selected.png", "image/button/start.png",
-                 "image/icon/notSelected.png", 
-                 "image/icon/warrior/passiveSkill1.png", "image/icon/warrior/passiveSkill2.png",
-                 "image/icon/warrior/activeSkill1.png", "image/icon/warrior/activeSkill2.png");
+                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/set.png",
+                 "image/icon/notSelected.png", "image/icon/lock.png",  
+                 "image/icon/warrior/passiveSkill/basicAttackDamageUp.png", "image/icon/warrior/passiveSkill/healthUp.png",
+                 "image/icon/warrior/activeSkill/swiftStrike.png", "image/icon/warrior/activeSkill/swordShot.png",
+                 "image/background/ingame.png");
 
     this.cam = new Camera();
     this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY, ));
     
-    this.admitButton = nowScene.addThing(new Button( "image/tabletSample.png", canvas.width / 2, canvas.height, 3));
+    //this.background = nowScene.addThing(new GameImage("image/"))
+
+    this.admitButton = nowScene.addThing(new Button("image/tabletSample.png", canvas.width / 2, canvas.height, 3));
+    this.admitButton.pos.y += this.admitButton.image.height / 4;
+    this.admitButton.moveSpeed = 0.4;
     this.admitButton.setClickEvent(function()
     {
-        this.update = () =>
+        nowScene.admitButton.update = () =>
         {
-            this.pos.y -= (canvas.height - this.image.height) / 200;
-            this.scale.x += 1 / 200;
-            this.scale.y += 1 / 200;
-            if((this.pos.y < canvas.height / 2 - this.image.height / 2) || mouseValue["Left"] == 1)
+            if(nowScene.admitButton.pos.y <= canvas.height / 2 - nowScene.admitButton.image.height / 2)
             {
-                readyScene.start();
+                nowScene.admitButton.pos.y = canvas.height / 2 - nowScene.admitButton.image.height / 2;
+                nowScene.admitButton.RTime = Date.now() + 1 * 1000;
+                nowScene.cam.setFade(0, 0, 0, 1, 2);
+                nowScene.admitButton.update = () =>
+                {
+                    if(Date.now() > nowScene.admitButton.RTime)
+                    {
+                        readyScene.start();
+                    }
+                    else
+                    {
+                        nowScene.admitButton.scale.x += 0.0038;
+                        nowScene.admitButton.scale.y += 0.0038;
+                    }
+                }
+            }
+            else if(nowScene.admitButton.pos.y > canvas.height / 2 + nowScene.admitButton.image.height * 1 / 4)
+            {
+                nowScene.admitButton.pos.y -= (nowScene.admitButton.moveSpeed * 1.005);
+                nowScene.admitButton.moveSpeed += 0.08;
+            }
+            else
+            {
+                nowScene.admitButton.pos.y -= (nowScene.admitButton.moveSpeed * 1.0023);
+                nowScene.admitButton.moveSpeed -= 0.02;
             }
         }
     });
@@ -182,9 +220,7 @@ startScene.init = function()
 }
 startScene.update = function()
 {
-    for(let i = 0; i < this.updateList.length; i++)
-    {
-        this.updateList[i].update();
-    }
+    this.updateList.forEach(obj => obj.update());
+    this.cam.update();
 }
 startScene.start();

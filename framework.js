@@ -269,17 +269,16 @@ class Camera
 {
     constructor(_target)
     {
-        let none = {pos : {x : 0, y : 0}};
-        this.target = _target || none;
+        this.target = _target || {pos : {x : canvas.width / 2, y : canvas.height / 2}, image : {width : 0, height : 0}};
         this.pos = {x : 0, y : 0};
+        this.tempPos = {x : this.pos.x, y : this.pos.y};
         this.power = {x : 0, y : 0};
         this.nowPower = {x : 0, y : 0};
         this.powerArray = [];
 
-        this.LTime = Date.now();
-        this.RTime = 0;
-
         this.isShaking = false;
+
+        this.fadeList = [];
     }
     setBasic(_powerX, _powerY, _index)
     {
@@ -296,10 +295,104 @@ class Camera
         this.power.y += _y;
         this.isShaking = true;
     }
+    setObj()
+    {
+        for(let i = 0; i < nowScene.sceneThingList.length; i++)
+        {
+            if(nowScene.sceneThingList[i].camset == false)
+            {
+                nowScene.sceneThingList[i].pos.x += this.pos.x;
+                nowScene.sceneThingList[i].pos.y += this.pos.y;
+
+                nowScene.sceneThingList[i].camset = true;
+            }
+        }
+    }   
+    showFade()
+    {
+        for(let i = 0; i < this.fadeList.length; i++)
+        {
+            if(!(Date.now() > this.fadeList[i].RTime))
+            {
+                console.log(this.fadeList[i]);
+                ctx.fillStyle = this.fadeList[i].color;
+                ctx.fillRect(0, 0, 1920, 1080);
+            }
+            else
+            {
+                this.fadeList.slice(i, 1);
+            }
+        }
+    }
+    setFade(_r, _g, _b, _opacity, _time)
+    {
+        let fade = {color : "rgba(" + _r + ", " + _g + ", " + _b + ", " + _opacity + ")", RTime : Date.now() + _time};
+        this.fadeList.push(fade);
+    }
+    posUpdating()
+    {
+        if(this.target.pos.x < nowScene.background.pos.x - this.target.image.width / 2 + canvas.width / 2)
+        {
+            this.pos.x = nowScene.background.pos.x;
+
+            if(this.target.pos.y < nowScene.background.pos.y - this.target.image.height / 2 + canvas.height / 2)
+            {
+                this.pos.y = nowScene.background.pos.y;
+            }
+            else if(this.target.pos.y > nowScene.background.pos.y + nowScene.background.image.height - this.target.image.height / 2 - canvas.height / 2)
+            {
+                this.pos.y = nowScene.background.pos.y + nowScene.background.image.height - canvas.height;
+            }
+            else
+            {
+                this.pos.y = this.target.pos.y + this.target.image.height / 2 - canvas.height / 2
+            }
+        }
+        else if(this.target.pos.x > nowScene.background.pos.x + nowScene.background.image.width - this.target.image.width / 2 - canvas.width / 2)
+        {
+            this.pos.x = nowScene.background.pos.x + nowScene.background.image.width - canvas.width;
+
+            if(this.target.pos.y < nowScene.background.pos.y - this.target.image.height / 2 + canvas.height / 2)
+            {
+                this.pos.y = nowScene.background.pos.y;
+            }
+            else if(this.target.pos.y > nowScene.background.pos.y + nowScene.background.image.height - this.target.image.height / 2 - canvas.height / 2)
+            {
+                this.pos.y = nowScene.background.pos.y + nowScene.background.image.height - canvas.height;
+            }
+            else
+            {
+                this.pos.y = this.target.pos.y + this.target.image.height / 2 - canvas.height / 2
+            }
+        }
+        else
+        {
+            this.pos.x = this.target.pos.x + this.target.image.width / 2 - canvas.width / 2;
+        }
+
+        if(this.target.pos.y < nowScene.background.pos.y - this.target.image.height / 2 + canvas.height / 2)
+        {
+            this.pos.y = nowScene.background.pos.y;
+        }
+        else if(this.target.pos.y > nowScene.background.pos.y + nowScene.background.image.height - this.target.image.height / 2 - canvas.height / 2)
+        {
+            this.pos.y = nowScene.background.pos.y + nowScene.background.image.height - canvas.height;
+        }
+        else
+        {
+            this.pos.y = this.target.pos.y + this.target.image.height / 2 - canvas.height / 2;
+        }
+    }
     update()
     {
-        this.LTime = Date.now();
-        this.pos = {x : this.target.pos.x + this.target.image.width / 2 - canvas.width / 2, y : this.target.pos.y + this.target.image.height / 2 - canvas.height / 2}; // target의 중심
+        if(nowScene.player != undefined)
+        {
+            this.posUpdating();
+        }
+        else
+        {
+            this.pos = {x : this.target.pos.x + this.target.image.width / 2 - canvas.width / 2, y : this.target.pos.y + this.target.image.height / 2 - canvas.height / 2}; // target의 중심
+        }
         this.nowPower = {x : this.power.x * (Math.random() * 2 - 1), y : this.power.y * (Math.random() * 2 - 1)}; // random으로 nowPower 설정
 
         if(this.power.x == 0 && this.power.y == 0)
@@ -310,12 +403,13 @@ class Camera
         {
             for(let i = 0; i < this.powerArray.length; i++)
             {
-                if(this.LTime >= this.powerArray[i].RTime) // this.powerArray[i]의 시간이 다 되면 powerArray에서 제거
+                if(Date.now() >= this.powerArray[i].RTime) // this.powerArray[i]의 시간이 다 되면 powerArray에서 제거
                 {
                     this.setBasic(this.powerArray[i].powerX, this.powerArray[i].powerY, i);
                 }
             }
         }
+        this.showFade();
     }
 }
 class GameText
@@ -366,6 +460,7 @@ class GameText
         this.isDelete = false;
         this.isFixed = false;
         this.isCenter = false;
+        this.camset = false;
 
         this.type = "text";
     }
@@ -394,7 +489,7 @@ class GameText
         ctx.transform(this.scale.x, 0, 0, this.scale.y, this.scale.x, this.scale.y);
         ctx.globalAlpha = this.opacity;
         ctx.textAlign = "center";
-        if (this.isFixed)
+        if (this.isFixed == true)
         {
             ctx.fillText(this.text, this.pos.x, this.pos.y);
         }
@@ -433,6 +528,8 @@ class GameImage
         // 상황
         this.isDelete = false; // isDelete가 true면 모든 array에서 삭제 -> 아예 삭제
         this.isFixed = false; 
+
+        this.camset = false;
 
         setList(this);
 

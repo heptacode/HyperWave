@@ -2,20 +2,17 @@ var gameoverScene = new Scene();
 
 gameoverScene.init = function()
 {
-    this.reStartButton = nowScene.addThing(new Button( "image/player/playerHand.png", canvas.width / 2, canvas.height / 2 + 200));
-    this.reStartButton.clickEventSet(function()
+    this.cam = new Camera();
+    this.cursor = nowScene.addThing(new MousePoint("image/cursor.png", mouseX, mouseY));
+
+    this.restartButton = nowScene.addThing(new Button( "image/player/playerHand.png", canvas.width / 2, canvas.height / 2 + 200, 3));
+    this.restartButton.setClickEvent(function()
     {
         startScene.start();
     });
-    nowScene.updateList.push(this.reStartButton);
-
-    this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY));
-    this.cam = new Camera();
+    nowScene.updateList.push(this.restartButton);
 }
 gameoverScene.update = function()
 {
-    for(let i = 0; i < this.updateList.length; i++)
-    {
-        this.updateList[i].update();
-    }
+    this.updateList.forEach(obj => obj.update());
 }
