@@ -211,9 +211,6 @@
                     }
                 );
             }
-            window.onbeforeunload = function() {
-                return true;
-            };
             $(window).load(function(){
                 if(!Cookies.get("reload")){
                     Cookies.set("reload", true, { expires: 1, secure: true});
@@ -221,6 +218,9 @@
                 }
                 Cookies.set("reload", false, { expires: 1, secure: true});
             })
+            window.onbeforeunload = function() {
+                return true;
+            };
         </script>
     </body>
 </html>
