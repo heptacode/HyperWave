@@ -177,8 +177,8 @@
                     "proxy.php",
                     {
                         do: "register",
-                        uId: document.getElementById("inputId").value,
-                        uPw: document.getElementById("inputPw").value
+                        uId: $("#inputId").val(),
+                        uPw: $("#inputPw").val()
                     },
                     function(response) {
                         if (response) {
@@ -196,8 +196,8 @@
                     "proxy.php",
                     {
                         do: "signIn",
-                        uId: document.getElementById("inputId").value,
-                        uPw: document.getElementById("inputPw").value
+                        uId: $("#inputId").val(),
+                        uPw: $("#inputPw").val().value
                     },
                     function(response) {
                         if (response) {
