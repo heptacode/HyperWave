@@ -559,10 +559,10 @@ class GameImage
     }
     render()
     {
-        if(!imageList[this.path].isLoaded) // 이미지 로드 안됐으면 render를 안함
-        {
-            return;
-        }
+        // if(!imageList[this.path].isLoaded) // 이미지 로드 안됐으면 render를 안함
+        // {
+        //     return;
+        // }
 
         let dx = this.image.width + this.anchor.x;
         let dy = this.image.height + this.anchor.y;
