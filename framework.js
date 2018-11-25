@@ -11,6 +11,7 @@ var RTime = 0;
 
 var deltaTime = 0.016;
 var frame = 60;
+var imageList = {};
 
 
 // Vector
@@ -249,6 +250,7 @@ var isLoadedTrue = (_path) =>
     imageList[_path].isLoaded = true;
 }
 
+
 // class
 
 class Camera
@@ -327,7 +329,7 @@ class Camera
     }
     setFade(_color, _opacity, _time, _showTime, _backTime, _z)
     {
-        let fade = nowScene.addThing(new GameImage(serverAddr + "image/fade/black.png", 0, 0, "fade"));
+        let fade = nowScene.addThing(new GameImage("image/fade/black.png", 0, 0, "fade"));
         fade.opacity = 0;
         fade.maxOpacity = _opacity;
         fade.time = _time;
@@ -338,7 +340,7 @@ class Camera
         fade.canBack = false;
         switch(_color)
         {
-            case "white" : fade.path = serverAddr + "image/fade/white.png"; fade.setImage(); break;
+            case "white" : fade.path = "image/fade/white.png"; fade.setImage(); break;
         }
         fade.setZ(_z);
         this.fadeList.push(fade);

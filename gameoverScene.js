@@ -3,9 +3,9 @@ var gameoverScene = new Scene();
 gameoverScene.init = function()
 {
     this.cam = new Camera();
-    this.cursor = nowScene.addThing(new MousePoint(serverAddr + "/image/cursor.png", mouseX, mouseY));
+    this.cursor = nowScene.addThing(new MousePoint("image/cursor.png", mouseX, mouseY));
 
-    this.resultPannel = nowScene.addThing(new GameImage(serverAddr + "/image/result.png", 0, 0, "none"));
+    this.resultPannel = nowScene.addThing(new GameImage("image/result.png", 0, 0, "none"));
     this.resultPannel.setCanvasCenter();
 
     this.text = nowScene.addThing(new GameText(nowScene.resultPannel.pos.x + nowScene.resultPannel.image.width * 5 / 6, nowScene.resultPannel.pos.y + 25, 100, "Nanum Square", nowScene.clearFail));
@@ -19,7 +19,7 @@ gameoverScene.init = function()
         cnt.color = {r : 6, g : 226, b : 224};
     }
 
-    this.restartButton = nowScene.addThing(new Button(serverAddr + "/image/button/restart.png", nowScene.resultPannel.pos.x + nowScene.resultPannel.image.width, nowScene.resultPannel.pos.y + nowScene.resultPannel.image.height, 3));
+    this.restartButton = nowScene.addThing(new Button("image/button/restart.png", nowScene.resultPannel.pos.x + nowScene.resultPannel.image.width, nowScene.resultPannel.pos.y + nowScene.resultPannel.image.height, 3));
     this.restartButton.strokeWidth = 5;
     this.restartButton.strokeStyle = "#06e2e0";
     this.restartButton.pos.x -= this.restartButton.image.width / 2 + 20;

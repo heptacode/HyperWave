@@ -22,7 +22,7 @@ class GameController
 {
     constructor()
     {
-        this.wave = 0;
+        this.wave = 4;
         this.startWave = false;
         this.canStartWave = true;
 
@@ -172,34 +172,34 @@ class GameController
     }
 }
 
-var serverAddr = "https://hyperwave.hyunwoo.org"; // 서버 제작중
+var serverAddr = "https://sunrin.HyunWoo.org/dicon/"; // 서버 제작중
 
 startScene.init = function()
 {
-    // preloadImage( serverAddr + "/image/player/player.png",  serverAddr + "/image/player/playerHand.png", 
-    //              serverAddr + "/image/weapon/sword.png",  serverAddr + "/image/effect/swordEffect.png", 
-    //              serverAddr + "/image/weapon/spear.png", 
-    //              serverAddr + "/image/player/sample/player.png",  
-    //              serverAddr + "/image/enemy/trackingEnemy.png", 
-    //              serverAddr + "/image/enemy/shootingEnemy.png",  serverAddr + "/image/effect/enemyBullet1.png",
-    //              serverAddr + "/image/boss/cube.png", 
-    //              serverAddr + "/image/EnemyHpBarIn.png", 
-    //              serverAddr + "/image/cursor.png", 
-    //              serverAddr + "/image/hpBarOut.png",  serverAddr + "/image/PlayerHpBarIn.png",
-    //              serverAddr + "/image/tablet.png",  serverAddr + "/image/tabletSample.png",
-    //              serverAddr + "/image/button/leftArrow.png",  serverAddr + "/image/button/rightArrow.png", serverAddr + "/image/button/select.png", serverAddr + "/image/button/start.png", serverAddr + "/image/button/set.png", serverAddr + "/image/button/restart.png", 
-    //              serverAddr + "/image/icon/notSelected.png", serverAddr + "/image/icon/lock.png", serverAddr + "/image/icon/cantSelect.png",  
-    //              serverAddr + "/image/icon/warrior/passiveSkill/basicAttackDamageUp.png", serverAddr + "/image/icon/warrior/passiveSkill/healthUp.png",
-    //              serverAddr + "/image/icon/warrior/activeSkill/swiftStrike.png", serverAddr + "/image/icon/warrior/activeSkill/swordShot.png",
-    //              serverAddr + "/image/background/ingame.png", serverAddr + "/image/result.png", 
-    //              serverAddr + "/image/fade/black.png", serverAddr + "/image/fade/white.png");
+    preloadImage( "image/player/player.png",  "image/player/playerHand.png", 
+                 "image/weapon/sword.png",  "image/effect/swordEffect.png", 
+                 "image/weapon/spear.png", 
+                 "image/player/sample/player.png",  
+                 "image/enemy/trackingEnemy.png", 
+                 "image/enemy/shootingEnemy.png",  "image/effect/enemyBullet1.png",
+                 "image/boss/cube.png", 
+                 "image/EnemyHpBarIn.png", 
+                 "image/cursor.png", 
+                 "image/hpBarOut.png",  "image/PlayerHpBarIn.png",
+                 "image/tablet.png",  "image/tabletSample.png",
+                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/set.png", "image/button/restart.png", 
+                 "image/icon/notSelected.png", "image/icon/lock.png", "image/icon/cantSelect.png",  
+                 "image/icon/warrior/passiveSkill/basicAttackDamageUp.png", "image/icon/warrior/passiveSkill/healthUp.png",
+                 "image/icon/warrior/activeSkill/swiftStrike.png", "image/icon/warrior/activeSkill/swordShot.png",
+                 "image/background/ingame.png", "image/result.png", 
+                 "image/fade/black.png", "image/fade/white.png");
 
     this.cam = new Camera();
-    this.cursor = nowScene.addThing(new MousePoint( serverAddr + "/image/cursor.png", mouseX, mouseY, ));
+    this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY, ));
     
-    //this.background = nowScene.addThing(new GameImage(serverAddr + "/image/"))
+    //this.background = nowScene.addThing(new GameImage("image/"))
 
-    this.admitButton = nowScene.addThing(new Button(serverAddr + "/image/tabletSample.png", canvas.width / 2, canvas.height, 3));
+    this.admitButton = nowScene.addThing(new Button("image/tabletSample.png", canvas.width / 2, canvas.height, 3));
     this.admitButton.pos.y += this.admitButton.image.height / 4;
     this.admitButton.moveSpeed = 0.4;
     this.admitButton.setClickEvent(function()

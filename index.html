@@ -5,7 +5,7 @@
         <title>Hyper Wave</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <link rel="icon" href="logo/favicon.png" />
+        <link rel="icon" href="image/favicon.png" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Gugi" />
         <style>
             html {
@@ -162,6 +162,7 @@
             </form>
         </section>
         <script src="https://cdn.hyunwoo.org/js/jquery.min.js"></script>
+        <script src="https://cdn.hyunwoo.org/js/js.cookie.js"></script>
         <canvas id="canvas"></canvas>
         <script src="framework.js"></script>
         <script src="myFunc.js"></script>
@@ -213,6 +214,13 @@
             window.onbeforeunload = function() {
                 return true;
             };
+            $(window).load(function(){
+                if(!Cookies.get("reload")){
+                    Cookies.set("reload", true, { expires: 1, secure: true});
+                    location.reload();
+                }
+                Cookies.set("reload", false, { expires: 1, secure: true});
+            })
         </script>
     </body>
 </html>
