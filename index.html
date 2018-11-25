@@ -3,10 +3,13 @@
     <head>
         <meta charset="utf-8" />
         <title>Hyper Wave</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <link rel="icon" href="logo/favicon.png" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Gugi" />
         <style>
-            html
-            {
-                font-family: "Nanum Square", sans-serif;
+            html {
+                font-family: "Anonymous Pro", monospace;
                 -webkit-user-select: none;
                 -moz-user-select: none;
                 -ms-user-select: none;
@@ -19,39 +22,61 @@
                 height: 100%;
                 margin: 0;
                 background-color: white;
-                cursor: none;
             }
-            canvas
-            {
-                display: block;
-                position: absolute;
+            .form-account {
+                position: fixed;
                 top: 0;
-                left: 0;
                 right: 0;
-                bottom: 0;   
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.6);
+                -webkit-transition: 0.4s;
+                -moz-transition: 0.4s;
+                -o-transition: 0.4s;
+                transition: 0.4s;
+                pointer-events: none;
             }
-            .form-login 
-            {
-                display: block;
-                width: 20rem;
-                border: 0.5px solid rgba(0, 0, 0, 0.3);
-                padding: 1.8rem;
+            .form-account form {
+                width: 30%;
+                height: 30%;
+                padding: 3rem;
+                border: 1px solid black;
+                box-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
+                background-color: white;
                 text-align: center;
+                pointer-events: auto;
+                -webkit-transition: 0.4s;
+                -moz-transition: 0.4s;
+                -o-transition: 0.4s;
+                transition: 0.4s;
             }
-            .form-input-row 
-            {
+            .form-account form:hover {
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+            }
+            .notice-error {
+                display: none;
+                color: #72767b;
+                font-weight: bold;
+                border: 1px solid #72767b;
+                padding: 0.5rem;
+                margin: 1rem 0;
+            }
+            .form-input-row {
                 display: block;
                 align-items: center;
                 margin-bottom: 1rem;
             }
-            .form-input-row label 
-            {
+            .form-input-row label {
                 display: block;
                 text-align: left;
                 margin-bottom: 0.3rem;
             }
-            .form-input-row input 
-            {
+            .form-input-row input {
                 display: block;
                 width: 100%;
                 outline: none;
@@ -63,15 +88,14 @@
                 background: transparent;
                 -webkit-tap-highlight-color: transparent;
             }
-            .form-btn-row 
-            {
+            .form-btn-row {
+                font-family: "Gugi", cursive;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 margin-top: 2rem;
             }
-            .btn-register 
-            {
+            .btn-register {
                 display: block;
                 margin: 0 auto;
                 padding: 0 1rem;
@@ -87,12 +111,10 @@
                 -o-transition-duration: 0.2s;
                 transition-duration: 0.2s;
             }
-            .btn-register:hover 
-            {
+            .btn-register:hover {
                 text-decoration: underline;
             }
-            .btn-login 
-            {
+            .btn-signIn {
                 display: block;
                 margin: 0 auto;
                 padding: 0.5rem 5rem;
@@ -107,67 +129,87 @@
                 -o-transition-duration: 0.2s;
                 transition-duration: 0.2s;
             }
-            .btn-login:hover 
-            {
+            .btn-signIn:hover {
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
                 color: rgba(255, 255, 255, 0.6);
+            }
+            #canvas {
+                display: none;
+                z-index: -1;
+            }
+            .canvas-active {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: -1 !important;
             }
         </style>
     </head>
     <body>
-        <!-- <section class="form-login">
-            <form method="POST">
-                <div class="form-input-row"><label for="inputId">id</label><input type="text" id="inputId" maxlength="15" /></div>
-                <div class="form-input-row"><label for="inputPw">password</label><input type="password" id="inputPw" maxlength="64" /></div>
+        <section class="form-account">
+            <form>
+                <h1>Sign in to HYPERWAVE</h1>
+                <div class="notice-error">계정이 올바르지 않습니다. 아직 계정이 없으시면 가입하여 주십시오.</div>
+                <div class="form-input-row"><label for="inputId">id</label><input type="text" id="inputId" maxlength="15" autofocus required /></div>
+                <div class="form-input-row"><label for="inputPw">password</label><input type="password" id="inputPw" maxlength="64" required /></div>
                 <div class="form-btn-row">
-                    <div class="btn-register">가입</div>
-                    <div class="btn-login">로그인</div>
+                    <div class="btn-register" onclick="register()">가입</div>
+                    <div class="btn-signIn" onclick="signIn()">로그인</div>
                 </div>
             </form>
         </section>
-
-        <script>
-                $.post("proxy.php", { do: "signIn", userId: document.getElementById("#inputId").value, userPw: document.getElementById("#inputPw").value }, function(response)
-                {
-                    if(response == true)
-                    {
-                        document.getElementsByTagName("html").style.cursor = "none";
-
-                        let canvas = document.createElement("canvas");
-                        canvas.setAttribute("id", "canvas");
-
-                        let framework = document.createElement("script");
-                        framework.setAttribute("src", "framework.js");
-
-                        let myFunc = document.createElement("script");
-                        framework.setAttribute("src", "myFunc.js");
-
-                        let startScene = document.createElement("script");
-                        framework.setAttribute("src", "startScene.js");
-
-                        let readyScene = document.createElement("script");
-                        framework.setAttribute("src", "readyScene.js");
-
-                        let game = document.createElement("script");
-                        framework.setAttribute("src", "game.js");
-
-                        let gameoverScene = document.createElement("script");
-                        framework.setAttribute("src", "gameoverScene.js");
-                    }
-                    else 
-                    {
-                        // 로그인 실패
-                    }
-                });
-        </script> -->
-
-        <canvas id = "canvas"></canvas>
-        <script src = "framework.js"></script>
-        <script src = "myFunc.js"></script>
+        <script src="https://cdn.hyunwoo.org/js/jquery.min.js"></script>
+        <canvas id="canvas"></canvas>
+        <script src="framework.js"></script>
+        <script src="myFunc.js"></script>
         <script src="startScene.js"></script>
         <script src="readyScene.js"></script>
-        <script src = "game.js"></script>
-        <script src = "gameoverScene.js"></script>
-
+        <script src="game.js"></script>
+        <script src="gameoverScene.js"></script>
+        <script>
+            function register() {
+                if (!$("#inputId").val() || $("#inputId").val() < 4) $("#inputId").focus();
+                if (!$("#inputPw").val() || $("#inputPw").val() < 4) $("#inputPw").focus();
+                $.post(
+                    "proxy.php",
+                    {
+                        do: "register",
+                        uId: document.getElementById("inputId").value,
+                        uPw: document.getElementById("inputPw").value
+                    },
+                    function(response) {
+                        if (response) {
+                            $("html").css("cursor", "none");
+                            $(".form-account").fadeOut();
+                            $("#canvas").addClass("canvas-active");
+                        } else {
+                            alert("가입에 실패하였습니다.");
+                        }
+                    }
+                );
+            }
+            function signIn() {
+                $.post(
+                    "proxy.php",
+                    {
+                        do: "signIn",
+                        uId: document.getElementById("inputId").value,
+                        uPw: document.getElementById("inputPw").value
+                    },
+                    function(response) {
+                        if (response) {
+                            $("html").css("cursor", "none");
+                            $(".form-account").fadeOut();
+                            $("#canvas").addClass("canvas-active");
+                        } else {
+                            $(".notice-error").slideDown();
+                        }
+                    }
+                );
+            }
+        </script>
     </body>
 </html>
