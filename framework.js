@@ -11,7 +11,6 @@ var RTime = 0;
 
 var deltaTime = 0.016;
 var frame = 60;
-var imageList = {};
 
 
 // Vector
@@ -249,7 +248,6 @@ var isLoadedTrue = (_path) =>
 {
     imageList[_path].isLoaded = true;
 }
-
 
 // class
 
@@ -553,16 +551,25 @@ class GameImage
     }
     setImage()
     {
-        this.image = new Image();
-        this.image.src = this.path;
+        if(imageList[this.path] == undefined) // imageList에서 path가 없을 때 imageList에 path를 저장
+        {
+            this.image = new Image();
+            this.image.src = this.path;
+            imageList[this.path] = {image : this.image, isLoaded : false};
+            this.image.addEventListener("load", isLoadedTrue(this.path), false);
+        }
+        else // imageList에서 path가 있을 때 imageList에서 불러옴
+        {
+            this.image = imageList[this.path].image;
+        }
         this.anchor = {x : -this.image.width / 2, y : -this.image.height / 2}; // anchor는 image의 rot에 따라 움직이는 축(?)
     }
     render()
     {
-        // if(!imageList[this.path].isLoaded) // 이미지 로드 안됐으면 render를 안함
-        // {
-        //     return;
-        // }
+        if(!imageList[this.path].isLoaded) // 이미지 로드 안됐으면 render를 안함
+        {
+            return;
+        }
 
         let dx = this.image.width + this.anchor.x;
         let dy = this.image.height + this.anchor.y;
