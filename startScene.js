@@ -176,23 +176,23 @@ var serverAddr = "https://hyperwave.hyunwoo.org"; // 서버 제작중
 
 startScene.init = function()
 {
-    preloadImage( serverAddr + "/image/player/player.png",  serverAddr + "/image/player/playerHand.png", 
-                 serverAddr + "/image/weapon/sword.png",  serverAddr + "/image/effect/swordEffect.png", 
-                 serverAddr + "/image/weapon/spear.png", 
-                 serverAddr + "/image/player/sample/player.png",  
-                 serverAddr + "/image/enemy/trackingEnemy.png", 
-                 serverAddr + "/image/enemy/shootingEnemy.png",  serverAddr + "/image/effect/enemyBullet1.png",
-                 serverAddr + "/image/boss/cube.png", 
-                 serverAddr + "/image/EnemyHpBarIn.png", 
-                 serverAddr + "/image/cursor.png", 
-                 serverAddr + "/image/hpBarOut.png",  serverAddr + "/image/PlayerHpBarIn.png",
-                 serverAddr + "/image/tablet.png",  serverAddr + "/image/tabletSample.png",
-                 serverAddr + "/image/button/leftArrow.png",  serverAddr + "/image/button/rightArrow.png", serverAddr + "/image/button/select.png", serverAddr + "/image/button/start.png", serverAddr + "/image/button/set.png", serverAddr + "/image/button/restart.png", 
-                 serverAddr + "/image/icon/notSelected.png", serverAddr + "/image/icon/lock.png", serverAddr + "/image/icon/cantSelect.png",  
-                 serverAddr + "/image/icon/warrior/passiveSkill/basicAttackDamageUp.png", serverAddr + "/image/icon/warrior/passiveSkill/healthUp.png",
-                 serverAddr + "/image/icon/warrior/activeSkill/swiftStrike.png", serverAddr + "/image/icon/warrior/activeSkill/swordShot.png",
-                 serverAddr + "/image/background/ingame.png", serverAddr + "/image/result.png", 
-                 serverAddr + "/image/fade/black.png", serverAddr + "/image/fade/white.png");
+    // preloadImage( serverAddr + "/image/player/player.png",  serverAddr + "/image/player/playerHand.png", 
+    //              serverAddr + "/image/weapon/sword.png",  serverAddr + "/image/effect/swordEffect.png", 
+    //              serverAddr + "/image/weapon/spear.png", 
+    //              serverAddr + "/image/player/sample/player.png",  
+    //              serverAddr + "/image/enemy/trackingEnemy.png", 
+    //              serverAddr + "/image/enemy/shootingEnemy.png",  serverAddr + "/image/effect/enemyBullet1.png",
+    //              serverAddr + "/image/boss/cube.png", 
+    //              serverAddr + "/image/EnemyHpBarIn.png", 
+    //              serverAddr + "/image/cursor.png", 
+    //              serverAddr + "/image/hpBarOut.png",  serverAddr + "/image/PlayerHpBarIn.png",
+    //              serverAddr + "/image/tablet.png",  serverAddr + "/image/tabletSample.png",
+    //              serverAddr + "/image/button/leftArrow.png",  serverAddr + "/image/button/rightArrow.png", serverAddr + "/image/button/select.png", serverAddr + "/image/button/start.png", serverAddr + "/image/button/set.png", serverAddr + "/image/button/restart.png", 
+    //              serverAddr + "/image/icon/notSelected.png", serverAddr + "/image/icon/lock.png", serverAddr + "/image/icon/cantSelect.png",  
+    //              serverAddr + "/image/icon/warrior/passiveSkill/basicAttackDamageUp.png", serverAddr + "/image/icon/warrior/passiveSkill/healthUp.png",
+    //              serverAddr + "/image/icon/warrior/activeSkill/swiftStrike.png", serverAddr + "/image/icon/warrior/activeSkill/swordShot.png",
+    //              serverAddr + "/image/background/ingame.png", serverAddr + "/image/result.png", 
+    //              serverAddr + "/image/fade/black.png", serverAddr + "/image/fade/white.png");
 
     this.cam = new Camera();
     this.cursor = nowScene.addThing(new MousePoint( serverAddr + "/image/cursor.png", mouseX, mouseY, ));

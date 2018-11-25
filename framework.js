@@ -553,17 +553,8 @@ class GameImage
     }
     setImage()
     {
-        if(imageList[this.path] == undefined) // imageList에서 path가 없을 때 imageList에 path를 저장
-        {
-            this.image = new Image();
-            this.image.src = this.path;
-            imageList[this.path] = {image : this.image, isLoaded : false};
-            this.image.addEventListener("load", isLoadedTrue(this.path), false);
-        }
-        else // imageList에서 path가 있을 때 imageList에서 불러옴
-        {
-            this.image = imageList[this.path].image;
-        }
+        this.image = new Image();
+        this.image.src = this.path;
         this.anchor = {x : -this.image.width / 2, y : -this.image.height / 2}; // anchor는 image의 rot에 따라 움직이는 축(?)
     }
     render()
