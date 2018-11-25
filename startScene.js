@@ -22,7 +22,7 @@ class GameController
 {
     constructor()
     {
-        this.wave = 4;
+        this.wave = 0;
         this.startWave = false;
         this.canStartWave = true;
 
