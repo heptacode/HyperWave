@@ -48,7 +48,7 @@ class Helmet extends parts // 작업중
 {
 	constructor()
 	{
-		super("image/parts/head/helmet.png", 100, 100); // x : (pannel.pos.x + pannel.range.x * pannel.partsCnt) y : (pannel.pos.y + pannel.range.y * pannel.partsCnt) 
+		super(serverAddr + "/image/parts/head/helmet.png", 100, 100); // x : (pannel.pos.x + pannel.range.x * pannel.partsCnt) y : (pannel.pos.y + pannel.range.y * pannel.partsCnt) 
     }
     ability()
     {
@@ -104,28 +104,28 @@ class Pannel
 readyScene.init = function()
 {
     this.cam = new Camera(this.selectPannel);
-    this.cursor = nowScene.addThing(new MousePoint("image/cursor.png", mouseX, mouseY));
+    this.cursor = nowScene.addThing(new MousePoint(serverAddr + "/image/cursor.png", mouseX, mouseY));
 
     gameScene.selectedInfo = {player : {skill : {passive :  [], active : []}, job : null}};
 
-    this.jobs = [["image/player/sample/player.png", "Warrior"], 
-                ["image/player/sample/player.png", "Lancer"]];
-    this.skills = [[[new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")], 
+    this.jobs = [[serverAddr + "/image/player/sample/player.png", "Warrior"], 
+                [serverAddr + "/image/player/sample/player.png", "Lancer"]];
+    this.skills = [[[new Button(serverAddr + "/image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button(serverAddr + "/image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
+                  new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0, "none"), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0, "none"),
+                  new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0, "none"), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0, "none")], 
 
-                  [new Button("image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "SwordShot"), new Button("image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "SwiftStrike"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
+                  [new Button(serverAddr + "/image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "SwordShot"), new Button(serverAddr + "/image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "SwiftStrike"),
+                  new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0, "none"), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0, "none"),
+                  new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0, "none"), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0, "none")]],
 
 
-                  [[new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0)],
+                  [[new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0),
+                  new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0),
+                  new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0)],
 
-                  [new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0)]]];
+                  [new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0),
+                  new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0),
+                  new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0), new Button(serverAddr + "/image/icon/notSelected.png", 0, 0, 0)]]];
 
     this.index = 0;
     this.activeSkillsKey = ["ShiftLeft", "Space"];
@@ -133,7 +133,7 @@ readyScene.init = function()
 
     this.cautionList = [];
     
-    this.selectPannel = nowScene.addThing(new GameImage("image/tablet.png", 0, -(1080 - canvas.height) / 2, "none"));
+    this.selectPannel = nowScene.addThing(new GameImage(serverAddr + "/image/tablet.png", 0, -(1080 - canvas.height) / 2, "none"));
     this.selectPannel.setZ(2);
     
     
@@ -153,7 +153,7 @@ readyScene.init = function()
     // middle pannel
     this.middlePannel = new Pannel(nowScene.selectPannel.pos.x + 648, nowScene.selectPannel.pos.y + 50, 624, 981);
     
-    this.playerImage = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameImage("image/player/sample/player.png", nowScene.middlePannel.getCenter("x"), nowScene.middlePannel.getCenter("y"), "none")));
+    this.playerImage = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameImage(serverAddr + "/image/player/sample/player.png", nowScene.middlePannel.getCenter("x"), nowScene.middlePannel.getCenter("y"), "none")));
     this.playerImage.setZ(5);
     this.playerImage.setCenter();
 
@@ -161,7 +161,7 @@ readyScene.init = function()
     this.jobName.color = {r : 6, g : 226, b : 224};
     this.jobName.setZ(5);
 
-    this.leftButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/leftArrow.png", nowScene.middlePannel.pos.x + 35, nowScene.middlePannel.getCenter("y"), 3)));
+    this.leftButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button(serverAddr + "/image/button/leftArrow.png", nowScene.middlePannel.pos.x + 35, nowScene.middlePannel.getCenter("y"), 3)));
     this.leftButton.setClickEvent(function()
     {
         if(--nowScene.index < 0)
@@ -173,7 +173,7 @@ readyScene.init = function()
     });
     nowScene.updateList.push(this.leftButton);
 
-    this.rightButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/rightArrow.png", nowScene.middlePannel.pos.x + nowScene.middlePannel.image.width - 20, nowScene.middlePannel.getCenter("y"), 3)));
+    this.rightButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button(serverAddr + "/image/button/rightArrow.png", nowScene.middlePannel.pos.x + nowScene.middlePannel.image.width - 20, nowScene.middlePannel.getCenter("y"), 3)));
     this.rightButton.setClickEvent(function()
     {
         if(++nowScene.index > nowScene.jobs.length - 1)
@@ -185,7 +185,7 @@ readyScene.init = function()
     });
     nowScene.updateList.push(this.rightButton);
 
-    this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", nowScene.middlePannel.pos.x + 159, nowScene.middlePannel.pos.y + 879, 5, "readyButton")));
+    this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button(serverAddr + "/image/button/select.png", nowScene.middlePannel.pos.x + 159, nowScene.middlePannel.pos.y + 879, 5, "readyButton")));
     this.readyButton.pos.x += this.readyButton.image.width / 2;
     this.readyButton.strokeWidth = 10;
     this.readyButton.strokeStyle = "#06e2e0"
@@ -218,7 +218,7 @@ readyScene.init = function()
     // right pannel
     this.rightPannel = new Pannel(nowScene.selectPannel.pos.x + 1304, nowScene.middlePannel.pos.y, 557, nowScene.middlePannel.image.height);
 
-    this.startButton = nowScene.rightPannel.setOnPannel(nowScene.addThing(new Button("image/button/start.png", nowScene.rightPannel.pos.x + 36, nowScene.rightPannel.pos.y + 785, 5, "startButton")));
+    this.startButton = nowScene.rightPannel.setOnPannel(nowScene.addThing(new Button(serverAddr + "/image/button/start.png", nowScene.rightPannel.pos.x + 36, nowScene.rightPannel.pos.y + 785, 5, "startButton")));
     this.startButton.pos.x += this.startButton.image.width / 2;
     this.startButton.pos.y += this.startButton.image.height / 2;
     this.startButton.setClickEvent(function()
@@ -302,7 +302,7 @@ readyScene.init = function()
                 }
                 else
                 {
-                    nowScene.selectPassiveSkills[_num - 1].path = "image/icon/notSelected.png";
+                    nowScene.selectPassiveSkills[_num - 1].path = serverAddr + "/image/icon/notSelected.png";
                     nowScene.selectPassiveSkills[_num - 1].name = "none";
                     _skill.isSelected = false;
                 }
@@ -318,7 +318,7 @@ readyScene.init = function()
                 }
                 else
                 {
-                    nowScene.selectActiveSkills[_num - 1].path = "image/icon/notSelected.png";
+                    nowScene.selectActiveSkills[_num - 1].path = serverAddr + "/image/icon/notSelected.png";
                     nowScene.selectActiveSkills[_num - 1].name = "none";
                     _skill.isSelected = false;
                 }
@@ -331,7 +331,7 @@ readyScene.init = function()
     {
         for(let i = 0; i < 2; i++)
         {
-            let selectImage = new GameImage(((i + 1) != 2) ? "image/icon/notSelected.png" : "image/icon/cantSelect.png", nowScene.leftDownPannel.pos.x + 24 + i * 129, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0", "rect");
+            let selectImage = new GameImage(((i + 1) != 2) ? serverAddr + "/image/icon/notSelected.png" : serverAddr + "/image/icon/cantSelect.png", nowScene.leftDownPannel.pos.x + 24 + i * 129, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0", "rect");
             selectImage.setAnchor(-selectImage.image.width / 2, -selectImage.image.height / 2);
             selectImage.scale = {x : 1.3, y : 1.3};
             selectImage.isSelected = false;
@@ -358,7 +358,7 @@ readyScene.init = function()
         
         for(let i = 0; i < 2; i++)
         {
-            let selectImage = new GameImage("image/icon/notSelected.png", nowScene.leftDownPannel.pos.x + 318 + i * 131, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0", "rect");
+            let selectImage = new GameImage(serverAddr + "/image/icon/notSelected.png", nowScene.leftDownPannel.pos.x + 318 + i * 131, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0", "rect");
             selectImage.setAnchor(-selectImage.image.width / 2, -selectImage.image.height / 2);
             selectImage.scale = {x : 1.3, y : 1.3};
             selectImage.isSelected = false;
@@ -401,7 +401,7 @@ readyScene.init = function()
                         nowScene.activeSkills.forEach(skill => skill.isClicked2 = false);
                         nowScene.passiveSkills[i].isClicked2 = true;
     
-                        let button = nowScene.addThing(new Button("image/button/set.png", nowScene.passiveSkills[i].pos.x + nowScene.passiveSkills[i].image.width * 1.5, nowScene.passiveSkills[i].getCenter("y"), nowScene.passiveSkills[i].z + 1, "selectButton", "장착", 16));
+                        let button = nowScene.addThing(new Button(serverAddr + "/image/button/set.png", nowScene.passiveSkills[i].pos.x + nowScene.passiveSkills[i].image.width * 1.5, nowScene.passiveSkills[i].getCenter("y"), nowScene.passiveSkills[i].z + 1, "selectButton", "장착", 16));
                         button.text.color = {r : 6, g : 226, b : 224};
                         if(nowScene.passiveSkills[i].isSelected == false) // path = 선택버튼
                         {
@@ -479,7 +479,7 @@ readyScene.init = function()
             else
             {
                 // 자물쇠 이미지
-                let lock = nowScene.addThing(new GameImage("image/icon/lock.png", nowScene.passiveSkills[i].pos.x, nowScene.passiveSkills[i].pos.y, "lock"));
+                let lock = nowScene.addThing(new GameImage(serverAddr + "/image/icon/lock.png", nowScene.passiveSkills[i].pos.x, nowScene.passiveSkills[i].pos.y, "lock"));
                 lock.setZ(nowScene.passiveSkills[i].z + 1);
                 nowScene.locks.push(lock);
             }
@@ -515,7 +515,7 @@ readyScene.init = function()
     
                         let button1, button2;
     
-                        button1 = nowScene.addThing(new Button("image/button/set.png", nowScene.activeSkills[i].pos.x + nowScene.activeSkills[i].image.width * 1.5, nowScene.activeSkills[i].pos.y + 15, nowScene.passiveSkills[i].z + 1, "selectToSkill1", "skill1", 16));
+                        button1 = nowScene.addThing(new Button(serverAddr + "/image/button/set.png", nowScene.activeSkills[i].pos.x + nowScene.activeSkills[i].image.width * 1.5, nowScene.activeSkills[i].pos.y + 15, nowScene.passiveSkills[i].z + 1, "selectToSkill1", "skill1", 16));
                         button1.text.color = {r : 6, g : 226, b : 224};
                         if(nowScene.activeSkills[i].isSelected == false) // path = 선택버튼
                         {
@@ -582,7 +582,7 @@ readyScene.init = function()
     
                         if(nowScene.activeSkills[i].isSelected == false) // path = 선택버튼
                         {
-                            button2 = nowScene.addThing(new Button("image/button/set.png", nowScene.activeSkills[i].pos.x + nowScene.activeSkills[i].image.width * 1.5, nowScene.activeSkills[i].pos.y + nowScene.activeSkills[i].image.height - 15, nowScene.passiveSkills[i].z + 1, "selectToSkill2", "skill2", 16));
+                            button2 = nowScene.addThing(new Button(serverAddr + "/image/button/set.png", nowScene.activeSkills[i].pos.x + nowScene.activeSkills[i].image.width * 1.5, nowScene.activeSkills[i].pos.y + nowScene.activeSkills[i].image.height - 15, nowScene.passiveSkills[i].z + 1, "selectToSkill2", "skill2", 16));
                             button2.text.color = {r : 6, g : 226, b : 224};
                             button2.setClickEvent(function()
                             {
@@ -652,7 +652,7 @@ readyScene.init = function()
             }
             else if(nowScene.activeSkills[i].name == "none")
             {
-                let lock = nowScene.addThing(new GameImage("image/icon/lock.png", nowScene.activeSkills[i].pos.x, nowScene.activeSkills[i].pos.y, "lock"));
+                let lock = nowScene.addThing(new GameImage(serverAddr + "/image/icon/lock.png", nowScene.activeSkills[i].pos.x, nowScene.activeSkills[i].pos.y, "lock"));
                 lock.setZ(nowScene.passiveSkills[i].z + 1);
                 nowScene.locks.push(lock);
             }
