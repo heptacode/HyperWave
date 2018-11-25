@@ -4,11 +4,16 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 1, 0.5, 0],
+    ["TrackingEnemy", 1, 0, 0],
     ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
     ["TrackingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5],
     ["ShootingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5],
-    ["HyunWoo", 1, 0, 0]
+    ["Cube", 1, 0, 0],
+    ["TraclingEnemy", 4, 2, 0, "TrackingEnemy", 4, 2, 1],
+    ["ShootingEnemy", 4, 2, 0, "ShootingEnemy", 4, 2, 1],
+    ["TrackingEnemy", 5, 2, 0, "ShootingEnemy", 5, 2, 1],
+    ["TrackingEnemy", 10, 2, 0, "ShootingEnemy", 10, 2, 1],
+    ["Cube", 1, 0, 0]
 ];
 
 
@@ -17,7 +22,7 @@ class GameController
 {
     constructor()
     {
-        this.wave = 0;
+        this.wave = 4;
         this.startWave = false;
         this.canStartWave = true;
 
@@ -27,9 +32,11 @@ class GameController
         this.startRest = false;
         this.monsterMakers = 
         [
-            new monsterMaker(200, 200), new monsterMaker(700, 700)
+            new monsterMaker(nowScene.background.pos.x + 350, nowScene.background.pos.y + 930), new monsterMaker(nowScene.background.pos.x + nowScene.background.image.width - 400, nowScene.background.pos.y + 930),
+            new monsterMaker(nowScene.background.pos.x + 350, nowScene.background.pos.y + 1800), new monsterMaker(nowScene.background.pos.x + nowScene.background.image.width - 400, nowScene.background.pos.y + 1800)
         ];
-        this.information = {wave : nowScene.addThing(new GameText(75, 30, 30, "Arial", "wave : " + this.wave))};
+        this.information = {wave : nowScene.addThing(new GameText(75, 20, 30, "Nanum Squre", "wave : " + this.wave))};
+        this.information.wave.pos.y += this.information.wave.size;
         this.information.wave.isFixed = true;
     }
     // waveStart(현재 웨이브)
@@ -54,15 +61,19 @@ class GameController
     // monsterMaker가 spawn을 멈춤(spawnCount >= spawnMax) -> true
     areMonsterMakersStop()
     {
-        let num = 0;
+        let num1 = 0, num2 = 0;
         for(let i = 0; i < this.monsterMakers.length; i++)
         {
-            if(this.monsterMakers[i].spawnCount >= this.monsterMakers[i].spawnMax)
+            if(this.monsterMakers[i].spawnCount >= this.monsterMakers[i].spawnMax && this.monsterMakers[i].startSpawn == true)
             {
-                num++;
+                num1++;
+            }
+            if(this.monsterMakers[i].startSpawn == true)
+            {
+                num2++;
             }
         }
-        return (num == this.monsterMakers.length);
+        return (num1 == num2);
     }
     // restTime만큼 기다림
     restStart()
@@ -78,14 +89,18 @@ class GameController
     {
         if(_ending == "clear")
         {
-            nowScene.sceneThingList.length = 0;
-            gameoverScene.start();
+            gameoverScene.clearFail = "clear!";
         }
         else if(_ending == "fail")
         {
-            nowScene.sceneThingList.length = 0;
-            gameoverScene.start();
+            gameoverScene.clearFail = "fail...";
         }
+        nowScene.sceneThingList.length = 0;
+        gameoverScene.killCnt = [[nowScene.player.jobName, nowScene.player.killCnt]];
+        gameoverScene.start();
+    }
+    isEnd()
+    {
     }
     showInformation()
     {
@@ -102,35 +117,38 @@ class GameController
             this.wave++;
             this.waveStart(this.wave);
         }
-        if(this.startWave == true) // 웨이브 실행 중
+        if(this.startWave == true) // 웨이브 실행 중일 때
         {
-            if(this.areMonsterMakersStop() == true && this.areThereAnyMonsters() == false)
+            if(nowScene.player.isDelete == true)
+            {
+                this.endGame("fail");
+            }
+            else if(this.areMonsterMakersStop() == true && this.areThereAnyMonsters() == false)
             {
                 // 초기화 및 rest 시작
-                for(let i = 0; i < this.monsterMakers.length; i++)
+                if(this.wave != waveInfo.length)
                 {
-                    this.monsterMakers[i].startSpawn = false;
-                    this.monsterMakers[i].spawnCount = 0;
+                    for(let i = 0; i < this.monsterMakers.length; i++)
+                    {
+                        this.monsterMakers[i].startSpawn = false;
+                        this.monsterMakers[i].spawnCount = 0;
+                    }
+                    this.startRest = true;
+                    this.startWave = false;
+                    this.restRTime = this.restLTime + this.restTime * 1000;
                 }
-                this.startRest = true;
-                this.startWave = false;
-                this.restRTime = this.restLTime + this.restTime * 1000;
+                else
+                {
+                    this.endGame("clear");
+                }
             }
         }
-        if(this.startRest == true) // rest 실행 중
+        if(this.startRest == true) // rest 실행 중일 떄
         {
             this.restStart();
         }
-        if(nowScene.player.isDelete == false && this.wave == waveInfo.length && this.areMonsterMakersStop() == true && this.areThereAnyMonsters() == false)
-        {
-            this.endGame("clear");
-        }
-        else if(nowScene.player.isDelete == true && this.wave < waveInfo.length && nowScene.enemyList.length != 0)
-        {
-            this.endGame("fail")
-        }
     }
-    // readyScene에서 선택한 정보를 옮겨줌 // 작업중
+    // readyScene에서 선택한 정보를 옮겨줌
     static sendInfo(_type, _info)
     {
         for(let i = 0; i < arguments.length; i++)
@@ -154,7 +172,7 @@ class GameController
     }
 }
 
-var serverAddr = "https://sunrin.hyunwoo.org/dicon/"; // 서버 제작중
+var serverAddr = "https://sunrin.HyunWoo.org/dicon/"; // 서버 제작중
 
 startScene.init = function()
 {
@@ -164,15 +182,17 @@ startScene.init = function()
                  "image/player/sample/player.png",  
                  "image/enemy/trackingEnemy.png", 
                  "image/enemy/shootingEnemy.png",  "image/effect/enemyBullet1.png",
+                 "image/boss/cube.png", 
                  "image/EnemyHpBarIn.png", 
                  "image/cursor.png", 
                  "image/hpBarOut.png",  "image/PlayerHpBarIn.png",
                  "image/tablet.png",  "image/tabletSample.png",
-                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/set.png",
-                 "image/icon/notSelected.png", "image/icon/lock.png",  
+                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/set.png", "image/button/restart.png", 
+                 "image/icon/notSelected.png", "image/icon/lock.png", "image/icon/cantSelect.png",  
                  "image/icon/warrior/passiveSkill/basicAttackDamageUp.png", "image/icon/warrior/passiveSkill/healthUp.png",
                  "image/icon/warrior/activeSkill/swiftStrike.png", "image/icon/warrior/activeSkill/swordShot.png",
-                 "image/background/ingame.png");
+                 "image/background/ingame.png", "image/result.png", 
+                 "image/fade/black.png", "image/fade/white.png");
 
     this.cam = new Camera();
     this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY, ));
@@ -190,7 +210,6 @@ startScene.init = function()
             {
                 nowScene.admitButton.pos.y = canvas.height / 2 - nowScene.admitButton.image.height / 2;
                 nowScene.admitButton.RTime = Date.now() + 1 * 1000;
-                nowScene.cam.setFade(0, 0, 0, 1, 2);
                 nowScene.admitButton.update = () =>
                 {
                     if(Date.now() > nowScene.admitButton.RTime)

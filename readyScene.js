@@ -331,7 +331,7 @@ readyScene.init = function()
     {
         for(let i = 0; i < 2; i++)
         {
-            let selectImage = new GameImage("image/icon/notSelected.png", nowScene.leftDownPannel.pos.x + 24 + i * 129, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0");
+            let selectImage = new GameImage(((i + 1) != 2) ? "image/icon/notSelected.png" : "image/icon/cantSelect.png", nowScene.leftDownPannel.pos.x + 24 + i * 129, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0", "rect");
             selectImage.setAnchor(-selectImage.image.width / 2, -selectImage.image.height / 2);
             selectImage.scale = {x : 1.3, y : 1.3};
             selectImage.isSelected = false;
@@ -358,7 +358,7 @@ readyScene.init = function()
         
         for(let i = 0; i < 2; i++)
         {
-            let selectImage = new GameImage("image/icon/notSelected.png", nowScene.leftDownPannel.pos.x + 318 + i * 131, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0");
+            let selectImage = new GameImage("image/icon/notSelected.png", nowScene.leftDownPannel.pos.x + 318 + i * 131, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0", "rect");
             selectImage.setAnchor(-selectImage.image.width / 2, -selectImage.image.height / 2);
             selectImage.scale = {x : 1.3, y : 1.3};
             selectImage.isSelected = false;
@@ -383,7 +383,7 @@ readyScene.init = function()
                 numY++;
             }
             nowScene.passiveSkills[i].pos = {x : nowScene.leftDownPannel.pos.x + nowScene.passiveSkills[i].image.width / 2 + (i % 2) * (nowScene.passiveSkills[i].image.width + 70), y : nowScene.leftDownPannel.pos.y + 18 + numY * (nowScene.passiveSkills[i].image.height + 29)};
-            nowScene.passiveSkills[i].strokeWidth = 3;
+            nowScene.passiveSkills[i].strokeWidth = 5;
             nowScene.passiveSkills[i].strokeStyle = "#06e2e0";
             nowScene.passiveSkills[i].isSelected = false;
             nowScene.passiveSkills[i].isClicked2 = false;
@@ -494,7 +494,7 @@ readyScene.init = function()
                 numY++;
             }
             nowScene.activeSkills[i].pos = {x : nowScene.leftDownPannel.getCenter("x") - 5 + nowScene.activeSkills[i].image.width / 2 + (i % 2) * (nowScene.activeSkills[i].image.width + 70), y : nowScene.leftDownPannel.pos.y + 18 + numY * (nowScene.activeSkills[i].image.height + 29)};
-            nowScene.activeSkills[i].strokeWidth = 3;
+            nowScene.activeSkills[i].strokeWidth = 5;
             nowScene.activeSkills[i].strokeStyle = "#06e2e0";
             nowScene.activeSkills[i].isSelected = false;
             nowScene.activeSkills[i].isClicked2 = false;
@@ -711,4 +711,6 @@ readyScene.update = function()
     
     this.cautionList.forEach(caution => caution.update());
     this.delete(this.cautionList);
+
+    this.cam.showFade();
 }

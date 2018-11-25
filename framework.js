@@ -82,17 +82,9 @@ Vector.prototype =
 // list
 var setList = function(cls)
 {
-    if(cls.type == "enemy" || cls.type == "object" || cls.type == "player")
+    if(cls.type == "enemy" || cls.type == "object" || cls.type == "player" || cls.type == "boss")
     {
         nowScene.collisionList.push(cls);
-    }
-    if(cls.type == "enemy" || cls.type == "object" || cls.type == "effect" || cls.type == "maker")
-    {
-        nowScene.moveList.push(cls);
-    }
-    if(cls.type == "enemy" || cls.type == "player")
-    {
-        nowScene.playerAndEnemyList.push(cls);
     }
     if(cls.type == "enemy" || cls.type == "boss")
     {
@@ -105,10 +97,6 @@ var setList = function(cls)
     if(cls.type == "effect")
     {
         nowScene.effectList.push(cls);
-    }
-    if(cls.type == "maker")
-    {
-        nowScene.makerList.push(cls);
     }
 }
 
@@ -312,21 +300,49 @@ class Camera
     {
         for(let i = 0; i < this.fadeList.length; i++)
         {
-            if(!(Date.now() > this.fadeList[i].RTime))
+            if(Date.now() > this.fadeList[i].RTime)
             {
-                console.log(this.fadeList[i]);
-                ctx.fillStyle = this.fadeList[i].color;
-                ctx.fillRect(0, 0, 1920, 1080);
+                if(this.fadeList[i].opacity >= this.fadeList[i].maxOpacity && this.fadeList[i].canBack == false)
+                {
+                    this.fadeList[i].canBack = true;
+                    this.fadeList[i].showRTime = Date.now() + this.fadeList[i].backTime * 1000;
+                    this.fadeList[i].RTime += this.fadeList[i].backTime * 1000;
+                }
+                if(this.fadeList[i].canBack == true)
+                {
+                    if(Date.now() > this.fadeList[i].showRTime)
+                    {
+                        this.fadeList.slice(i, 1);
+                        this.fadeList[i].isDelete = true;
+                    }
+                }
             }
-            else
+            if(this.fadeList[i].opacity < this.fadeList[i].maxOpacity && this.fadeList[i].canBack == false)
             {
-                this.fadeList.slice(i, 1);
+                this.fadeList[i].opacity += this.fadeList[i].maxOpacity / (this.fadeList[i].time * frame);
+            }
+            else if(this.fadeList[i].canBack == true)
+            {
+                this.fadeList[i].opacity -= this.fadeList[i].maxOpacity / (this.fadeList[i].backTime * frame);
             }
         }
     }
-    setFade(_r, _g, _b, _opacity, _time)
+    setFade(_color, _opacity, _time, _showTime, _backTime, _z)
     {
-        let fade = {color : "rgba(" + _r + ", " + _g + ", " + _b + ", " + _opacity + ")", RTime : Date.now() + _time};
+        let fade = nowScene.addThing(new GameImage("image/fade/black.png", 0, 0, "fade"));
+        fade.opacity = 0;
+        fade.maxOpacity = _opacity;
+        fade.time = _time;
+        fade.showTime = _showTime * 1000;
+        fade.showRTime = Date.now();
+        fade.RTime = Date.now() + _showTime * 1000;
+        fade.backTime = _backTime;
+        fade.canBack = false;
+        switch(_color)
+        {
+            case "white" : fade.path = "image/fade/white.png"; fade.setImage(); break;
+        }
+        fade.setZ(_z);
         this.fadeList.push(fade);
     }
     posUpdating()

@@ -171,7 +171,7 @@ class SwiftStrike extends ActiveSkill
         this.delayRTime = Date.now();
         this.delayTime = 0.15;
 
-        this.damage = 100; // 15
+        this.damage = 15;
     }
     makeSpectrum()
     {
@@ -541,6 +541,7 @@ class Player extends GameImage
     {
         super(path, _x, _y, "player");
         this.job = _job;
+        this.jobName = _job;
         
         this.pos = {x : this.pos.x - this.getImageLength("width") / 2, y : this.pos.y - this.getImageLength("height") / 2};
         
@@ -566,6 +567,9 @@ class Player extends GameImage
         this.status = {notCollision : false, invincible : false, cantSkill : false};
 
         this.killCnt = 0;
+
+        this.circleStrokeWidth = 100;
+        this.circleStrokeStyle = "#000000";
     }
     setStatus(_status, _trueFalse)
     {
@@ -756,6 +760,23 @@ class Player extends GameImage
                 }
             }
         }
+
+        if(this.pos.x <= nowScene.background.pos.x)
+        {
+            this.pos.x = nowScene.background.pos.x;
+        }
+        else if(this.pos.x >= nowScene.background.pos.x + nowScene.background.image.width - this.image.width)
+        {
+            this.pos.x = nowScene.background.pos.x + nowScene.background.image.width - this.image.width;
+        }
+        if(this.pos.y <= nowScene.background.pos.y)
+        {
+            this.pos.y = nowScene.background.pos.y;
+        }
+        else if(this.pos.y >= nowScene.background.pos.y + nowScene.background.image.height - this.image.height)
+        {
+            this.pos.y = nowScene.background.pos.y + nowScene.background.image.height - this.image.height;
+        }
     }
     showInformation()
     {
@@ -785,9 +806,8 @@ class Player extends GameImage
     {
         for(let i = 0; i < nowScene.enemyList.length; i++)
         {
-            if(nowScene.enemyList[i].isDelete == true && this.isInattackedList(nowScene.enemyList[i]))
+            if(nowScene.enemyList[i].hp <= 0 && this.isInattackedList(nowScene.enemyList[i]))
             {
-                console.log(this.killCnt);
                 this.killCnt++;
             }
         }
@@ -1027,6 +1047,10 @@ class Boss extends GameImage // 작업중
     {
 
     }
+    collisionCheck()
+    {
+
+    }
     deadCheck()
     {
         if(this.hp <= 0)
@@ -1038,20 +1062,27 @@ class Boss extends GameImage // 작업중
     update()
     {
         this.deadCheck();
+        this.collisionCheck();
         this.updating();
         this.showInformation();
     }
 }
-class HyunWoo extends Boss
+class Cube extends Boss
 {
     constructor()
     {
-        super("image/boss/HyunWoo.png", canvas.width / 2, canvas.height / 2 - 200);
+        super("image/boss/cube.png", nowScene.background.pos.x + nowScene.background.image.width / 2, nowScene.background.pos.y + nowScene.background.image.height / 2 - 500);
+
+        this.pos.x -= this.image.width / 2;
 
         this.pattern = 1;
-        this.shotTime = 2;
+        this.shotTime1 = 1;
+        this.shotSpeed1 = 2;
         this.actCnt = 0;
-        this.shotRTIme = Date.now() + this.shotTime * 1000;
+        this.shotRTIme = Date.now() + this.shotTime1 * 1000;
+
+        this.shotTime2 = 0.3;
+        this.shotSpeed2 = 2
 
         this.shotDamage = 5;
     }
@@ -1062,14 +1093,47 @@ class HyunWoo extends Boss
             let bullet = nowScene.addThing(new GameImage("image/effect/enemyBullet1.png", this.getCenter("x"), this.getCenter("y"), "bullet"));
             bullet.pos.x -= bullet.image.width / 2;
             bullet.pos.y -= bullet.image.height / 2;
-            bullet.rot = i * 45 / 180 * Math.PI;
+            bullet.rot = (i * 45 + this.actCnt * 10) / 180 * Math.PI;
+            bullet.showRTime = Date.now() + 3 * 1000;
             bullet.setZ(this.z + 1);
             bullet.update = () =>
             {
-                Util.moveByAngle(bullet.pos, bullet.rot , 1.5);
+                if(Date.now() > bullet.showRTime)
+                {
+                    bullet.isDelete = true;
+                }
+                else if(Collision.circle(bullet, nowScene.player) == true)
+                {
+                    nowScene.player.damaged(this.shotDamage);
+                    bullet.isDelete = true;
+                }
+                Util.moveByAngle(bullet.pos, bullet.rot , this.shotSpeed1);
             }
             nowScene.updateList.push(bullet);
         }
+    }
+    pointShot()
+    {
+        let bullet = nowScene.addThing(new GameImage("image/effect/enemyBullet1.png", this.getCenter("x"), this.getCenter("y"), "bullet"));
+        bullet.pos.x -= bullet.image.width / 2;
+        bullet.pos.y -= bullet.image.height / 2;
+        bullet.rot = Util.getAngle(this, nowScene.player) / 180 * Math.PI;
+        bullet.showRTime = Date.now() + 3 * 1000;
+        bullet.setZ(this.z + 1);
+        bullet.update = () =>
+        {
+            if(Date.now() > bullet.showRTime)
+            {
+                bullet.isDelete = true;
+            }
+            else if(Collision.circle(bullet, nowScene.player) == true)
+                {
+                    nowScene.player.damaged(this.shotDamage);
+                    bullet.isDelete = true;
+                }
+            Util.moveByAngle(bullet.pos, bullet.rot , this.shotSpeed2);
+        }
+        nowScene.updateList.push(bullet);
     }
     updating()
     {
@@ -1078,7 +1142,7 @@ class HyunWoo extends Boss
             if(Date.now() > this.shotRTIme)
             {
                 this.allAngleShot();
-                this.shotRTIme = Date.now() + this.shotTime * 1000;
+                this.shotRTIme = Date.now() + this.shotTime1 * 1000;
                 this.actCnt++;
             }
             if(this.actCnt == 5)
@@ -1089,7 +1153,18 @@ class HyunWoo extends Boss
         }
         else if(this.pattern == 2)
         {
-
+            if(Date.now() > this.shotRTIme)
+            {
+                this.pointShot();
+                this.shotRTIme = Date.now() + this.shotTime2 * 1000;
+                this.actCnt++;
+            }
+            if(this.actCnt == 20)
+            {
+                this.pattern = 1;
+                this.actCnt = 0;
+                this.shotRTIme = Date.now() + this.shotTime1 * 1000;
+            }
         }
 
     }
@@ -1130,6 +1205,31 @@ class monsterMaker
         this.spawnMax = _max;
         this.spawnDelay = _delay;
         this.spawnRTime = Date.now() + _firstD * 1000;
+    }
+    collisionCheck()
+    {
+        for(let i = 0; i < nowScene.collisionList.length; i++)
+        {
+            if(nowScene.collisionList[i] != this)
+            {
+                if(nowScene.collisionList[i].pos.x <= this.pos.x)
+                {
+                    nowScene.collisionList[i].pos.x = this.pos.x;
+                }
+                else if(nowScene.collisionList[i].pos.x >= this.pos.x + this.image.width - nowScene.collisionList[i].image.width)
+                {
+                    nowScene.collisionList[i].pos.x = this.pos.x + this.image.width - nowScene.collisionList[i].image.width;
+                }
+                if(nowScene.collisionList[i].pos.y <= this.pos.y)
+                {
+                    nowScene.collisionList[i].pos.y = this.pos.y;
+                }
+                else if(nowScene.collisionList[i].pos.y >= this.pos.y + this.image.height - nowScene.collisionList[i].image.height)
+                {
+                    nowScene.collisionList[i].pos.y = this.pos.y + this.image.height - nowScene.collisionList[i].image.height;
+                }
+            }
+        }
     }
     update()
     {
@@ -1403,11 +1503,8 @@ var setJob = (player) =>
 gameScene.init = function()
 {
     this.collisionList = [];
-    this.moveList = [];
-    this.playerAndEnemyList = [];
     this.enemyList = [];
     this.effectList = [];
-    this.makerList = [];
     
     this.background = nowScene.addThing(new GameImage("image/background/ingame.png", 0, 0, "background"));
     this.background.setCanvasCenter();
@@ -1420,7 +1517,7 @@ gameScene.init = function()
             case "TrackingEnemy" : nowScene.addThing(new TrackingEnemy(_pos.x, _pos.y)); break;
             case "ShootingEnemy" : nowScene.addThing(new ShootingEnemy(_pos.x, _pos.y)); break;
 
-            case "HyunWoo" : nowScene.addThing(new HyunWoo()); break;
+            case "Cube" : nowScene.addThing(new Cube()); break;
         }
     }
     this.getAngleBasic = function(_angle)
@@ -1445,9 +1542,6 @@ gameScene.update = function()
     this.cam.update();
     
     this.delete(this.collisionList);
-    this.delete(this.moveList);
-    this.delete(this.playerAndEnemyList);
     this.delete(this.enemyList);
     this.delete(this.effectList);
-    this.delete(this.makerList);
 }
