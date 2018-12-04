@@ -6,7 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <link rel="icon" href="image/favicon.png" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Gugi" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Gugi|Jua" />
         <style>
             html {
                 font-family: "Anonymous Pro", monospace;
@@ -65,6 +65,7 @@
                 border: 1px solid #72767b;
                 padding: 0.5rem;
                 margin: 1rem 0;
+                font-family: "Nanum Square", sans-serif;
             }
             .form-input-row {
                 display: block;
@@ -146,6 +147,16 @@
                 left: 0;
                 z-index: -1 !important;
             }
+            .overlay {
+                display: none;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                box-shadow: inset 0 0 5rem rgb(255, 0, 0);
+                z-index: 0;
+            }
         </style>
     </head>
     <body>
@@ -163,17 +174,28 @@
         </section>
         <script src="https://cdn.hyunwoo.org/js/jquery.min.js"></script>
         <script src="https://cdn.hyunwoo.org/js/js.cookie.js"></script>
+        <div class="overlay"></div>
         <canvas id="canvas"></canvas>
-        <script src="framework.js"></script>
-        <script src="myFunc.js"></script>
-        <script src="startScene.js"></script>
-        <script src="readyScene.js"></script>
-        <script src="game.js"></script>
-        <script src="gameoverScene.js"></script>
+        <script src="framework.js?v2"></script>
+        <script src="myFunc.js?v2"></script>
+        <script src="startScene.js?v2"></script>
+        <script src="readyScene.js?v2"></script>
+        <script src="game.js?v2"></script>
+        <script src="gameoverScene.js?v2"></script>
         <script>
+            document.addEventListener('keydown',function(){
+                if(event.keyCode == 13)
+                    signIn();
+            })
             function register() {
-                if (!$("#inputId").val() || $("#inputId").val() < 4) $("#inputId").focus();
-                if (!$("#inputPw").val() || $("#inputPw").val() < 4) $("#inputPw").focus();
+                if (!$("#inputId").val() || $("#inputId").val() < 4){
+                    $("#inputId").focus();
+                    event.preventDefault();
+                }
+                if (!$("#inputPw").val() || $("#inputPw").val() < 4){
+                    $("#inputPw").focus();
+                    event.preventDefault();
+                }
                 $.post(
                     "proxy.php",
                     {
@@ -193,6 +215,14 @@
                 );
             }
             function signIn() {
+                if (!$("#inputPw").val() || $("#inputPw").val() < 4){
+                    $("#inputPw").focus();
+                    event.preventDefault();
+                }
+                if (!$("#inputId").val() || $("#inputId").val() < 4){
+                    $("#inputId").focus();
+                    event.preventDefault();
+                }
                 $.post(
                     "proxy.php",
                     {

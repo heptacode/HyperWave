@@ -30,6 +30,8 @@ gameoverScene.init = function()
         readyScene.start();
     });
     nowScene.updateList.push(this.restartButton);
+
+    $(".overlay").css("display", "none");
 }
 gameoverScene.update = function()
 {

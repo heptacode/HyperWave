@@ -10,7 +10,7 @@ class parts extends GameImage
         this.isClicked = false;
         this.setZ(3);
 
-        this.status = nowScene.addThing(new GameText(this.pos.x, this.pos.y + 20, 10, "Nanum Square", "isClicked : "));
+        this.status = nowScene.addThing(new GameText(this.pos.x, this.pos.y + 20, 10, "Gugi", "isClicked : "));
 	}
 	ability()
 	{
@@ -111,15 +111,15 @@ readyScene.init = function()
     this.jobs = [["image/player/sample/player.png", "Warrior"], 
                 ["image/player/sample/player.png", "Lancer"]];
     this.skills = [[[new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")], 
+                  new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "blooddrain"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "attackSpeedUp"),
+                  new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "MOD:Berserker")], 
 
                   [new Button("image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "SwordShot"), new Button("image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "SwiftStrike"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
+                  new Button("image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "SpinShot"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
 
 
-                  [[new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
+                  [[new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackSpeedUp"),
                   new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
                   new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0)],
 
@@ -157,7 +157,7 @@ readyScene.init = function()
     this.playerImage.setZ(5);
     this.playerImage.setCenter();
 
-    this.jobName = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameText(nowScene.middlePannel.getCenter("x"), nowScene.playerImage.pos.y + nowScene.playerImage.image.height + 50, 30, "Nanum Square", nowScene.jobs[nowScene.index][1])));
+    this.jobName = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameText(nowScene.middlePannel.getCenter("x"), nowScene.playerImage.pos.y + nowScene.playerImage.image.height + 50, 30, "Gugi", nowScene.jobs[nowScene.index][1])));
     this.jobName.color = {r : 6, g : 226, b : 224};
     this.jobName.setZ(5);
 
@@ -233,7 +233,7 @@ readyScene.init = function()
         }
         else
         {
-            nowScene.addCaution("준비버튼을 누르세요!");
+            nowScene.addCaution("SELECT 버튼을 누르세요!");
         }
     });
     nowScene.updateList.push(this.startButton);
@@ -244,7 +244,7 @@ readyScene.init = function()
     {
         nowScene.cautionList.forEach(caution => caution.maxY += caution.size);
 
-        let caution = nowScene.addThing(new GameText(canvas.width / 2, -20, 30, "Nanum Square", _text));
+        let caution = nowScene.addThing(new GameText(canvas.width / 2, -20, 30, "Jua", _text));
         caution.opacity = 0;
         caution.color.r = 255;
         caution.maxY = caution.pos.y;
@@ -455,7 +455,7 @@ readyScene.init = function()
                         nowScene.passiveSkills[i].isClicked2 = true;
                     }
                 });
-                nowScene.passiveSkills[i].information = {name : new GameText(nowScene.passiveSkills[i].getCenter("x"), nowScene.passiveSkills[i].pos.y + nowScene.passiveSkills[i].image.height + 2, 15, "Nanum Square", nowScene.passiveSkills[i].name)}
+                nowScene.passiveSkills[i].information = {name : new GameText(nowScene.passiveSkills[i].getCenter("x"), nowScene.passiveSkills[i].pos.y + nowScene.passiveSkills[i].image.height + 2, 15, "Gugi", nowScene.passiveSkills[i].name)}
                 nowScene.passiveSkills[i].information.name.pos.y += nowScene.passiveSkills[i].information.name.size;
                 nowScene.passiveSkills[i].information.name.color = {r : 6, g : 226, b : 224};
                 nowScene.passiveSkills[i].onmouseover = false;
@@ -629,7 +629,7 @@ readyScene.init = function()
                         nowScene.activeSkills[i].isClicked2 = true;
                     }
                 });
-                nowScene.activeSkills[i].information = {name : new GameText(nowScene.activeSkills[i].getCenter("x"), nowScene.activeSkills[i].pos.y + nowScene.activeSkills[i].image.height + 2, 15, "Nanum Square", nowScene.activeSkills[i].name)}
+                nowScene.activeSkills[i].information = {name : new GameText(nowScene.activeSkills[i].getCenter("x"), nowScene.activeSkills[i].pos.y + nowScene.activeSkills[i].image.height + 2, 15, "Gugi", nowScene.activeSkills[i].name)}
                 nowScene.activeSkills[i].information.name.pos.y += nowScene.activeSkills[i].information.name.size;
                 nowScene.activeSkills[i].information.name.color = {r : 6, g : 226, b : 224};
                 nowScene.activeSkills[i].onmouseover = false;

@@ -1,6 +1,8 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+var fade = document.getElementsByClassName("overlay")[0];
+
 
 // canvas 크기설정
 canvas.width = window.innerWidth;
@@ -230,7 +232,6 @@ document.addEventListener("contextmenu", function()
 
 
 // function
-
 var preloadImage = function()
 {
     for(let i = 0; i < arguments.length; i++)
@@ -252,7 +253,6 @@ var isLoadedTrue = (_path) =>
 
 
 // class
-
 class Camera
 {
     constructor(_target)
@@ -739,7 +739,6 @@ class MousePoint extends GameImage
 
 
 // scene
-
 var nowScene = undefined;
 class Scene
 {
@@ -787,7 +786,6 @@ nowScene = nullScene;
 
 
 // gameLoop
-
 var update = function()
 {
     nowScene.update();

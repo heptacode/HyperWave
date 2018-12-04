@@ -22,7 +22,7 @@ class GameController
 {
     constructor()
     {
-        this.wave = 4;
+        this.wave = 0;
         this.startWave = false;
         this.canStartWave = true;
 
@@ -35,7 +35,7 @@ class GameController
             new monsterMaker(nowScene.background.pos.x + 350, nowScene.background.pos.y + 930), new monsterMaker(nowScene.background.pos.x + nowScene.background.image.width - 400, nowScene.background.pos.y + 930),
             new monsterMaker(nowScene.background.pos.x + 350, nowScene.background.pos.y + 1800), new monsterMaker(nowScene.background.pos.x + nowScene.background.image.width - 400, nowScene.background.pos.y + 1800)
         ];
-        this.information = {wave : nowScene.addThing(new GameText(75, 20, 30, "Nanum Squre", "wave : " + this.wave))};
+        this.information = {wave : nowScene.addThing(new GameText(75, 20, 30, "Nanum Squre Bold", "wave : " + this.wave))};
         this.information.wave.pos.y += this.information.wave.size;
         this.information.wave.isFixed = true;
     }
@@ -74,6 +74,11 @@ class GameController
             }
         }
         return (num1 == num2);
+    }
+    // player 회복
+    healPlayer()
+    {
+        nowScene.player.heal(nowScene.player.restHeal);
     }
     // restTime만큼 기다림
     restStart()
@@ -133,6 +138,7 @@ class GameController
                         this.monsterMakers[i].startSpawn = false;
                         this.monsterMakers[i].spawnCount = 0;
                     }
+                    this.healPlayer();
                     this.startRest = true;
                     this.startWave = false;
                     this.restRTime = this.restLTime + this.restTime * 1000;
