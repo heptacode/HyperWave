@@ -176,12 +176,12 @@
         <script src="https://cdn.hyunwoo.org/js/js.cookie.js"></script>
         <div class="overlay"></div>
         <canvas id="canvas"></canvas>
-        <script src="framework.js?v2"></script>
-        <script src="myFunc.js?v2"></script>
-        <script src="startScene.js?v2"></script>
-        <script src="readyScene.js?v2"></script>
-        <script src="game.js?v2"></script>
-        <script src="gameoverScene.js?v2"></script>
+        <script>document.write('<script src="framework.js?' + Date.now() + '"><\/script>')</script>
+        <script>document.write('<script src="myFunc.js?' + Date.now() + '"><\/script>')</script>
+        <script>document.write('<script src="startScene.js?' + Date.now() + '"><\/script>')</script>
+        <script>document.write('<script src="readyScene.js?' + Date.now() + '"><\/script>')</script>
+        <script>document.write('<script src="game.js?' + Date.now() + '"><\/script>')</script>
+        <script>document.write('<script src="gameoverScene.js?' + Date.now() + '"><\/script>')</script>
         <script>
             document.addEventListener('keydown',function(){
                 if(event.keyCode == 13)

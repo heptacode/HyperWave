@@ -64,7 +64,7 @@ class Collision
     }
     static circleToRotatedRect(_circle, _rect)
     {
-        let rectTempRot = Util.getAngleBasic(_rect.rot * 180 / Math.PI) / 180 * Math.PI;
+        let rectTempRot = _rect.rot;
 
         let unrotatedCircleX = Math.cos(rectTempRot) * (_circle.pos.x - Util.getCenter(_rect, "x")) - Math.sin(rectTempRot) * (_circle.pos.y + _circle.image.height - Util.getCenter(_rect, "y")) + Util.getCenter(_rect, "x");
         let unrotatedCircleY = Math.sin(rectTempRot) * (_circle.pos.x - Util.getCenter(_rect, "x")) + Math.cos(rectTempRot) * (_circle.pos.y + _circle.image.height - Util.getCenter(_rect, "y")) +Util.getCenter(_rect, "y");

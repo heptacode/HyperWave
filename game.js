@@ -288,7 +288,7 @@ class SwiftStrike extends ActiveSkill
         this.delayRTime = Date.now();
         this.delayTime = 0.15;
 
-        this.damage = this.yourPlayer.skillDamage * 12 / 10;
+        this.damage = this.yourPlayer.skillDamage * 7 / 10;
     }
     makeSpectrum()
     {
@@ -345,6 +345,7 @@ class SwiftStrike extends ActiveSkill
         this.activeDir = this.yourPlayer.playerToMouseAngle;
 
         this.attackRect.pos = {x : this.yourPlayer.getCenter("x") - this.attackRect.image.width / 2, y : this.yourPlayer.getCenter("y") - this.attackRect.image.height / 2};
+        this.attackRect.rot = this.yourPlayer.rot;
 
         this.yourPlayer.setStatus("notCollision", true, "invincible", true);
         this.yourPlayer.isDamaged = true;
@@ -358,6 +359,7 @@ class SwiftStrike extends ActiveSkill
         Util.moveByAngle(this.yourPlayer.rightHand.pos, this.activeDir, this.activeSpeed);
         Util.moveByAngle(this.yourPlayer.information.hp.pos, this.activeDir, this.activeSpeed);
         this.attackRect.pos = {x : this.yourPlayer.getCenter("x") - this.attackRect.image.width / 2, y : this.yourPlayer.getCenter("y") - this.attackRect.image.height / 2};
+        this.attackRect.rot = this.yourPlayer.rot;
     }
     isAttackedList(_index)
     {
@@ -507,6 +509,61 @@ class SpinShot extends ActiveSkill
     }
 }
 
+class Swing extends ActiveSkill
+{
+    constructor(_player, _key)
+    {
+        super(_player, _key, 5);
+
+        this.RTime = Date.now();
+
+        this.damage = this.yourPlayer.skillDamage * 10 / 10;
+    }
+    end()
+    {
+
+    }
+    set()
+    {
+
+    }
+    start()
+    {
+        this.set();
+        this.updating2 = () =>
+        {
+
+        }
+    }
+}
+class BuWang extends ActiveSkill
+{
+    constructor(_player, _key)
+    {
+        super(_player, _key, 5);
+
+        this.RTime = Date.now();
+
+        this.damage = this.yourPlayer.skillDamage * 15 / 10;
+    }
+    end()
+    {
+
+    }
+    set()
+    {
+
+    }
+    start()
+    {
+        this.set();
+        this.updating2 = () =>
+        {
+
+        }
+    }
+}
+
 class Effect extends GameImage
 {
     constructor(path, _x, _y, _showTime, _unit)
@@ -573,10 +630,14 @@ class Weapon extends GameImage
         this.attackRTime = 0;
         this.attackTime = _attackTime;
         this.attackBTime = 0;
+
         this.attackPattern = 1;
+
         this.damage = this.yourPlayer.basicDamage;
         this.attackEffect = new Effect("image/effect/swordEffect.png", this.yourPlayer.pos.x, this.yourPlayer.pos.y, 0.3, this.yourPlayer);
         this.attackLength = this.yourPlayer.image.width / 2 + this.image.width + this.attackEffect.image.width;
+
+        this.knockbackDistance = 30;
 
         this.attackedList = [];
     }
@@ -613,9 +674,9 @@ class Weapon extends GameImage
     {
         for(let i = 0; i < nowScene.enemyList.length; i++)
         {
-            if(this.isInRange(nowScene.enemyList[i]) && this.isInAngle(i) && !this.isAttackedList(i))
+            if(this.isInRange(nowScene.enemyList[i]) && this.isInAngle(nowScene.enemyList[i]) && !this.isAttackedList(i))
             {
-                nowScene.enemyList[i].damaged(this.damage, this.yourPlayer.rot, 30);
+                nowScene.enemyList[i].damaged(this.damage, this.yourPlayer.rot, this.knockbackDistance);
                 this.attackedList.push(nowScene.enemyList[i]);
                 this.yourPlayer.attackAbility();
             }
@@ -790,6 +851,7 @@ class Player extends GameImage
         setJob(this);
         this.job.setPlayerHand(this);
         this.job.setAttackHandPoint(this);
+        this.job.setStat(this);
         this.job.setWeapon(this);
         this.job.setPlayerAttackMotion(this);
         this.job.setAttackRange(this);
@@ -1010,11 +1072,11 @@ class Player extends GameImage
         this.statusUpdating();
         this.moving();
         this.collisionSet();
-        this.playerAttack();
         this.setAngle();
         this.showInformation();
         this.handMove();
         this.weapon.update();
+        this.playerAttack();
         this.skillUpdate();
         this.countKillEnemy();
         this.setZ(2);
@@ -1109,7 +1171,7 @@ class TrackingEnemy extends Enemy
     {
         super( "image/enemy/trackingEnemy.png", _x, _y, nowScene.player);
         this.trackOn = true;
-        this.maxHp = 50;
+        this.maxHp = 55;
         this.hp = this.maxHp;
     }
     playerTracking()
@@ -1146,7 +1208,7 @@ class ShootingEnemy extends Enemy
         this.shotRTime = 0;
         this.shotDelay = 2;
 
-        this.maxHp = 20;
+        this.maxHp = 35;
         this.hp = this.maxHp;
     }
     playerTracking()
@@ -1535,10 +1597,10 @@ var JobWarrior =
         {
             return (Collision.circle(player, obj, player.weapon.attackLength, obj.image.width / 2));
         }
-        player.weapon.isInAngle = (_index) =>
+        player.weapon.isInAngle = (obj) =>
         {
             let basicPlayerRot = Util.getAngleBasic(player.rot * 180 / Math.PI);
-            let playerToEnemy = Util.getAngleBasic(Util.getAngle(player, nowScene.enemyList[_index]));
+            let playerToEnemy = Util.getAngleBasic(Util.getAngle(player, obj));
     
             if((basicPlayerRot < -player.weapon.attackAngle / 2) && playerToEnemy > (360 + player.weapon.attackAngle / 2))
             {
@@ -1611,8 +1673,8 @@ var JobLancer =
     {
         player.leftHand.setAttackPoint(1, 12);
         player.leftHand.setAttackPoint(2, 55);
-        player.rightHand.setAttackPoint(1, 77);
-        player.rightHand.setAttackPoint(2, 30);
+        player.rightHand.setAttackPoint(1, 100);
+        player.rightHand.setAttackPoint(2, 20);
     },
     setPlayerAttackMotion : (player) =>
     {
@@ -1630,12 +1692,18 @@ var JobLancer =
                     
                     player.weapon.angle += player.weapon.attackAngle;
 
+                    player.weapon.attackCheck();
+
                     player.attack.click = false;
+                    nowScene.cam.shaking(7, 7, 0.1);
                 }
-                else if(Date.now() >= player.weapon.attackRTime + player.weapon.attackTime * 1000)
+                if(Date.now() >= player.weapon.attackRTime + player.weapon.attackTime * 1000)
                 {
+                    player.weapon.attackRTime = Date.now() + (player.weapon.attackTime / 2) * 1000;
                     player.weapon.attackPattern++;
                     player.attack.canAttack = true;
+
+                    player.weapon.attackedList.length = 0;
                     player.setPlayerTemp();
                 }
             }
@@ -1643,19 +1711,22 @@ var JobLancer =
             {
                 if(player.playerHandSlowBasic(player.weapon.attackTime, player.weapon.attackRTime) == true)
                 {
-                    player.leftHand.setBasic();
-                    player.rightHand.setBasic();
-                    player.weapon.setBasic();
                     player.attack.attacking = false;
                 }
             }
         }
     },
+    setStat : (player) =>
+    {
+        player.basicDamage = 15;
+        player.skillDamage = player.basicDamage;
+    },
     setWeapon : (player) =>
     {
         player.weapon = nowScene.addThing(new Weapon( "image/weapon/spear.png", Util.getCenter(player.rightHand, "x"), Util.getCenter(player.rightHand, "y"), -10, 0, 0.15, player));
+        player.weapon.damage = player.basicDamage;
         player.weapon.setAnchor((player.rightHand.pos.x - Util.getCenter(player, "x")), 0);
-        player.weapon.update = function()
+        player.weapon.updating = () =>
         {
             player.weapon.rot =  player.rot + player.weapon.angle / 180 * Math.PI;
             player.weapon.pos.x = player.rightHand.pos.x - player.weapon.getImageLength("width") / 5;
@@ -1667,26 +1738,13 @@ var JobLancer =
     {
         player.weapon.isInRange = (obj) =>
         {
-            return (Collision.circle(player, obj, player.weapon.attackLength, obj.image.width / 2));
+            //충돌처리 오류
+            let collisionRect = {pos : {x : player.weapon.pos.x, y : player.weapon.pos.y}, rot : player.weapon.rot, image : {width : player.weapon.image.width, height : player.weapon.image.height}}
+            return (Collision.circleToRotatedRect(obj, collisionRect));
         }
-        player.weapon.isInAngle = (_index) =>
+        player.weapon.isInAngle = (obj) =>
         {
-            let basicPlayerRot = Util.getAngleBasic(player.rot * 180 / Math.PI);
-            let playerToEnemy = Util.getAngleBasic(Util.getAngle(player, nowScene.enemyList[_index]));
-    
-            if((basicPlayerRot < -player.weapon.attackAngle / 2) && playerToEnemy > (360 + player.weapon.attackAngle / 2))
-            {
-                basicPlayerRot += 360;
-            }
-            else if((basicPlayerRot > 360 + player.weapon.attackAngle / 2) && playerToEnemy < -player.weapon.attackAngle / 2)
-            {
-                basicPlayerRot -= 360;
-            }
-    
-            let minusAngle = (basicPlayerRot + player.weapon.attackAngle / 2);
-            let plusAngle = (basicPlayerRot - player.weapon.attackAngle / 2);
-            
-            return (playerToEnemy >= minusAngle && playerToEnemy <= plusAngle);
+            return true;
         }
     },
     setSkills : (player) =>
@@ -1696,7 +1754,8 @@ var JobLancer =
             let passiveSkill;
             switch(nowScene.selectedInfo.player.skill.passive[i])
             {
-
+                case "basicAttackDamageUp" : passiveSkill = new basicAttackDamageUp(player); break;
+                case "attackSpeedUp" : passiveSkill = new attackSpeedUp(player); break;
             }
             player.passiveSkills.push(passiveSkill);
         }
@@ -1706,7 +1765,8 @@ var JobLancer =
             let activeSkill;
             switch(nowScene.selectedInfo.player.skill.active[i])
             {
-                
+                case "Swing" : activeSkill = new Swing(player, nowScene.selectedInfo.player.skill.active[i + 1]); break;
+                case "Bu-Wang" : activeSkill = new BuWang(player, nowScene.selectedInfo.player.skill.active[i + 1]); break;
             }
             player.activeSkills.push(activeSkill);
         }

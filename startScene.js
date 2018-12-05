@@ -4,15 +4,15 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 1, 0, 0],
-    ["TrackingEnemy", 2, 1, 0, "TrackingEnemy", 2, 1, 0.5],
-    ["TrackingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5],
-    ["ShootingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5],
+    ["TrackingEnemy", 1, 1, 0, "TrackingEnemy", 1, 1, 0.5, "TrackingEnemy", 1, 1, 1, "TrackingEnemy", 1, 1, 1.5],
+    ["TrackingEnemy", 2, 1, 0.5, "TrackingEnemy", 2, 1, 1, "TrackingEnemy", 2, 1, 1.5, "TrackingEnemy", 2, 1, 0],
+    ["ShootingEnemy", 3, 1, 1, "ShootingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "TrackingEnemy", 3, 1, 0.5],
+    ["TrackingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5, "ShootingEnemy", 3, 1, 1],
     ["Cube", 1, 0, 0],
-    ["TraclingEnemy", 4, 2, 0, "TrackingEnemy", 4, 2, 1],
-    ["ShootingEnemy", 4, 2, 0, "ShootingEnemy", 4, 2, 1],
-    ["TrackingEnemy", 5, 2, 0, "ShootingEnemy", 5, 2, 1],
-    ["TrackingEnemy", 10, 2, 0, "ShootingEnemy", 10, 2, 1],
+    ["TraclingEnemy", 5, 0.5, 0, "TrackingEnemy", 5, 0.5, 0.5, "TraclingEnemy", 5, 0.5, 1, "TrackingEnemy", 5, 0.5, 1.5],
+    ["ShootingEnemy", 7, 0.5, 0.5, "ShootingEnemy", 7, 0.5, 1, "ShootingEnemy", 7, 0.5, 1.5, "ShootingEnemy", 7, 0.5, 0],
+    ["ShootingEnemy", 8, 0.5, 1, "ShootingEnemy", 8, 0.5, 1.5, "TrackingEnemy", 8, 0.5, 0, "TrackingEnemy", 8, 0.5, 0.5],
+    ["TrackingEnemy", 10, 0.5, 1.5, "TrackingEnemy", 10, 0.5, 0, "ShootingEnemy", 10, 0.5, 0.5, "ShootingEnemy", 10, 0.5, 1],
     ["Cube", 1, 0, 0]
 ];
 
@@ -203,7 +203,24 @@ startScene.init = function()
     this.cam = new Camera();
     this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY, ));
     
-    //this.background = nowScene.addThing(new GameImage("image/"))
+    this.background = nowScene.addThing(new GameImage("image/background/ingame.png", 0, 0));
+    this.background.opacity = 0.3;
+    this.background.moveX = 1;
+    this.background.moveY = 1;
+    this.background.update = () =>
+    {
+        this.background.pos.x -= this.background.moveX * 1;
+        this.background.pos.y -= this.background.moveY * 1;
+        if(this.background.pos.x + this.background.image.width < canvas.width || this.background.pos.x > 0)
+        {
+            this.background.moveX *= -1;
+        }
+        if(this.background.pos.y + this.background.image.height < canvas.height || this.background.pos.y > 0)
+        {
+            this.background.moveY *= -1;
+        }
+    }
+    nowScene.updateList.push(this.background);
 
     this.admitButton = nowScene.addThing(new Button("image/tabletSample.png", canvas.width / 2, canvas.height, 3));
     this.admitButton.pos.y += this.admitButton.image.height / 4;
