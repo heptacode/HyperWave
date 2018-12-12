@@ -51,6 +51,17 @@ class Util
 
 class Collision
 {
+    static rect(obj1, obj2)
+    {
+        if(arguments.length == 2)
+        {
+            return !(obj1.pos.x > obj2.pos.x + obj2.image.width || obj1.pos.x + obj1.image.width < obj2.pos.x || obj1.pos.y > obj2.pos.y + obj2.image.height || obj1.pos.y + obj1.image.height < obj2.pos.y);
+        }
+        else if(arguments.length == 4)
+        {
+            return !(arguments[0].x > arguments[1].x + arguments[3].width || arguments[0].x + arguments[2].width < arguments[1].x || arguments[0].y > arguments[1].y + arguments[3].height || arguments[0].y + arguments[2].height < arguments[1].y);
+        }
+    }
     static circle(obj1, obj2)
     {
         if(arguments.length == 2)
