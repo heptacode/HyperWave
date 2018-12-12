@@ -43,6 +43,10 @@ class Util
     {
         return (_angle < 0 ? (360 + _angle) : _angle);
     }
+    static getDistance(x1, y1, x2, y2)
+    {
+        return (Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)));
+    }
 }
 
 class Collision
@@ -51,7 +55,7 @@ class Collision
     {
         if(arguments.length == 2)
         {
-            return (Math.sqrt(Math.pow(Util.getCenter(obj1, "x") - Util.getCenter(obj2, "x"), 2) + Math.pow(Util.getCenter(obj1, "y") - Util.getCenter(obj2, "y"), 2)) <= (obj1.getImageLength("height") / 2 + obj2.getImageLength("height") / 2));
+            return (Math.sqrt(Math.pow(Util.getCenter(obj1, "x") - Util.getCenter(obj2, "x"), 2) + Math.pow(Util.getCenter(obj1, "y") - Util.getCenter(obj2, "y"), 2)) <= (obj1.image.height / 2 + obj2.image.height / 2));
         }
         else if(arguments.length == 4)
         {
@@ -66,12 +70,24 @@ class Collision
     {
         let rectTempRot = _rect.rot;
 
-        let unrotatedCircleX = Math.cos(rectTempRot) * (_circle.pos.x - Util.getCenter(_rect, "x")) - Math.sin(rectTempRot) * (_circle.pos.y + _circle.image.height - Util.getCenter(_rect, "y")) + Util.getCenter(_rect, "x");
-        let unrotatedCircleY = Math.sin(rectTempRot) * (_circle.pos.x - Util.getCenter(_rect, "x")) + Math.cos(rectTempRot) * (_circle.pos.y + _circle.image.height - Util.getCenter(_rect, "y")) +Util.getCenter(_rect, "y");
+        let unrotatedCircleX = (Math.cos(-rectTempRot) * (Util.getCenter(_circle, "x") - Util.getCenter(_rect, "x"))) 
+                             - (Math.sin(-rectTempRot) * (Util.getCenter(_circle, "y") - Util.getCenter(_rect, "y"))) + Util.getCenter(_rect, "x");
 
-        let deltaX = unrotatedCircleX - Math.max(_rect.pos.x, Math.min(unrotatedCircleX, _rect.pos.x + _rect.image.width));
-        let deltaY = unrotatedCircleY - Math.max(_rect.pos.y, Math.min(unrotatedCircleY, _rect.pos.y + _rect.image.height));
+        let unrotatedCircleY = (Math.sin(-rectTempRot) * (Util.getCenter(_circle, "x") - Util.getCenter(_rect, "x"))) 
+                             + (Math.cos(-rectTempRot) * (Util.getCenter(_circle, "y") - Util.getCenter(_rect, "y"))) + Util.getCenter(_rect, "y");
 
-        return (deltaX * deltaX + deltaY * deltaY) < (_circle.image.width * _circle.image.width);
+        let distX = Math.abs(unrotatedCircleX - _rect.pos.x - _rect.image.width / 2);
+        let distY = Math.abs(unrotatedCircleY - _rect.pos.y - _rect.image.height / 2);
+
+        if(distX > _circle.image.width / 2 + _rect.image.width / 2 || distY > _circle.image.width / 2 + _rect.image.height / 2)
+        {
+            return false;
+        }
+        if(distX <= _rect.image.width / 2 || distY <= _rect.image.height / 2)
+        {
+            return true;
+        }
+
+        return (Math.pow(distX - _rect.image.width / 2, 2) + Math.pow(distY - _rect.image.height / 2, 2) <= Math.pow(_circle.image.width / 2, 2));
     }
 }

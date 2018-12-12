@@ -9,7 +9,7 @@ var waveInfo =
     ["ShootingEnemy", 3, 1, 1, "ShootingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "TrackingEnemy", 3, 1, 0.5],
     ["TrackingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5, "ShootingEnemy", 3, 1, 1],
     ["Cube", 1, 0, 0],
-    ["TraclingEnemy", 5, 0.5, 0, "TrackingEnemy", 5, 0.5, 0.5, "TraclingEnemy", 5, 0.5, 1, "TrackingEnemy", 5, 0.5, 1.5],
+    ["TraclingEnemy", 5, 0.5, 0, "TrackingEnemy", 5, 0.5, 0.5, "TrackingEnemy", 5, 0.5, 1, "TrackingEnemy", 5, 0.5, 1.5],
     ["ShootingEnemy", 7, 0.5, 0.5, "ShootingEnemy", 7, 0.5, 1, "ShootingEnemy", 7, 0.5, 1.5, "ShootingEnemy", 7, 0.5, 0],
     ["ShootingEnemy", 8, 0.5, 1, "ShootingEnemy", 8, 0.5, 1.5, "TrackingEnemy", 8, 0.5, 0, "TrackingEnemy", 8, 0.5, 0.5],
     ["TrackingEnemy", 10, 0.5, 1.5, "TrackingEnemy", 10, 0.5, 0, "ShootingEnemy", 10, 0.5, 0.5, "ShootingEnemy", 10, 0.5, 1],
@@ -178,11 +178,9 @@ class GameController
     }
 }
 
-var serverAddr = "https://sunrin.HyunWoo.org/dicon/"; // 서버 제작중
-
 startScene.init = function()
 {
-    preloadImage( "image/player/player.png",  "image/player/playerHand.png", 
+    preloadImage("image/player/player.png",  "image/player/playerHand.png", 
                  "image/weapon/sword.png",  "image/effect/swordEffect.png", 
                  "image/weapon/spear.png", 
                  "image/player/sample/player.png",  
@@ -198,7 +196,8 @@ startScene.init = function()
                  "image/icon/warrior/passiveSkill/basicAttackDamageUp.png", "image/icon/warrior/passiveSkill/healthUp.png",
                  "image/icon/warrior/activeSkill/swiftStrike.png", "image/icon/warrior/activeSkill/swordShot.png",
                  "image/background/ingame.png", "image/result.png", 
-                 "image/fade/black.png", "image/fade/white.png");
+                 "image/fade/black.png", "image/fade/white.png",
+                 "image/weapon/collisionRect.png");
 
     this.cam = new Camera();
     this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY, ));
@@ -225,11 +224,14 @@ startScene.init = function()
     this.admitButton = nowScene.addThing(new Button("image/tabletSample.png", canvas.width / 2, canvas.height, 3));
     this.admitButton.pos.y += this.admitButton.image.height / 4;
     this.admitButton.moveSpeed = 0.4;
+    this.admitButton.upRTime = Date.now();
     this.admitButton.setClickEvent(function()
     {
+        nowScene.admitButton.upRTime = Date.now() + 0.6 * 1000;
+
         nowScene.admitButton.update = () =>
         {
-            if(nowScene.admitButton.pos.y <= canvas.height / 2 - nowScene.admitButton.image.height / 2)
+            if(nowScene.admitButton.pos.y <= canvas.height / 2 - nowScene.admitButton.image.height / 2 || Date.now() > nowScene.admitButton.upRTime)
             {
                 nowScene.admitButton.pos.y = canvas.height / 2 - nowScene.admitButton.image.height / 2;
                 nowScene.admitButton.RTime = Date.now() + 1 * 1000;

@@ -121,7 +121,7 @@ readyScene.init = function()
 
                   [[new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackSpeedUp"),
                   new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0)],
+                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
 
                   [new Button("image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "Swing"), new Button("image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "Bu-Wang"),
                   new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
@@ -133,18 +133,43 @@ readyScene.init = function()
 
     this.cautionList = [];
     
-    this.selectPannel = nowScene.addThing(new GameImage("image/tablet.png", 0, -(1080 - canvas.height) / 2, "none"));
-    this.selectPannel.setZ(2);
+    this.background = nowScene.addThing(new GameImage("image/tablet.png", 0, -(1080 - canvas.height) / 2, "none"));
+    this.background.update = () =>
+    {
+        this.background.pos.y = -(1080 - canvas.height) / 2;
+    }
+    nowScene.updateList.push(this.background);
+    this.background.setZ(2);
+
+    this.selectPannel = new Pannel(nowScene.background.pos.x, nowScene.background.pos.y, canvas.width, canvas.height);
+    this.selectPannel.update = () =>
+    {
+        this.selectPannel.setPosition(nowScene.background.pos.x, nowScene.background.pos.y);
+    }
+    nowScene.updateList.push(this.selectPannel);
     
     
     // leftDown pannel
     this.leftDownPannel = new Pannel(nowScene.selectPannel.pos.x + 52, nowScene.selectPannel.pos.y + 507, 583, 500);
+    this.leftDownPannel.update = () =>
+    {
+        this.leftDownPannel.setPosition(nowScene.selectPannel.pos.x + 52, nowScene.selectPannel.pos.y + 507);
+
+    }
+    nowScene.updateList.push(this.leftDownPannel);
 
     this.passiveSkills = [];
     this.activeSkills = [];
 
+    this.selectSkills = [[[new Button("image/icon/notSelected.png", 0, 0, 3), new Button("image/icon/cantSelect.png", 0, 0, 3)],
+                        [new Button("image/icon/notSelected.png", 0, 0, 3), new Button("image/icon/notSelected.png", 0, 0, 3)]], 
+
+                        [[new Button("image/icon/notSelected.png", 0, 0, 3), new Button("image/icon/cantSelect.png", 0, 0, 3)],
+                        [new Button("image/icon/notSelected.png", 0, 0, 3), new Button("image/icon/notSelected.png", 0, 0, 3)]]];
+
     this.selectPassiveSkills = [];
     this.selectActiveSkills = [];
+
 
     this.selectButtons = [];
     this.locks = [];
@@ -152,37 +177,38 @@ readyScene.init = function()
 
     // middle pannel
     this.middlePannel = new Pannel(nowScene.selectPannel.pos.x + 648, nowScene.selectPannel.pos.y + 50, 624, 981);
+    this.middlePannel.update = () =>
+    {
+        this.middlePannel.setPosition(nowScene.selectPannel.pos.x + 648, nowScene.selectPannel.pos.y + 50);
+    }
+    nowScene.updateList.push(this.middlePannel);
     
     this.playerImage = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameImage("image/player/sample/player.png", nowScene.middlePannel.getCenter("x"), nowScene.middlePannel.getCenter("y"), "none")));
+    nowScene.middlePannel.setOnPannel(this.playerImage);
     this.playerImage.setZ(5);
     this.playerImage.setCenter();
 
     this.jobName = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameText(nowScene.middlePannel.getCenter("x"), nowScene.playerImage.pos.y + nowScene.playerImage.image.height + 50, 30, "Gugi", nowScene.jobs[nowScene.index][1])));
     this.jobName.color = {r : 6, g : 226, b : 224};
+    nowScene.middlePannel.setOnPannel(this.jobName);
     this.jobName.setZ(5);
 
     this.leftButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/leftArrow.png", nowScene.middlePannel.pos.x + 35, nowScene.middlePannel.getCenter("y"), 3)));
     this.leftButton.setClickEvent(function()
     {
-        if(--nowScene.index < 0)
-        {
-            nowScene.index = nowScene.jobs.length - 1;
-        }
-        nowScene.switchSetting();
+        nowScene.switchSetting("left");
         nowScene.isSelected = false;
     });
+    nowScene.middlePannel.setOnPannel(this.leftButton);
     nowScene.updateList.push(this.leftButton);
 
     this.rightButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/rightArrow.png", nowScene.middlePannel.pos.x + nowScene.middlePannel.image.width - 20, nowScene.middlePannel.getCenter("y"), 3)));
     this.rightButton.setClickEvent(function()
     {
-        if(++nowScene.index > nowScene.jobs.length - 1)
-        {
-            nowScene.index = 0;
-        }
-        nowScene.switchSetting();
+        nowScene.switchSetting("right");
         nowScene.isSelected = false;
     });
+    nowScene.middlePannel.setOnPannel(this.rightButton);
     nowScene.updateList.push(this.rightButton);
 
     this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", nowScene.middlePannel.pos.x + 159, nowScene.middlePannel.pos.y + 879, 5, "readyButton")));
@@ -191,7 +217,7 @@ readyScene.init = function()
     this.readyButton.strokeStyle = "#06e2e0"
     this.readyButton.setClickEvent(function()
     {
-        if(nowScene.selectPassiveSkills[0].isSelected == true && nowScene.selectActiveSkills[0].isSelected == true && nowScene.selectActiveSkills[1].isSelected)
+        if(nowScene.selectPassiveSkills[0].isSelected == true && nowScene.selectActiveSkills[0].isSelected == true && nowScene.selectActiveSkills[1].isSelected == true)
         {
             nowScene.isSelected = true;
         }
@@ -212,13 +238,19 @@ readyScene.init = function()
             this.readyButton.isChanged = false;
         }
     }
+    nowScene.middlePannel.setOnPannel(this.readyButton);
     nowScene.updateList.push(this.readyButton);
 
 
     // right pannel
-    this.rightPannel = new Pannel(nowScene.selectPannel.pos.x + 1304, nowScene.middlePannel.pos.y, 557, nowScene.middlePannel.image.height);
+    this.rightPannel = new Pannel(nowScene.selectPannel.pos.x + 1304, nowScene.selectPannel.pos.y, 557, 981);
+    this.rightPannel.update = () =>
+    {
+        this.rightPannel.setPosition(nowScene.selectPannel.pos.x + 1304, nowScene.selectPannel.pos.y);
+    }
+    nowScene.updateList.push(this.rightPannel);
 
-    this.startButton = nowScene.rightPannel.setOnPannel(nowScene.addThing(new Button("image/button/start.png", nowScene.rightPannel.pos.x + 36, nowScene.rightPannel.pos.y + 785, 5, "startButton")));
+    this.startButton = nowScene.rightPannel.setOnPannel(nowScene.addThing(new Button("image/button/start.png", nowScene.rightPannel.pos.x + 36, nowScene.rightPannel.pos.y + 835, 5, "startButton")));
     this.startButton.pos.x += this.startButton.image.width / 2;
     this.startButton.pos.y += this.startButton.image.height / 2;
     this.startButton.setClickEvent(function()
@@ -236,6 +268,7 @@ readyScene.init = function()
             nowScene.addCaution("SELECT 버튼을 누르세요!");
         }
     });
+    nowScene.rightPannel.setOnPannel(this.startButton);
     nowScene.updateList.push(this.startButton);
 
 
@@ -304,6 +337,7 @@ readyScene.init = function()
                 {
                     nowScene.selectPassiveSkills[_num - 1].path = "image/icon/notSelected.png";
                     nowScene.selectPassiveSkills[_num - 1].name = "none";
+                    nowScene.selectPassiveSkills[_num - 1].isSelected = false;
                     _skill.isSelected = false;
                 }
                 nowScene.selectPassiveSkills[_num - 1].setImage();
@@ -320,6 +354,7 @@ readyScene.init = function()
                 {
                     nowScene.selectActiveSkills[_num - 1].path = "image/icon/notSelected.png";
                     nowScene.selectActiveSkills[_num - 1].name = "none";
+                    nowScene.selectActiveSkills[_num - 1].isSelected = false;
                     _skill.isSelected = false;
                 }
                 nowScene.selectActiveSkills[_num - 1].setImage();
@@ -327,23 +362,29 @@ readyScene.init = function()
         }
     }
 
-    this.setSelectIcon = () => // 나중에 작업
+    this.setSelectIcon = () =>
     {
         for(let i = 0; i < 2; i++)
         {
-            let selectImage = new GameImage(((i + 1) != 2) ? "image/icon/notSelected.png" : "image/icon/cantSelect.png", nowScene.leftDownPannel.pos.x + 24 + i * 129, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0", "rect");
-            selectImage.setAnchor(-selectImage.image.width / 2, -selectImage.image.height / 2);
-            selectImage.scale = {x : 1.3, y : 1.3};
-            selectImage.isSelected = false;
-            selectImage.isShowedImage = false;
-            selectImage.update = () =>
+            nowScene.selectPassiveSkills[i].pos = {x : nowScene.leftDownPannel.pos.x + 24 + i * 129, y : nowScene.leftDownPannel.pos.y + 374};
+            nowScene.selectPassiveSkills[i].anchor = {x : -nowScene.selectPassiveSkills[i].image.width, y : -nowScene.selectPassiveSkills[i].image.height};
+            nowScene.selectPassiveSkills[i].scale = {x : 1.3, y : 1.3};
+            nowScene.selectPassiveSkills[i].strokeStyle = "#06e2e0";
+            nowScene.selectPassiveSkills[i].strokeWidth = 4;
+            nowScene.selectPassiveSkills[i].isShowedImage = false;
+            nowScene.selectPassiveSkills[i].isSelected = false;
+            if(nowScene.selectPassiveSkills[i].name != "none")
             {
-                if(selectImage.isSelected == true)
+                nowScene.selectPassiveSkills[i].isSelected = true;
+            }
+            nowScene.selectPassiveSkills[i].update = () =>
+            {
+                if(nowScene.selectPassiveSkills[i].isSelected == true)
                 {
-                    if(Collision.dotToRect(nowScene.cursor, selectImage) && selectImage.isShowedImage == false)
+                    if(Collision.dotToRect(nowScene.cursor, nowScene.selectPassiveSkills[i]) && nowScene.selectPassiveSkills[i].isShowedImage == false)
                     {
                         // 선택된 스킬의 설명을 보여줌 -> GameImage위에 GameText띄우기
-                        selectImage.isShowedImage = true;
+                        nowScene.selectPassiveSkills[i].isShowedImage = true;
                     }
                     else
                     {
@@ -351,24 +392,38 @@ readyScene.init = function()
                     }
                 }
             }
-            selectImage.setZ(3);
-            nowScene.selectPassiveSkills.push(selectImage);
-            nowScene.addThing(selectImage);
+            nowScene.leftDownPannel.setOnPannel(nowScene.addThing(nowScene.selectPassiveSkills[i]));
         }
         
         for(let i = 0; i < 2; i++)
         {
-            let selectImage = new GameImage("image/icon/notSelected.png", nowScene.leftDownPannel.pos.x + 318 + i * 131, nowScene.leftDownPannel.pos.y + 374, "skillIcon", 4, "#06e2e0", "rect");
-            selectImage.setAnchor(-selectImage.image.width / 2, -selectImage.image.height / 2);
-            selectImage.scale = {x : 1.3, y : 1.3};
-            selectImage.isSelected = false;
-            selectImage.update = () =>
+            nowScene.selectActiveSkills[i].pos = {x : nowScene.leftDownPannel.pos.x + 318 + i * 131, y : nowScene.leftDownPannel.pos.y + 374};
+            nowScene.selectActiveSkills[i].anchor = {x : -nowScene.selectActiveSkills[i].image.width, y : -nowScene.selectActiveSkills[i].image.height};
+            nowScene.selectActiveSkills[i].scale = {x : 1.3, y : 1.3};
+            nowScene.selectActiveSkills[i].strokeStyle = "#06e2e0";
+            nowScene.selectActiveSkills[i].strokeWidth = 4;
+            nowScene.selectActiveSkills[i].isShowedImage = false;
+            nowScene.selectActiveSkills[i].isSelected = false;
+            if(nowScene.selectActiveSkills[i].name != "none")
             {
-    
+                nowScene.selectActiveSkills[i].isSelected = true;
             }
-            selectImage.setZ(3);
-            nowScene.selectActiveSkills.push(selectImage);
-            nowScene.addThing(selectImage);
+            nowScene.selectActiveSkills[i].update = () =>
+            {
+                if(nowScene.selectActiveSkills[i].isSelected == true)
+                {
+                    if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i]) && nowScene.selectActiveSkills[i].isShowedImage == false)
+                    {
+                        // 선택된 스킬의 설명을 보여줌 -> GameImage위에 GameText띄우기
+                        nowScene.selectActiveSkills[i].isShowedImage = true;
+                    }
+                    else
+                    {
+                        // 설명 이미지가 있고 그 이미지에서 마우스가 나오면 설명 이미지를 삭제
+                    }
+                }
+            }
+            nowScene.leftDownPannel.setOnPannel(nowScene.addThing(nowScene.selectActiveSkills[i]));
         }
     }
 
@@ -387,6 +442,7 @@ readyScene.init = function()
             nowScene.passiveSkills[i].strokeStyle = "#06e2e0";
             nowScene.passiveSkills[i].isSelected = false;
             nowScene.passiveSkills[i].isClicked2 = false;
+            nowScene.leftDownPannel.setOnPannel(nowScene.passiveSkills[i]);
             nowScene.passiveSkills[i].setZ(3);
             if(nowScene.passiveSkills[i].name != "none")
             {
@@ -433,6 +489,8 @@ readyScene.init = function()
             
                                     button.isDelete = true;
                                     button.text.isDelete = true;
+
+                                    nowScene.isSelected = false;
                                 }
                             });
                         }
@@ -480,6 +538,7 @@ readyScene.init = function()
             {
                 // 자물쇠 이미지
                 let lock = nowScene.addThing(new GameImage("image/icon/lock.png", nowScene.passiveSkills[i].pos.x, nowScene.passiveSkills[i].pos.y, "lock"));
+                nowScene.leftDownPannel.setOnPannel(lock);
                 lock.setZ(nowScene.passiveSkills[i].z + 1);
                 nowScene.locks.push(lock);
             }
@@ -499,6 +558,7 @@ readyScene.init = function()
             nowScene.activeSkills[i].isSelected = false;
             nowScene.activeSkills[i].isClicked2 = false;
             nowScene.activeSkills[i].selectSkillNum;
+            nowScene.leftDownPannel.setOnPannel(nowScene.activeSkills[i]);
             nowScene.activeSkills[i].setZ(3);
             if(nowScene.activeSkills[i].name != "none")
             {
@@ -560,6 +620,8 @@ readyScene.init = function()
             
                                     button1.isDelete = true;
                                     button1.text.isDelete = true;
+
+                                    nowScene.isSelected = false;
                                 }
                             });
                         }
@@ -653,6 +715,7 @@ readyScene.init = function()
             else if(nowScene.activeSkills[i].name == "none")
             {
                 let lock = nowScene.addThing(new GameImage("image/icon/lock.png", nowScene.activeSkills[i].pos.x, nowScene.activeSkills[i].pos.y, "lock"));
+                nowScene.leftDownPannel.setOnPannel(lock);
                 lock.setZ(nowScene.passiveSkills[i].z + 1);
                 nowScene.locks.push(lock);
             }
@@ -660,21 +723,38 @@ readyScene.init = function()
         }
     }
 
-    this.switchSetting = () =>
+    this.switchSetting = (_dir) =>
     {
         nowScene.passiveSkills.forEach(skill => skill.isDelete = true);
         nowScene.passiveSkills.length = 0;
         nowScene.activeSkills.forEach(skill => skill.isDelete = true);
         nowScene.activeSkills.length = 0;
-        nowScene.selectPassiveSkills.forEach(skill => skill.isDelete = true);
+
+        nowScene.selectPassiveSkills.forEach(passive => passive.isDelete = true);
         nowScene.selectPassiveSkills.length = 0;
-        nowScene.selectActiveSkills.forEach(skill => skill.isDelete = true);
+        nowScene.selectActiveSkills.forEach(active => active.isDelete = true);
         nowScene.selectActiveSkills.length = 0;
+
         nowScene.selectButtons.forEach(button => button.isDelete = true);
         nowScene.selectButtons.forEach(button => button.text.isDelete = true);
         nowScene.selectButtons.length = 0;
         nowScene.locks.forEach(lock => lock.isDelete = true);
         nowScene.locks.length = 0;
+
+        if(_dir == "left")
+        {
+            if(--nowScene.index < 0)
+            {
+                nowScene.index = nowScene.jobs.length - 1;
+            }
+        }
+        else if(_dir == "right")
+        {
+            if(++nowScene.index > nowScene.jobs.length - 1)
+            {
+                nowScene.index = 0;
+            }
+        }
 
         nowScene.playerImage.path = nowScene.jobs[nowScene.index][0];
         nowScene.playerImage.setImage();
@@ -682,9 +762,13 @@ readyScene.init = function()
 
         nowScene.skills[nowScene.index][0].forEach(passive => passive.isDelete = false);
         nowScene.skills[nowScene.index][1].forEach(active => active.isDelete = false);
-
         nowScene.passiveSkills = nowScene.skills[nowScene.index][0].slice();
         nowScene.activeSkills = nowScene.skills[nowScene.index][1].slice();
+
+        nowScene.selectSkills[nowScene.index][0].forEach(passive => passive.isDelete = false);
+        nowScene.selectSkills[nowScene.index][1].forEach(active => active.isDelete = false);
+        nowScene.selectPassiveSkills = nowScene.selectSkills[nowScene.index][0].slice();
+        nowScene.selectActiveSkills = nowScene.selectSkills[nowScene.index][1].slice();
         
         nowScene.setSelectIcon();
         nowScene.placeSkills();
@@ -694,23 +778,24 @@ readyScene.init = function()
 }
 readyScene.update = function()
 {
-    this.updateList.forEach(obj => obj.update());
-    this.delete(this.updateList);
-
     this.passiveSkills.forEach(skill => skill.update());
     this.delete(this.passiveSkills);
     this.activeSkills.forEach(skill => skill.update());
     this.delete(this.activeSkills);
 
-    this.selectPassiveSkills.forEach(skill => skill.update());
+    this.selectPassiveSkills.forEach(passive => passive.update());
     this.delete(this.selectPassiveSkills);
-    this.selectActiveSkills.forEach(skill => skill.update());
+    this.selectActiveSkills.forEach(acitve => acitve.update());
     this.delete(this.selectActiveSkills);
+
     this.selectButtons.forEach(button => button.update());
     this.delete(this.selectButtons);
     
     this.cautionList.forEach(caution => caution.update());
     this.delete(this.cautionList);
+
+    this.updateList.forEach(obj => obj.update());
+    this.delete(this.updateList);
 
     this.cam.showFade();
 }

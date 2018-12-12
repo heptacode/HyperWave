@@ -9,6 +9,7 @@ $sever = 'https://hyperwave.hyunwoo.org/';
 
 switch ($_POST['do']) {
     case 'register':
+        if(!$_POST['uId'] || !$_POST['uPw']) die(false);
         $overlap = false;
         $query = "SELECT uId FROM hyperwave_accounts";
         $result = mysqli_query($connect, $query);
@@ -23,17 +24,8 @@ switch ($_POST['do']) {
         die($result);
         break;
 
-        $query = "SELECT * FROM hyperwave_accounts";
-        $result = mysqli_query($connect, $query);
-        while ($data = mysqli_fetch_array($result)) {
-            if ($_POST['uId'] == $data['uId'] && $_POST['uPw'] == $data['uPw']) {
-                die(true);
-            }
-        }
-        die(false);
-        break;
-
     case 'signIn':
+        if(!$_POST['uId'] || !$_POST['uPw']) die(false);
         $query = "SELECT * FROM hyperwave_accounts";
         $result = mysqli_query($connect, $query);
         while ($data = mysqli_fetch_array($result)) {

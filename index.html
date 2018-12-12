@@ -1,256 +1,381 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>Hyper Wave</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <link rel="icon" href="image/favicon.png" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Gugi|Jua" />
-        <style>
-            html {
-                font-family: "Anonymous Pro", monospace;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-                user-select: none;
-                word-break: keep-all;
-                overflow: hidden;
-                display: block;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                background-color: white;
+  <head>
+    <meta charset="utf-8" />
+    <title>Hyper Wave</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link rel="icon" href="image/favicon.png" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Gugi|Jua"
+    />
+    <style>
+      html {
+        font-family: "Anonymous Pro", monospace;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        word-break: keep-all;
+        overflow: hidden;
+        display: block;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: rgb(29, 29, 29);
+      }
+      .form-account {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.2);
+        -webkit-transition: 0.4s;
+        -moz-transition: 0.4s;
+        -o-transition: 0.4s;
+        transition: 0.4s;
+        pointer-events: none;
+      }
+      .form-account form {
+        width: 30%;
+        height: 30%;
+        padding: 3rem;
+        border: 1px solid black;
+        box-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
+        background-color: white;
+        text-align: center;
+        pointer-events: auto;
+        -webkit-transition: 0.4s;
+        -moz-transition: 0.4s;
+        -o-transition: 0.4s;
+        transition: 0.4s;
+      }
+      .form-account form:hover {
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+      }
+      .notice-error {
+        display: none;
+        color: #72767b;
+        font-weight: bold;
+        border: 1px solid #72767b;
+        padding: 0.5rem;
+        margin: 1rem 0;
+        font-family: "Nanum Square", sans-serif;
+      }
+      .form-input-row {
+        display: block;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      .form-input-row label {
+        display: block;
+        text-align: left;
+        margin-bottom: 0.3rem;
+      }
+      .form-input-row input {
+        display: block;
+        width: 100%;
+        outline: none;
+        border: 0;
+        border-bottom: 1px solid rgb(128, 128, 128);
+        border-radius: 0;
+        color: #72767b;
+        font-size: 1.1rem;
+        background: transparent;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .form-btn-row {
+        font-family: "Gugi", cursive;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2rem;
+      }
+      .btn-register {
+        display: block;
+        margin: 0 auto;
+        padding: 0 1rem;
+        font-size: 1rem;
+        color: rgb(0, 0, 0);
+        border: 0;
+        text-decoration: none;
+        background: transparent;
+        cursor: pointer;
+        text-decoration-skip: objects;
+        -webkit-transition-duration: 0.2s;
+        -moz-transition-duration: 0.2s;
+        -o-transition-duration: 0.2s;
+        transition-duration: 0.2s;
+      }
+      .btn-register:hover {
+        text-decoration: underline;
+      }
+      .btn-signIn {
+        display: block;
+        margin: 0 auto;
+        padding: 0.5rem 5rem;
+        color: white;
+        font-size: 1rem;
+        background: rgb(0, 0, 0);
+        border-radius: 5px;
+        text-align: center;
+        cursor: pointer;
+        -webkit-transition-duration: 0.2s;
+        -moz-transition-duration: 0.2s;
+        -o-transition-duration: 0.2s;
+        transition-duration: 0.2s;
+      }
+      .btn-signIn:hover {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        color: rgba(255, 255, 255, 0.6);
+      }
+      #canvas {
+        display: none;
+        z-index: -1;
+      }
+      .canvas-active {
+        display: block !important;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: -1 !important;
+      }
+      .sizing {
+        font-family: "Jua", "sans-serif";
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        align-items: center;
+        justify-content: center;
+        z-index: 0;
+        background: rgb(0, 0, 0);
+        font-size: 1.8rem;
+        color: white;
+      }
+      .loader {
+        margin: 2rem;
+        border: 2px solid #444;
+        border-radius: 50%;
+        border-top: 2px solid #f3f3f3;
+        width: 2.5rem;
+        height: 2.5rem;
+        -webkit-animation: spin 0.3s linear infinite;
+        -moz-animation: spin 0.3s linear infinite;
+        -o-animation: spin 0.3s linear infinite;
+        animation: spin 0.3s linear infinite;
+      }
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+      @-moz-keyframes spin {
+        0% {
+          -moz-transform: rotate(0deg);
+        }
+        100% {
+          -moz-transform: rotate(360deg);
+        }
+      }
+      @-o-keyframes spin {
+        0% {
+          -o-transform: rotate(0deg);
+        }
+        100% {
+          -o-transform: rotate(360deg);
+        }
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .overlay {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        box-shadow: inset 0 0 5rem rgb(255, 0, 0);
+        z-index: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="form-account">
+      <form>
+        <h1>Sign in to HYPERWAVE</h1>
+        <div class="notice-error">
+          계정이 올바르지 않습니다. 아직 계정이 없으시면 가입하여 주십시오.
+        </div>
+        <div class="form-input-row">
+          <label for="inputId">id</label
+          ><input type="text" id="inputId" maxlength="15" autofocus required />
+        </div>
+        <div class="form-input-row">
+          <label for="inputPw">password</label
+          ><input type="password" id="inputPw" maxlength="64" required />
+        </div>
+        <div class="form-btn-row">
+          <div class="btn-register" onclick="register()">가입</div>
+          <div class="btn-signIn" onclick="signIn()">로그인</div>
+        </div>
+      </form>
+    </section>
+    <script src="https://cdn.hyunwoo.org/js/jquery.min.js"></script>
+    <script src="https://cdn.hyunwoo.org/js/js.cookie.js"></script>
+    <div class="sizing">
+      <div>게임 환경 최적화 중</div>
+      <div class="loader"></div>
+    </div>
+    <div class="overlay"></div>
+    <canvas id="canvas"></canvas>
+    <script>
+      document.write(
+        '<script src="framework.js?' +
+          Date.now() +
+          '"><\/script><script src="myFunc.js?' +
+          Date.now() +
+          '"><\/script><script src="startScene.js?' +
+          Date.now() +
+          '"><\/script><script src="readyScene.js?' +
+          Date.now() +
+          '"><\/script><script src="game.js?' +
+          Date.now() +
+          '"><\/script><script src="gameoverScene.js?' +
+          Date.now() +
+          '"><\/script>'
+      );
+      if (Cookies.get("uId")) {
+        $("#canvas").addClass("canvas-active");
+        $("html").css("cursor", "none");
+        $(".form-account").css("display", "none");
+        $(".notice-error").css("display", "none");
+      }
+      window.onresize = function() {
+        if (window.innerWidth < 1000 || window.innerHeight < 720)
+          alert("[HYPERWAVE]\n최소 창 크기에 도달했습니다.\n창 크기를 늘려주세요.");
+        else {
+          $(".sizing")
+            .css("display", "flex")
+            .delay(600)
+            .fadeOut("slow");
+          document.getElementById("canvas").width = window.innerWidth;
+          document.getElementById("canvas").height = window.innerHeight;
+          $("#canvas")
+            .removeClass("canvas-active")
+            .addClass("canvas-active")
+            .on('error', function() { alert("이미지 로드 실패") });
+            // window.onbeforeunload = false;
+            // location.reload();
+        }
+      };
+      document.addEventListener("keydown", function() {
+        if (event.keyCode == 13 && !Cookies.get("uId")) signIn();
+      });
+      function register() {
+        if (!$("#inputId").val() || $("#inputId").val() < 4) {
+          $("#inputId").focus();
+          event.preventDefault();
+        }
+        if (!$("#inputPw").val() || $("#inputPw").val() < 4) {
+          $("#inputPw").focus();
+          event.preventDefault();
+        }
+        $.post(
+          "proxy.php",
+          {
+            do: "register",
+            uId: $("#inputId").val(),
+            uPw: $("#inputPw").val()
+          },
+          function(response) {
+            if (response) {
+              Cookies.set("uId", $("#inputId").val(), {
+                expires: 1,
+                secure: true
+              });
+              $("html").css("cursor", "none");
+              $(".form-account").fadeOut();
+              $("#canvas").addClass("canvas-active");
+              $(".notice-error").css("display", "none");
+            } else {
+              alert("가입에 실패하였습니다.");
             }
-            .form-account {
-                position: fixed;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(0, 0, 0, 0.6);
-                -webkit-transition: 0.4s;
-                -moz-transition: 0.4s;
-                -o-transition: 0.4s;
-                transition: 0.4s;
-                pointer-events: none;
+          }
+        );
+      }
+      function signIn() {
+        if (!$("#inputPw").val() || $("#inputPw").val() < 4) {
+          $("#inputPw").focus();
+          event.preventDefault();
+        }
+        if (!$("#inputId").val() || $("#inputId").val() < 4) {
+          $("#inputId").focus();
+          event.preventDefault();
+        }
+        $.post(
+          "proxy.php",
+          {
+            do: "signIn",
+            uId: $("#inputId").val(),
+            uPw: $("#inputPw").val()
+          },
+          function(response) {
+            if (response) {
+              Cookies.set("uId", $("#inputId").val(), {
+                expires: 1,
+                secure: true
+              });
+              $("html").css("cursor", "none");
+              $(".form-account").fadeOut();
+              $("#canvas").addClass("canvas-active");
+              $(".notice-error").css("display", "none");
+            } else {
+              $(".notice-error").slideDown();
             }
-            .form-account form {
-                width: 30%;
-                height: 30%;
-                padding: 3rem;
-                border: 1px solid black;
-                box-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
-                background-color: white;
-                text-align: center;
-                pointer-events: auto;
-                -webkit-transition: 0.4s;
-                -moz-transition: 0.4s;
-                -o-transition: 0.4s;
-                transition: 0.4s;
-            }
-            .form-account form:hover {
-                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
-            }
-            .notice-error {
-                display: none;
-                color: #72767b;
-                font-weight: bold;
-                border: 1px solid #72767b;
-                padding: 0.5rem;
-                margin: 1rem 0;
-                font-family: "Nanum Square", sans-serif;
-            }
-            .form-input-row {
-                display: block;
-                align-items: center;
-                margin-bottom: 1rem;
-            }
-            .form-input-row label {
-                display: block;
-                text-align: left;
-                margin-bottom: 0.3rem;
-            }
-            .form-input-row input {
-                display: block;
-                width: 100%;
-                outline: none;
-                border: 0;
-                border-bottom: 1px solid rgb(128, 128, 128);
-                border-radius: 0;
-                color: #72767b;
-                font-size: 1.1rem;
-                background: transparent;
-                -webkit-tap-highlight-color: transparent;
-            }
-            .form-btn-row {
-                font-family: "Gugi", cursive;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-top: 2rem;
-            }
-            .btn-register {
-                display: block;
-                margin: 0 auto;
-                padding: 0 1rem;
-                font-size: 1rem;
-                color: rgb(0, 0, 0);
-                border: 0;
-                text-decoration: none;
-                background: transparent;
-                cursor: pointer;
-                text-decoration-skip: objects;
-                -webkit-transition-duration: 0.2s;
-                -moz-transition-duration: 0.2s;
-                -o-transition-duration: 0.2s;
-                transition-duration: 0.2s;
-            }
-            .btn-register:hover {
-                text-decoration: underline;
-            }
-            .btn-signIn {
-                display: block;
-                margin: 0 auto;
-                padding: 0.5rem 5rem;
-                color: white;
-                font-size: 1rem;
-                background: rgb(0, 0, 0);
-                border-radius: 5px;
-                text-align: center;
-                cursor: pointer;
-                -webkit-transition-duration: 0.2s;
-                -moz-transition-duration: 0.2s;
-                -o-transition-duration: 0.2s;
-                transition-duration: 0.2s;
-            }
-            .btn-signIn:hover {
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-                color: rgba(255, 255, 255, 0.6);
-            }
-            #canvas {
-                display: none;
-                z-index: -1;
-            }
-            .canvas-active {
-                display: block !important;
-                position: absolute;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                z-index: -1 !important;
-            }
-            .overlay {
-                display: none;
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                top: 0;
-                left: 0;
-                box-shadow: inset 0 0 5rem rgb(255, 0, 0);
-                z-index: 0;
-            }
-        </style>
-    </head>
-    <body>
-        <section class="form-account">
-            <form>
-                <h1>Sign in to HYPERWAVE</h1>
-                <div class="notice-error">계정이 올바르지 않습니다. 아직 계정이 없으시면 가입하여 주십시오.</div>
-                <div class="form-input-row"><label for="inputId">id</label><input type="text" id="inputId" maxlength="15" autofocus required /></div>
-                <div class="form-input-row"><label for="inputPw">password</label><input type="password" id="inputPw" maxlength="64" required /></div>
-                <div class="form-btn-row">
-                    <div class="btn-register" onclick="register()">가입</div>
-                    <div class="btn-signIn" onclick="signIn()">로그인</div>
-                </div>
-            </form>
-        </section>
-        <script src="https://cdn.hyunwoo.org/js/jquery.min.js"></script>
-        <script src="https://cdn.hyunwoo.org/js/js.cookie.js"></script>
-        <div class="overlay"></div>
-        <canvas id="canvas"></canvas>
-        <script>document.write('<script src="framework.js?' + Date.now() + '"><\/script>')</script>
-        <script>document.write('<script src="myFunc.js?' + Date.now() + '"><\/script>')</script>
-        <script>document.write('<script src="startScene.js?' + Date.now() + '"><\/script>')</script>
-        <script>document.write('<script src="readyScene.js?' + Date.now() + '"><\/script>')</script>
-        <script>document.write('<script src="game.js?' + Date.now() + '"><\/script>')</script>
-        <script>document.write('<script src="gameoverScene.js?' + Date.now() + '"><\/script>')</script>
-        <script>
-            document.addEventListener('keydown',function(){
-                if(event.keyCode == 13)
-                    signIn();
-            })
-            function register() {
-                if (!$("#inputId").val() || $("#inputId").val() < 4){
-                    $("#inputId").focus();
-                    event.preventDefault();
-                }
-                if (!$("#inputPw").val() || $("#inputPw").val() < 4){
-                    $("#inputPw").focus();
-                    event.preventDefault();
-                }
-                $.post(
-                    "proxy.php",
-                    {
-                        do: "register",
-                        uId: $("#inputId").val(),
-                        uPw: $("#inputPw").val()
-                    },
-                    function(response) {
-                        if (response) {
-                            $("html").css("cursor", "none");
-                            $(".form-account").fadeOut();
-                            $("#canvas").addClass("canvas-active");
-                        } else {
-                            alert("가입에 실패하였습니다.");
-                        }
-                    }
-                );
-            }
-            function signIn() {
-                if (!$("#inputPw").val() || $("#inputPw").val() < 4){
-                    $("#inputPw").focus();
-                    event.preventDefault();
-                }
-                if (!$("#inputId").val() || $("#inputId").val() < 4){
-                    $("#inputId").focus();
-                    event.preventDefault();
-                }
-                $.post(
-                    "proxy.php",
-                    {
-                        do: "signIn",
-                        uId: $("#inputId").val(),
-                        uPw: $("#inputPw").val()
-                    },
-                    function(response) {
-                        if (response) {
-                            $("html").css("cursor", "none");
-                            $(".form-account").fadeOut();
-                            $("#canvas").addClass("canvas-active");
-                        } else {
-                            $(".notice-error").slideDown();
-                        }
-                    }
-                );
-            }
-            $(window).load(function(){
-                if(!Cookies.get("reload")){
-                    Cookies.set("reload", true, { expires: 1, secure: true});
-                    location.reload();
-                }
-                Cookies.set("reload", false, { expires: 1, secure: true});
-            })
-            window.onbeforeunload = function() {
-                return true;
-            };
-        </script>
-    </body>
+          }
+        );
+      }
+      function logOut() {
+        Cookies.remove("uId");
+        $("#canvas").removeClass("canvas-active");
+        $(".notice-error").css("display", "none");
+        location.reload();
+      }
+      $(window).load(function() {
+        if (!Cookies.get("reload")) {
+          Cookies.set("reload", true, { expires: 1, secure: true });
+          location.reload();
+        }
+        Cookies.set("reload", false, { expires: 1, secure: true });
+      });
+      window.onbeforeunload = function() {
+        return true;
+      };
+    </script>
+  </body>
 </html>
