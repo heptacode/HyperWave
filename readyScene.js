@@ -118,6 +118,7 @@ readyScene.init = function()
 
     this.jobs = [["image/player/sample/player.png", "Warrior"], 
                 ["image/player/sample/player.png", "Lancer"]];
+
     this.skills = [[[new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
                   new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "blooddrain"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "attackSpeedUp"),
                   new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "MOD:Berserker")], 
@@ -129,10 +130,10 @@ readyScene.init = function()
 
                   [[new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackSpeedUp"),
                   new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
+                  new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "backDashAttack"), new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
 
                   [new Button("image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "Swing"), new Button("image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "Bu-Wang"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
+                  new Button("image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "ContinuousAttack"), new Button("image/icon/notSelected.png", 0, 0, 0),
                   new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0)]]];
 
     this.activeSkillsKey = ["ShiftLeft", "Space"];
@@ -609,7 +610,6 @@ readyScene.init = function()
                         }
                         nowScene.selectActiveSkills[i].blinkRTime = Date.now() + 0.5 * 1000;
                         nowScene.selectActiveSkills[i].blinkNum++;
-                        console.log("i : " + i + ", num : " + nowScene.selectActiveSkills[i].blinkNum);
                     }
                 }
                 else
@@ -670,6 +670,7 @@ readyScene.init = function()
                         }
                         else
                         {
+                            nowScene.selectPassiveSkills[0].canChoose = false;
                             nowScene.passiveSkills[i].doubleRTime = Date.now() + 0.3 * 1000;
                         }
                         nowScene.passiveSkills[i].startPos = {x : nowScene.cursor.pos.x, y : nowScene.cursor.pos.y};
@@ -774,6 +775,8 @@ readyScene.init = function()
                         }
                         else
                         {
+                            nowScene.selectActiveSkills[0].canChoose = false;
+                            nowScene.selectActiveSkills[1].canChoose = false;
                             nowScene.activeSkills[i].doubleRTime = Date.now() + 0.3 * 1000;
                         }
 

@@ -4,12 +4,12 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 1, 1, 0, "TrackingEnemy", 1, 1, 0.5, "TrackingEnemy", 1, 1, 1, "TrackingEnemy", 1, 1, 1.5],
+    ["TrackingEnemy", 1, 0, 0, "TrackingEnemy", 0, 1, 0.5, "TrackingEnemy", 0, 1, 1, "TrackingEnemy", 0, 1, 1.5],
     ["TrackingEnemy", 2, 1, 0.5, "TrackingEnemy", 2, 1, 1, "TrackingEnemy", 2, 1, 1.5, "TrackingEnemy", 2, 1, 0],
     ["ShootingEnemy", 3, 1, 1, "ShootingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "TrackingEnemy", 3, 1, 0.5],
     ["TrackingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5, "ShootingEnemy", 3, 1, 1],
     ["Cube", 1, 0, 0],
-    ["TraclingEnemy", 5, 0.5, 0, "TrackingEnemy", 5, 0.5, 0.5, "TrackingEnemy", 5, 0.5, 1, "TrackingEnemy", 5, 0.5, 1.5],
+    ["TrackingEnemy", 5, 0.5, 0, "TrackingEnemy", 5, 0.5, 0.5, "TrackingEnemy", 5, 0.5, 1, "TrackingEnemy", 5, 0.5, 1.5],
     ["ShootingEnemy", 7, 0.5, 0.5, "ShootingEnemy", 7, 0.5, 1, "ShootingEnemy", 7, 0.5, 1.5, "ShootingEnemy", 7, 0.5, 0],
     ["ShootingEnemy", 8, 0.5, 1, "ShootingEnemy", 8, 0.5, 1.5, "TrackingEnemy", 8, 0.5, 0, "TrackingEnemy", 8, 0.5, 0.5],
     ["TrackingEnemy", 10, 0.5, 1.5, "TrackingEnemy", 10, 0.5, 0, "ShootingEnemy", 10, 0.5, 0.5, "ShootingEnemy", 10, 0.5, 1],
