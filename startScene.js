@@ -4,7 +4,7 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 1, 0, 0, "TrackingEnemy", 0, 1, 0.5, "TrackingEnemy", 0, 1, 1, "TrackingEnemy", 0, 1, 1.5],
+    ["TrackingEnemy", 1, 0, 0, "TrackingEnemy", 1, 1, 0.5, "TrackingEnemy", 1, 1, 1, "TrackingEnemy", 1, 1, 1.5],
     ["TrackingEnemy", 2, 1, 0.5, "TrackingEnemy", 2, 1, 1, "TrackingEnemy", 2, 1, 1.5, "TrackingEnemy", 2, 1, 0],
     ["ShootingEnemy", 3, 1, 1, "ShootingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "TrackingEnemy", 3, 1, 0.5],
     ["TrackingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5, "ShootingEnemy", 3, 1, 1],
@@ -180,21 +180,24 @@ class GameController
 
 startScene.init = function()
 {
-    preloadImage("image/player/player.png",  "image/player/playerHand.png", 
+    preloadImage("image/player/Warrior/player.png", "image/player/Warrior/sample.png", 
+                 "image/player/Lancer/player.png", "image/player/Lancer/sample.png", 
+                 "image/player/Summoner/player.png", "image/player/Summoner/sample.png", 
+                 "image/player/playerHand.png", 
                  "image/weapon/sword.png",  "image/effect/swordEffect.png", 
                  "image/weapon/spear.png", 
-                 "image/player/sample/player.png",  
                  "image/enemy/trackingEnemy.png", 
                  "image/enemy/shootingEnemy.png",  "image/effect/enemyBullet1.png",
                  "image/boss/cube.png", 
                  "image/EnemyHpBarIn.png", 
                  "image/cursor.png", 
                  "image/hpBarOut.png",  "image/PlayerHpBarIn.png",
-                 "image/tablet.png",  "image/tabletSample.png",
+                 "image/tablet.png",  "image/tabletSample.png", 
+                 "image/basic.png", "image/level.png", 
                  "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/set.png", "image/button/restart.png", 
                  "image/icon/notSelected.png", "image/icon/lock.png", "image/icon/cantSelect.png",  
-                 "image/icon/warrior/passiveSkill/basicAttackDamageUp.png", "image/icon/warrior/passiveSkill/healthUp.png",
-                 "image/icon/warrior/activeSkill/swiftStrike.png", "image/icon/warrior/activeSkill/swordShot.png",
+                 "image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", "image/icon/Warrior/passiveSkill/healthUp.png", "image/icon/Warrior/passiveSkill/attackSpeedUp.png", "image/icon/Warrior/passiveSkill/blooddrain.png",  "image/icon/Warrior/passiveSkill/attackRangeUp.png",
+                 "image/icon/Warrior/activeSkill/swiftStrike.png", "image/icon/Warrior/activeSkill/swordShot.png",
                  "image/background/ingame.png", "image/result.png", 
                  "image/fade/black.png", "image/fade/white.png",
                  "image/weapon/collisionRect.png");

@@ -102,10 +102,13 @@ class Pannel
 }
 
 var selectSkills = [[[new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/cantSelect.png", 0, 0, 2)],
-                        [new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/notSelected.png", 0, 0, 2)]], 
+                   [new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/notSelected.png", 0, 0, 2)]], 
 
-                        [[new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/cantSelect.png", 0, 0, 2)],
-                        [new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/notSelected.png", 0, 0, 2)]]];
+                   [[new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/cantSelect.png", 0, 0, 2)],
+                   [new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/notSelected.png", 0, 0, 2)]],
+                
+                   [[new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/cantSelect.png", 0, 0, 2)],
+                   [new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/notSelected.png", 0, 0, 2)]]];
 
 var jobIndex = 0;
 
@@ -116,35 +119,45 @@ readyScene.init = function()
 
     gameScene.selectedInfo = {player : {skill : {passive :  [], active : []}, job : null}};
 
-    this.jobs = [["image/player/sample/player.png", "Warrior"], 
-                ["image/player/sample/player.png", "Lancer"]];
+    this.jobs = [["image/player/Warrior/sample.png", "Warrior"], 
+                ["image/player/Lancer/sample.png", "Lancer"],
+                ["image/player/Summoner/sample.png", "Summoner"]];
 
-    this.skills = [[[new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
-                  new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "blooddrain"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "attackSpeedUp"),
-                  new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "MOD:Berserker")], 
+    this.skills = [[[new Button("image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
+                  new Button("image/icon/Warrior/passiveSkill/blooddrain.png", 0, 0, 0, "blooddrain"), new Button("image/icon/Warrior/passiveSkill/attackSpeedUp.png", 0, 0, 0, "attackSpeedUp"),
+                  new Button("image/icon/Warrior/passiveSkill/attackRangeUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "MOD:Berserker")], 
 
-                  [new Button("image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "SwordShot"), new Button("image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "SwiftStrike"),
-                  new Button("image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "SpinShot"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
+                  [new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "SwordShot"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "SwiftStrike"),
+                  new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "SpinShot"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "WheelWind"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
 
 
-                  [[new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackSpeedUp"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0),
-                  new Button("image/icon/warrior/passiveSkill/healthUp.png", 0, 0, 0, "backDashAttack"), new Button("image/icon/warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
+                  [[new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackSpeedUp"),
+                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
+                  new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "backDashAttack"), new Button("image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
 
-                  [new Button("image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "Swing"), new Button("image/icon/warrior/activeSkill/swordShot.png", 0, 0, 0, "Bu-Wang"),
-                  new Button("image/icon/warrior/activeSkill/swiftStrike.png", 0, 0, 0, "ContinuousAttack"), new Button("image/icon/notSelected.png", 0, 0, 0),
-                  new Button("image/icon/notSelected.png", 0, 0, 0), new Button("image/icon/notSelected.png", 0, 0, 0)]]];
-
+                  [new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "Swing"), new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "Bu-Wang"),
+                  new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "ContinuousAttack"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
+                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
+                
+                
+                  [[new Button("image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "chargeElectSpeedUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "shotSpeedUp"),
+                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
+                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")],
+                
+                  [new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "LaserAttack"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "attackSpeedBuff"),
+                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
+                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]]];
+    
     this.activeSkillsKey = ["ShiftLeft", "Space"];
     this.isSelected = false;
 
     this.cautionList = [];
     
-    this.background = nowScene.addThing(new GameImage("image/tablet.png", 0, -(1080 - canvas.height) / 2, "none"));
+    this.background = nowScene.addThing(new GameImage("image/tablet.png", 0, canvas.height / 2 - 1080 / 2, "none"));
     this.background.update = () =>
     {
-        this.background.pos.y = -(1080 - canvas.height) / 2;
+        this.background.pos.y = canvas.height / 2 - this.background.image.height / 2;
     }
     nowScene.updateList.push(this.background);
     this.background.setZ(2);
@@ -158,13 +171,15 @@ readyScene.init = function()
     
     
     // leftDown pannel
-    this.leftDownPannel = new Pannel(nowScene.selectPannel.pos.x + 52, nowScene.selectPannel.pos.y + 507, 583, 500);
+    this.leftDownPannel = new Pannel(nowScene.selectPannel.pos.x + 52, nowScene.selectPannel.pos.y + 438, 583, 500);
     this.leftDownPannel.update = () =>
     {
-        this.leftDownPannel.setPosition(nowScene.selectPannel.pos.x + 52, nowScene.selectPannel.pos.y + 507);
+        this.leftDownPannel.setPosition(nowScene.selectPannel.pos.x + 52, nowScene.selectPannel.pos.y + 438);
 
     }
     nowScene.updateList.push(this.leftDownPannel);
+
+    this.stats = [[], [], []];
 
     this.passiveSkills = [];
     this.activeSkills = [];
@@ -178,14 +193,14 @@ readyScene.init = function()
 
 
     // middle pannel
-    this.middlePannel = new Pannel(nowScene.selectPannel.pos.x + 648, nowScene.selectPannel.pos.y + 50, 624, 981);
+    this.middlePannel = new Pannel(nowScene.leftDownPannel.pos.x + nowScene.leftDownPannel.image.width + 15, nowScene.leftDownPannel.pos.y + 100, 624, 981);
     this.middlePannel.update = () =>
     {
-        this.middlePannel.setPosition(nowScene.selectPannel.pos.x + 648, nowScene.selectPannel.pos.y + 50);
+        this.middlePannel.setPosition(nowScene.leftDownPannel.pos.x + nowScene.leftDownPannel.image.width + 15, nowScene.leftDownPannel.pos.y + 100);
     }
     nowScene.updateList.push(this.middlePannel);
     
-    this.playerImage = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameImage("image/player/sample/player.png", nowScene.middlePannel.getCenter("x"), nowScene.middlePannel.getCenter("y"), "none")));
+    this.playerImage = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameImage("image/player/Warrior/sample.png", nowScene.middlePannel.getCenter("x"), nowScene.middlePannel.pos.y, "none")));
     nowScene.middlePannel.setOnPannel(this.playerImage);
     this.playerImage.setZ(5);
     this.playerImage.setCenter();
@@ -195,7 +210,7 @@ readyScene.init = function()
     nowScene.middlePannel.setOnPannel(this.jobName);
     this.jobName.setZ(5);
 
-    this.leftButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/leftArrow.png", nowScene.middlePannel.pos.x + 35, nowScene.middlePannel.getCenter("y"), 3)));
+    this.leftButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/leftArrow.png", nowScene.middlePannel.pos.x + 35, nowScene.middlePannel.pos.y, 3)));
     this.leftButton.setClickEvent(function()
     {
         nowScene.switchSetting("left");
@@ -204,7 +219,7 @@ readyScene.init = function()
     nowScene.middlePannel.setOnPannel(this.leftButton);
     nowScene.updateList.push(this.leftButton);
 
-    this.rightButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/rightArrow.png", nowScene.middlePannel.pos.x + nowScene.middlePannel.image.width - 20, nowScene.middlePannel.getCenter("y"), 3)));
+    this.rightButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/rightArrow.png", nowScene.middlePannel.pos.x + nowScene.middlePannel.image.width - 20, nowScene.middlePannel.pos.y, 3)));
     this.rightButton.setClickEvent(function()
     {
         nowScene.switchSetting("right");
@@ -213,8 +228,8 @@ readyScene.init = function()
     nowScene.middlePannel.setOnPannel(this.rightButton);
     nowScene.updateList.push(this.rightButton);
 
-    this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", nowScene.middlePannel.pos.x + 159, nowScene.middlePannel.pos.y + 879, 5, "readyButton")));
-    this.readyButton.pos.x += this.readyButton.image.width / 2;
+    this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", nowScene.middlePannel.getCenter("x"), nowScene.jobName.pos.y + 200, 5, "readyButton")));
+    this.readyButton.pos.y -= this.readyButton.image.height / 2;
     this.readyButton.strokeWidth = 10;
     this.readyButton.strokeStyle = "#06e2e0"
     this.readyButton.setClickEvent(function()
@@ -427,7 +442,7 @@ readyScene.init = function()
     {
         for(let i = 0; i < 2; i++)
         {
-            nowScene.selectPassiveSkills[i].pos = {x : nowScene.leftDownPannel.pos.x + 24 + i * 129, y : nowScene.leftDownPannel.pos.y + 374};
+            nowScene.selectPassiveSkills[i].pos = {x : nowScene.leftDownPannel.pos.x + 40 + i * 129, y : nowScene.leftDownPannel.pos.y + 370};
             nowScene.selectPassiveSkills[i].anchor = {x : -nowScene.selectPassiveSkills[i].image.width, y : -nowScene.selectPassiveSkills[i].image.height};
             nowScene.selectPassiveSkills[i].scale = {x : 1.3, y : 1.3};
 
@@ -442,6 +457,7 @@ readyScene.init = function()
             nowScene.selectPassiveSkills[i].chooseTime = 7;
             nowScene.selectPassiveSkills[i].blinkRTime = Date.now();
             nowScene.selectPassiveSkills[i].blinkNum = 0;
+            nowScene.selectPassiveSkills[i].delayRTime = Date.now();
 
             if(nowScene.selectPassiveSkills[i].name != "none")
             {
@@ -471,21 +487,41 @@ readyScene.init = function()
 
                 if(nowScene.selectPassiveSkills[i].canChoose == true)
                 {
-                    if(mouseValue["Left"] == 1 && Collision.dotToRect(nowScene.cursor, nowScene.selectPassiveSkills[i]))
+                    if(mouseValue["Left"] == 1 && Date.now() > nowScene.selectPassiveSkills[i].delayRTime)
                     {
-                        for(let i = 0; i < nowScene.passiveSkills.length; i++)
+                        if(Collision.dotToRect(nowScene.cursor, nowScene.selectPassiveSkills[0]))
                         {
-                            if(nowScene.passiveSkills[i].doubleClicked == true)
+                            for(let i = 0; i < nowScene.passiveSkills.length; i++)
                             {
-                                nowScene.selectSkill(nowScene.passiveSkills[i], "passive", 0, true);
+                                if(nowScene.passiveSkills[i].doubleClicked == true)
+                                {
+                                    nowScene.selectSkill(nowScene.passiveSkills[i], "passive", 0, true);
+    
+                                    nowScene.selectPassiveSkills[0].canChoose = false;
+                                    nowScene.selectPassiveSkills[0].chooseRTime = 0;
+                                    nowScene.selectPassiveSkills[0].blinkRTime = 0;
+                                    nowScene.selectPassiveSkills[0].blinkNum = 0;
+    
+                                    nowScene.passiveSkills[i].doubleClicked = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            nowScene.selectPassiveSkills[0].canChoose = false;
+                            nowScene.selectPassiveSkills[0].canChoose = false;
+                            nowScene.selectPassiveSkills[0].chooseRTime = 0;
+                            nowScene.selectPassiveSkills[0].blinkRTime = 0;
+                            nowScene.selectPassiveSkills[0].blinkNum = 0;
 
-                                nowScene.selectPassiveSkills[0].canChoose = false;
-                                nowScene.selectPassiveSkills[0].chooseRTime = 0;
-                                nowScene.selectPassiveSkills[0].blinkRTime = 0;
-                                nowScene.selectPassiveSkills[0].blinkNum = 0;
-
-                                nowScene.passiveSkills[i].doubleClicked = false;
-                                break;
+                            for(let i = 0; i < nowScene.passiveSkills.length; i++)
+                            {
+                                if(nowScene.passiveSkills[i].doubleClicked == true)
+                                {
+                                    nowScene.passiveSkills[i].doubleClicked = false;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -520,7 +556,7 @@ readyScene.init = function()
         
         for(let i = 0; i < 2; i++)
         {
-            nowScene.selectActiveSkills[i].pos = {x : nowScene.leftDownPannel.pos.x + 318 + i * 131, y : nowScene.leftDownPannel.pos.y + 374};
+            nowScene.selectActiveSkills[i].pos = {x : nowScene.leftDownPannel.pos.x + 325 + i * 131, y : nowScene.leftDownPannel.pos.y + 370};
             nowScene.selectActiveSkills[i].anchor = {x : -nowScene.selectActiveSkills[i].image.width, y : -nowScene.selectActiveSkills[i].image.height};
             nowScene.selectActiveSkills[i].scale = {x : 1.3, y : 1.3};
 
@@ -535,6 +571,7 @@ readyScene.init = function()
             nowScene.selectActiveSkills[i].chooseTime = 7;
             nowScene.selectActiveSkills[i].blinkRTime = Date.now();
             nowScene.selectActiveSkills[i].blinkNum = 0;
+            nowScene.selectActiveSkills[i].delayRTime = Date.now();
             
             if(nowScene.selectActiveSkills[i].name != "none")
             {
@@ -561,26 +598,73 @@ readyScene.init = function()
 
                 if(nowScene.selectActiveSkills[i].canChoose == true)
                 {
-                    if(mouseValue["Left"] == 1 && Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i]))
+                    if(mouseValue["Left"] == 1 && Date.now() > nowScene.selectActiveSkills[i].delayRTime)
                     {
-                        for(let j = 0; j < nowScene.activeSkills.length; j++)
+                        if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[0]))
                         {
-                            if(nowScene.activeSkills[j].doubleClicked == true)
+                            for(let j = 0; j < nowScene.activeSkills.length; j++)
                             {
-                                nowScene.selectSkill(nowScene.activeSkills[j], "active", i, true);
+                                if(nowScene.activeSkills[j].doubleClicked == true)
+                                {
+                                    nowScene.selectSkill(nowScene.activeSkills[j], "active", 0, true);
+    
+                                    nowScene.selectActiveSkills[0].canChoose = false;
+                                    nowScene.selectActiveSkills[0].chooseRTime = 0;
+                                    nowScene.selectActiveSkills[0].blinkRTime = 0;
+                                    nowScene.selectActiveSkills[0].blinkNum = 0;
+                                    
+                                    nowScene.selectActiveSkills[1].canChoose = false;
+                                    nowScene.selectActiveSkills[1].chooseRTime = 0;
+                                    nowScene.selectActiveSkills[1].blinkRTime = 0;
+                                    nowScene.selectActiveSkills[1].blinkNum = 0;
+    
+                                    nowScene.activeSkills[j].doubleClicked = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[1]))
+                        {
+                            for(let j = 0; j < nowScene.activeSkills.length; j++)
+                            {
+                                if(nowScene.activeSkills[j].doubleClicked == true)
+                                {
+                                    nowScene.selectSkill(nowScene.activeSkills[j], "active", 1, true);
+    
+                                    nowScene.selectActiveSkills[0].canChoose = false;
+                                    nowScene.selectActiveSkills[0].chooseRTime = 0;
+                                    nowScene.selectActiveSkills[0].blinkRTime = 0;
+                                    nowScene.selectActiveSkills[0].blinkNum = 0;
+                                    
+                                    nowScene.selectActiveSkills[1].canChoose = false;
+                                    nowScene.selectActiveSkills[1].chooseRTime = 0;
+                                    nowScene.selectActiveSkills[1].blinkRTime = 0;
+                                    nowScene.selectActiveSkills[1].blinkNum = 0;
+    
+                                    nowScene.activeSkills[j].doubleClicked = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            nowScene.selectActiveSkills[0].canChoose = false;
+                            nowScene.selectActiveSkills[0].chooseRTime = 0;
+                            nowScene.selectActiveSkills[0].blinkRTime = 0;
+                            nowScene.selectActiveSkills[0].blinkNum = 0;
+                            
+                            nowScene.selectActiveSkills[1].canChoose = false;
+                            nowScene.selectActiveSkills[1].chooseRTime = 0;
+                            nowScene.selectActiveSkills[1].blinkRTime = 0;
+                            nowScene.selectActiveSkills[1].blinkNum = 0;
 
-                                nowScene.selectActiveSkills[0].canChoose = false;
-                                nowScene.selectActiveSkills[0].chooseRTime = 0;
-                                nowScene.selectActiveSkills[0].blinkRTime = 0;
-                                nowScene.selectActiveSkills[0].blinkNum = 0;
-                                
-                                nowScene.selectActiveSkills[1].canChoose = false;
-                                nowScene.selectActiveSkills[1].chooseRTime = 0;
-                                nowScene.selectActiveSkills[1].blinkRTime = 0;
-                                nowScene.selectActiveSkills[1].blinkNum = 0;
-
-                                nowScene.activeSkills[j].doubleClicked = false;
-                                break;
+                            for(let i = 0; i < nowScene.activeSkills.length; i++)
+                            {
+                                if(nowScene.activeSkills[i].doubleClicked == true)
+                                {
+                                    nowScene.activeSkills[i].doubleClicked = false;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -665,12 +749,12 @@ readyScene.init = function()
                             nowScene.selectPassiveSkills[0].canChoose = true;
                             nowScene.selectPassiveSkills[0].chooseRTime = Date.now() + nowScene.selectPassiveSkills[0].chooseTime * 1000;
                             nowScene.selectPassiveSkills[0].blinkRTime = Date.now();
+                            nowScene.selectPassiveSkills[0].delayRTime = Date.now() + 0.1 * 1000;
 
                             nowScene.passiveSkills[i].doubleClicked = true;
                         }
                         else
                         {
-                            nowScene.selectPassiveSkills[0].canChoose = false;
                             nowScene.passiveSkills[i].doubleRTime = Date.now() + 0.3 * 1000;
                         }
                         nowScene.passiveSkills[i].startPos = {x : nowScene.cursor.pos.x, y : nowScene.cursor.pos.y};
@@ -766,17 +850,17 @@ readyScene.init = function()
                             nowScene.selectActiveSkills[0].canChoose = true;
                             nowScene.selectActiveSkills[0].chooseRTime = Date.now() + nowScene.selectActiveSkills[0].chooseTime * 1000;
                             nowScene.selectActiveSkills[0].blinkRTime = Date.now();
+                            nowScene.selectActiveSkills[0].delayRTime = Date.now() + 0.1 * 1000;
 
                             nowScene.selectActiveSkills[1].canChoose = true;
                             nowScene.selectActiveSkills[1].chooseRTime = Date.now() + nowScene.selectActiveSkills[1].chooseTime * 1000;
                             nowScene.selectActiveSkills[1].blinkRTime = Date.now();
+                            nowScene.selectActiveSkills[1].delayRTime = Date.now() + 0.1 * 1000;
 
                             nowScene.activeSkills[i].doubleClicked = true;
                         }
                         else
                         {
-                            nowScene.selectActiveSkills[0].canChoose = false;
-                            nowScene.selectActiveSkills[1].canChoose = false;
                             nowScene.activeSkills[i].doubleRTime = Date.now() + 0.3 * 1000;
                         }
 
@@ -840,8 +924,38 @@ readyScene.init = function()
         }
     }
 
+    this.setStats = () =>
+    {
+        let basicLength = [];
+        //let levelLength = [];
+
+        switch (nowScene.jobs[jobIndex][1])
+        {
+            case "Warrior" : basicLength[0] = 3; basicLength[1] = 5; basicLength[2] = 6; break;
+            case "Lancer" : basicLength[0] = 5; basicLength[1] = 3; basicLength[2] = 4; break;
+            case "Summoner" : basicLength[0] = 6; basicLength[1] = 2; basicLength[2] = 8; break;
+        }
+
+        for(let i = 0; i < basicLength.length; i++)
+        {
+            for(let j = 0; j < basicLength[i]; j++)
+            {
+                let stat = nowScene.addThing(new GameImage("image/basic.png", nowScene.leftDownPannel.pos.x + 110 + j * 30, nowScene.leftDownPannel.pos.y - 300 + i * 85, "stat"))
+                stat.setZ(3);
+                nowScene.stats[i].push(nowScene.leftDownPannel.setOnPannel(stat));
+            }
+        }
+    }
+
     this.switchSetting = (_dir) =>
     {
+        nowScene.stats[0].forEach(hp => hp.isDelete = true);
+        nowScene.stats[0].length = 0;
+        nowScene.stats[1].forEach(damage => damage.isDelete = true);
+        nowScene.stats[1].length = 0;
+        nowScene.stats[2].forEach(elect => elect.isDelete = true);
+        nowScene.stats[2].length = 0;
+
         nowScene.passiveSkills.forEach(skill => skill.isDelete = true);
         nowScene.passiveSkills.length = 0;
         nowScene.activeSkills.forEach(skill => skill.isDelete = true);
@@ -886,6 +1000,8 @@ readyScene.init = function()
         
         nowScene.setSelectIcon();
         nowScene.placeSkills();
+
+        nowScene.setStats();
     }
 
     this.switchSetting();
