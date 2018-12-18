@@ -1905,7 +1905,8 @@ class Enemy extends GameImage
         super(path, _x, _y, "enemy");
 
         this.yourPlayer = _player;
-        this.velocity = new Vector(0, 0);
+        this.velocity = new Vector(0, 0);\
+        this.name;
 
         this.maxHp = 10;
         this.hp = this.maxHp;
@@ -2976,7 +2977,7 @@ gameScene.init = function()
     this.gameController = new GameController();
     
     this.cam = new Camera(this.player);
-    this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY));
+    this.cursor = nowScene.addThing(new MousePoint("image/cursor.png", mouseX, mouseY));
 
     this.startRTime = Date.now() + 0.5 * 1000;
 }
