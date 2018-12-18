@@ -26,7 +26,6 @@ class GameController
         this.startWave = false;
         this.canStartWave = true;
 
-        this.restLTime = Date.now();
         this.restRTime = 0;
         this.restTime = 5;
         this.startRest = false;
@@ -83,7 +82,7 @@ class GameController
     // restTime만큼 기다림
     restStart()
     {
-        if(this.restLTime >= this.restRTime)
+        if(Date.now() >= this.restRTime)
         {
             this.canStartWave = true;
             this.startRest = false;
@@ -113,7 +112,6 @@ class GameController
     }
     update()
     {
-        this.restLTime = Date.now();
         this.showInformation();
         if(this.canStartWave == true) // 웨이브를 시작 가능하면 한 번 실행
         {
@@ -141,7 +139,7 @@ class GameController
                     this.healPlayer();
                     this.startRest = true;
                     this.startWave = false;
-                    this.restRTime = this.restLTime + this.restTime * 1000;
+                    this.restRTime = Date.now() + this.restTime * 1000;
                 }
                 else
                 {
@@ -184,8 +182,9 @@ startScene.init = function()
                  "image/player/Lancer/player.png", "image/player/Lancer/sample.png", 
                  "image/player/Summoner/player.png", "image/player/Summoner/sample.png", 
                  "image/player/playerHand.png", 
-                 "image/weapon/sword.png",  "image/effect/swordEffect.png", 
+                 "image/weapon/sword.png", "image/effect/swordEffect.png", 
                  "image/weapon/spear.png", 
+                 "image/weapon/shooter-body.png", "image/weapon/shooter-weapon.png", "image/weapon/basicBullet.png", 
                  "image/enemy/trackingEnemy.png", 
                  "image/enemy/shootingEnemy.png",  "image/effect/enemyBullet1.png",
                  "image/boss/cube.png", 
@@ -196,11 +195,10 @@ startScene.init = function()
                  "image/basic.png", "image/level.png", 
                  "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/set.png", "image/button/restart.png", 
                  "image/icon/notSelected.png", "image/icon/lock.png", "image/icon/cantSelect.png",  
-                 "image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", "image/icon/Warrior/passiveSkill/healthUp.png", "image/icon/Warrior/passiveSkill/attackSpeedUp.png", "image/icon/Warrior/passiveSkill/blooddrain.png",  "image/icon/Warrior/passiveSkill/attackRangeUp.png",
+                 "image/icon/Warrior/passiveSkill/attackDamageUp.png", "image/icon/Warrior/passiveSkill/healthUp.png", "image/icon/Warrior/passiveSkill/attackSpeedUp.png", "image/icon/Warrior/passiveSkill/blooddrain.png",  "image/icon/Warrior/passiveSkill/attackRangeUp.png",
                  "image/icon/Warrior/activeSkill/swiftStrike.png", "image/icon/Warrior/activeSkill/swordShot.png",
                  "image/background/ingame.png", "image/result.png", 
-                 "image/fade/black.png", "image/fade/white.png",
-                 "image/weapon/collisionRect.png");
+                 "image/fade/black.png", "image/fade/white.png");
 
     this.cam = new Camera();
     this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY, ));

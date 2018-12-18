@@ -151,10 +151,10 @@ var updateKeys = function()
 }
 var mouseXY = function()
 {
-    if (window.Event)
-    {
-	    document.captureEvents(Event.MOUSEMOVE);
-	}
+    // if (window.Event)
+    // {
+	//     document.captureEvents(Event.MOUSEMOVE);
+	// }
 	document.onmousemove = getCursorXY;
 }
 var getCursorXY = function(e)
@@ -626,17 +626,6 @@ class GameImage
         this.pos.x -= this.image.width / 2;
         this.pos.y -= this.image.height / 2;
     }
-    getCenter(pos)
-    {
-        if(pos == "x")
-        {   
-            return this.pos.x + this.image.width / 2;
-        }
-        else if(pos == "y")
-        {
-            return this.pos.y + this.image.height / 2;
-        }
-    }
     getImageLength(widthHeight)
     {
         if(widthHeight == "width")
@@ -664,7 +653,7 @@ class Button extends GameImage
 
         if(arguments[5] != undefined)
         {
-            this.text = nowScene.addThing(new GameText(this.getCenter("x"), this.getCenter("y"), arguments[6] || 30, "Arial", arguments[5]));
+            this.text = nowScene.addThing(new GameText(Util.getCenter(this, "x"), Util.getCenter(this, "y"), arguments[6] || 30, "Arial", arguments[5]));
             this.text.setCenter();
             this.text.setZ(this.z + 1);
         }
@@ -679,8 +668,8 @@ class Button extends GameImage
     }
     setTextCenter()
     {
-        this.text.pos.x = this.getCenter("x");
-        this.text.pos.y = this.getCenter("y");
+        this.text.pos.x = Util.getCenter(this, "x");
+        this.text.pos.y = Util.getCenter(this, "y");
         this.text.setCenter();
     }
     changeText(_text)

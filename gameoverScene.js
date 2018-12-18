@@ -15,7 +15,7 @@ gameoverScene.init = function()
 
     for(let i = 0; i < nowScene.killCnt.length; i++)
     {
-        let cnt = nowScene.addThing(new GameText(nowScene.resultPannel.getCenter("x"), nowScene.resultPannel.pos.y + nowScene.resultPannel.image.height * (i + 2) / 6, 70, "Nanum Square", nowScene.killCnt[i][0] + "의 처치 수 : " + nowScene.killCnt[i][1] + "개"));
+        let cnt = nowScene.addThing(new GameText(Util.getCenter(nowScene.resultPannel, "x"), nowScene.resultPannel.pos.y + nowScene.resultPannel.image.height * (i + 2) / 6, 70, "Nanum Square", nowScene.killCnt[i][0] + "의 처치 수 : " + nowScene.killCnt[i][1] + "개"));
         cnt.color = {r : 6, g : 226, b : 224};
     }
 

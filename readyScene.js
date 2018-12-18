@@ -123,7 +123,7 @@ readyScene.init = function()
                 ["image/player/Lancer/sample.png", "Lancer"],
                 ["image/player/Summoner/sample.png", "Summoner"]];
 
-    this.skills = [[[new Button("image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
+    this.skills = [[[new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "attackDamageUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
                   new Button("image/icon/Warrior/passiveSkill/blooddrain.png", 0, 0, 0, "blooddrain"), new Button("image/icon/Warrior/passiveSkill/attackSpeedUp.png", 0, 0, 0, "attackSpeedUp"),
                   new Button("image/icon/Warrior/passiveSkill/attackRangeUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "MOD:Berserker")], 
 
@@ -132,20 +132,20 @@ readyScene.init = function()
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
 
 
-                  [[new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "basicAttackDamageUp"), new Button("image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "attackSpeedUp"),
+                  [[new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "attackDamageUp"), new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "attackSpeedUp"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
-                  new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "backDashAttack"), new Button("image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
+                  new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "backDashAttack"), new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
 
                   [new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "Swing"), new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "Bu-Wang"),
                   new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "ContinuousAttack"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
                 
                 
-                  [[new Button("image/icon/Warrior/passiveSkill/basicAttackDamageUp.png", 0, 0, 0, "chargeElectSpeedUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "shotSpeedUp"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")],
+                  [[new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "chargeElectSpeedUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "shotSpeedUp"),
+                  new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "skillDamageUp"),
+                  new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "addShooter"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "penetrationAttack")],
                 
-                  [new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "LaserAttack"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "attackSpeedBuff"),
+                  [new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "LaserAttack"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "AttackSpeedBuff"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]]];
     
@@ -200,12 +200,12 @@ readyScene.init = function()
     }
     nowScene.updateList.push(this.middlePannel);
     
-    this.playerImage = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameImage("image/player/Warrior/sample.png", nowScene.middlePannel.getCenter("x"), nowScene.middlePannel.pos.y, "none")));
+    this.playerImage = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameImage("image/player/Warrior/sample.png", Util.getCenter(nowScene.middlePannel, "x"), nowScene.middlePannel.pos.y, "none")));
     nowScene.middlePannel.setOnPannel(this.playerImage);
     this.playerImage.setZ(5);
     this.playerImage.setCenter();
 
-    this.jobName = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameText(nowScene.middlePannel.getCenter("x"), nowScene.playerImage.pos.y + nowScene.playerImage.image.height + 50, 30, "Gugi", nowScene.jobs[jobIndex][1])));
+    this.jobName = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameText(Util.getCenter(nowScene.middlePannel, "x"), nowScene.playerImage.pos.y + nowScene.playerImage.image.height + 50, 30, "Gugi", nowScene.jobs[jobIndex][1])));
     this.jobName.color = {r : 6, g : 226, b : 224};
     nowScene.middlePannel.setOnPannel(this.jobName);
     this.jobName.setZ(5);
@@ -228,7 +228,7 @@ readyScene.init = function()
     nowScene.middlePannel.setOnPannel(this.rightButton);
     nowScene.updateList.push(this.rightButton);
 
-    this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", nowScene.middlePannel.getCenter("x"), nowScene.jobName.pos.y + 200, 5, "readyButton")));
+    this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", Util.getCenter(nowScene.middlePannel, "x"), nowScene.jobName.pos.y + 200, 5, "readyButton")));
     this.readyButton.pos.y -= this.readyButton.image.height / 2;
     this.readyButton.strokeWidth = 10;
     this.readyButton.strokeStyle = "#06e2e0"
@@ -303,7 +303,7 @@ readyScene.init = function()
         caution.RTime = Date.now() + 1000;
         caution.update = () =>
         {
-            if(LTime >= caution.RTime)
+            if(Date.now() >= caution.RTime)
             {
                 caution.opacity -= 0.02;
                 caution.pos.y += 0.2;
@@ -730,7 +730,7 @@ readyScene.init = function()
             nowScene.passiveSkills[i].startPos = {x : 0, y : 0};
             nowScene.passiveSkills[i].tempPos = {x : 0, y : 0};
 
-            nowScene.passiveSkills[i].information = {name : new GameText(nowScene.passiveSkills[i].getCenter("x"), nowScene.passiveSkills[i].pos.y + nowScene.passiveSkills[i].image.height + 2, 15, "Gugi", nowScene.passiveSkills[i].name)}
+            nowScene.passiveSkills[i].information = {name : new GameText(Util.getCenter(nowScene.passiveSkills[i], "x"), nowScene.passiveSkills[i].pos.y + nowScene.passiveSkills[i].image.height + 2, 15, "Gugi", nowScene.passiveSkills[i].name)}
             nowScene.passiveSkills[i].information.name.pos.y += nowScene.passiveSkills[i].information.name.size;
             nowScene.passiveSkills[i].information.name.color = {r : 6, g : 226, b : 224};
             nowScene.passiveSkills[i].onmouseover = false;
@@ -795,7 +795,7 @@ readyScene.init = function()
                         nowScene.passiveSkills[i].onmouseover = false;
                     }
 
-                    nowScene.passiveSkills[i].information.name.pos = {x : nowScene.passiveSkills[i].getCenter("x"), y : nowScene.passiveSkills[i].pos.y + nowScene.passiveSkills[i].image.height + 2 + nowScene.passiveSkills[i].information.name.size};
+                    nowScene.passiveSkills[i].information.name.pos = {x : Util.getCenter(nowScene.passiveSkills[i], "x"), y : nowScene.passiveSkills[i].pos.y + nowScene.passiveSkills[i].image.height + 2 + nowScene.passiveSkills[i].information.name.size};
                 }
             }
             else
@@ -817,7 +817,7 @@ readyScene.init = function()
             {
                 numY++;
             }
-            nowScene.activeSkills[i].pos = {x : nowScene.leftDownPannel.getCenter("x") - 5 + nowScene.activeSkills[i].image.width / 2 + (i % 2) * (nowScene.activeSkills[i].image.width + 70), y : nowScene.leftDownPannel.pos.y + 18 + numY * (nowScene.activeSkills[i].image.height + 29)};
+            nowScene.activeSkills[i].pos = {x : Util.getCenter(nowScene.leftDownPannel, "x") - 5 + nowScene.activeSkills[i].image.width / 2 + (i % 2) * (nowScene.activeSkills[i].image.width + 70), y : nowScene.leftDownPannel.pos.y + 18 + numY * (nowScene.activeSkills[i].image.height + 29)};
             nowScene.activeSkills[i].strokeWidth = 5;
             nowScene.activeSkills[i].strokeStyle = "#06e2e0";
 
@@ -831,7 +831,7 @@ readyScene.init = function()
             nowScene.activeSkills[i].startPos = {x : 0, y : 0};
             nowScene.activeSkills[i].tempPos = {x : 0, y : 0};
 
-            nowScene.activeSkills[i].information = {name : new GameText(nowScene.activeSkills[i].getCenter("x"), nowScene.activeSkills[i].pos.y + nowScene.activeSkills[i].image.height + 2, 15, "Gugi", nowScene.activeSkills[i].name)}
+            nowScene.activeSkills[i].information = {name : new GameText(Util.getCenter(nowScene.activeSkills[i], "x"), nowScene.activeSkills[i].pos.y + nowScene.activeSkills[i].image.height + 2, 15, "Gugi", nowScene.activeSkills[i].name)}
             nowScene.activeSkills[i].information.name.pos.y += nowScene.activeSkills[i].information.name.size;
             nowScene.activeSkills[i].information.name.color = {r : 6, g : 226, b : 224};
             nowScene.activeSkills[i].onmouseover = false;
@@ -909,12 +909,13 @@ readyScene.init = function()
                         nowScene.activeSkills[i].onmouseover = false;
                     }
 
-                    nowScene.activeSkills[i].information.name.pos = {x : nowScene.activeSkills[i].getCenter("x"), y : nowScene.activeSkills[i].pos.y + nowScene.activeSkills[i].image.height + 2 + nowScene.activeSkills[i].information.name.size};
+                    nowScene.activeSkills[i].information.name.pos = {x : Util.getCenter(nowScene.activeSkills[i], "x"), y : nowScene.activeSkills[i].pos.y + nowScene.activeSkills[i].image.height + 2 + nowScene.activeSkills[i].information.name.size};
                 }
             }
             else
             {   
                 nowScene.activeSkills[i].setZ(nowScene.activeSkills[i].z - 1);
+
                 let lock = nowScene.addThing(new GameImage("image/icon/lock.png", nowScene.activeSkills[i].pos.x, nowScene.activeSkills[i].pos.y, "lock"));
                 nowScene.leftDownPannel.setOnPannel(lock);
                 lock.setZ(nowScene.activeSkills[i].z + 1);

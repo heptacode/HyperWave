@@ -75,7 +75,7 @@ class Collision
     }
     static dotToRect(dot, obj)
     {
-        return (dot.getCenter("x") >= obj.pos.x && dot.getCenter("x") <= (obj.pos.x + obj.image.width) && dot.getCenter("y") >= obj.pos.y && dot.getCenter("y") <= obj.pos.y + obj.image.height);
+        return (Util.getCenter(dot, "x") >= obj.pos.x && Util.getCenter(dot, "x") <= (obj.pos.x + obj.image.width) && Util.getCenter(dot, "y") >= obj.pos.y && Util.getCenter(dot, "y") <= obj.pos.y + obj.image.height);
     }
     static circleToRotatedRect(_circle, _rect)
     {
