@@ -13,14 +13,36 @@ switch ($_POST['do']) {
             die(false);
         }
         $overlap = false;
-        $query = "SELECT uId FROM hyperwave_accounts";
+        $query = "SELECT uId FROM hyperwave";
         $result = mysqli_query($connect, $query);
         while ($data = mysqli_fetch_array($result)) {
             if ($_POST['uId'] == $data['uId']) {
                 exit(false);
             }
         }
-        $query = "INSERT INTO hyperwave_accounts VALUES (NULL, '" . $_POST['uId'] . "', '" . $_POST['uPw'] . "' , '" . date('Y-m-d H:i:s') . "')";
+        $query = "INSERT INTO hyperwave VALUES (
+            NULL, /* id */
+            '" . date('Y-m-d H:i:s') . "', /* tsp */
+            '" . $_POST['uId'] . "', /* uId */
+            '" . $_POST['uPw'] . "', /* uPw */
+            NULL, /* lvl */
+            NULL, /* highScore */
+            NULL, /* code */
+            NULL, /* readyState */
+            NULL, /* map */
+            NULL, /* job */
+            NULL, /* wave */
+            NULL, /* hp */
+            NULL, /* playerPosX */
+            NULL, /* playerPosY */
+            NULL, /* playerRot */
+            NULL, /* leftHandPosX */
+            NULL, /* leftHandPosY */
+            NULL, /* leftHandRot */
+            NULL, /* rightHandPosX */
+            NULL, /* rightHandPosY */
+            NULL /* rightHandRot */
+            )";
         $result = mysqli_query($connect, $query);
         exit($result);
 
@@ -28,7 +50,7 @@ switch ($_POST['do']) {
         if (!$_POST['uId'] || !$_POST['uPw']) {
             exit(false);
         }
-        $query = "SELECT * FROM hyperwave_accounts";
+        $query = "SELECT * FROM hyperwave";
         $result = mysqli_query($connect, $query);
         while ($data = mysqli_fetch_array($result)) {
             if ($_POST['uId'] == $data['uId'] && $_POST['uPw'] == $data['uPw']) {
@@ -38,19 +60,31 @@ switch ($_POST['do']) {
         exit(false);
 
     case 'queCreate':
-        $query = "SELECT code FROM hyperwave_accounts";
+        $query = "SELECT code FROM hyperwave";
         $result = mysqli_query($connect, $query);
         while ($data = mysqli_fetch_array($result)) {
             if ($_POST['code'] == $data['code']) {
                 exit(true);
             }
         }
-        $query = "UPDATE hyperwave_accounts SET code = '" . $_POST['code'] . "' WHERE uId = '" . $_POST['uId'] . "'";
+        $query = "UPDATE hyperwave SET code = '" . $_POST['code'] . "' WHERE uId = '" . $_POST['uId'] . "'";
+        mysqli_query($connect, $query);
+        exit(false);
+    
+    case 'queJoin':
+        $query = "SELECT code FROM hyperwave";
+        $result = mysqli_query($connect, $query);
+        while ($data = mysqli_fetch_array($result)) {
+            if ($_POST['code'] == $data['code']) {
+                exit(true);
+            }
+        }
+        $query = "UPDATE hyperwave SET code = '" . $_POST['code'] . "' WHERE uId = '" . $_POST['uId'] . "'";
         mysqli_query($connect, $query);
         exit(false);
 
     case 'fetchLevel':
-        $query = "SELECT * FROM hyperwave_accounts";
+        $query = "SELECT * FROM hyperwave";
         $result = mysqli_query($connect, $query);
         while ($data = mysqli_fetch_array($result)) {
             if ($_COOKIE['uId'] == $data['uId']) {
@@ -60,7 +94,7 @@ switch ($_POST['do']) {
         exit(false);
 
     case 'fetchHighScore':
-        $query = "SELECT * FROM hyperwave_accounts";
+        $query = "SELECT * FROM hyperwave";
         $result = mysqli_query($connect, $query);
         while ($data = mysqli_fetch_array($result)) {
             if ($_COOKIE['uId'] == $data['uId']) {
@@ -70,32 +104,37 @@ switch ($_POST['do']) {
         exit(false);
 
     case 'fetchData':
-        $query = "SELECT * FROM hyperwave_game";
+        $query = "SELECT * FROM hyperwave";
         $result = mysqli_query($connect, $query);
         while ($data = mysqli_fetch_array($result)) {
             if ($_POST['uId'] == $data['uId']) {
                 $dataArray = array(
                     'map' => $data['map'],
-                    'wave' => $data['wave'],
-                    'hp' => $data['hp'],
+                    'wave' => intval($data['wave']),
+                    'hp' => intval($data['hp']),
                     'job' => $data['job'],
-                    'playerPosX' => $data['playerPosX'],
-                    'playerPosY' => $data['playerPosY'],
-                    'playerRot' => $data['playerRot'],
-                    'leftHandPosX' => $data['leftHandPosX'],
-                    'leftHandPosY' => $data['leftHandPosY'],
-                    'leftHandRot' => $data['leftHandRot'],
-                    'rightHandPosX' => $data['rightHandPosX'],
-                    'rightHandPosY' => $data['rightHandPosY'],
-                    'rightHandRot' => $data['rightHandRot']
+                    'playerPosX' => floatval($data['playerPosX']),
+                    'playerPosY' => floatval($data['playerPosY']),
+                    'playerRot' => floatval($data['playerRot']),
+                    'leftHandPosX' => floatval($data['leftHandPosX']),
+                    'leftHandPosY' => floatval($data['leftHandPosY']),
+                    'leftHandRot' => floatval($data['leftHandRot']),
+                    'rightHandPosX' => floatval($data['rightHandPosX']),
+                    'rightHandPosY' => floatval($data['rightHandPosY']),
+                    'rightHandRot' => floatval($data['rightHandRot'])
                 );
                 exit(json_encode($dataArray));
             }
         }
         exit;
+    
+    case 'updateReadyState':
+        $query = "UPDATE hyperwave SET readyState = '" . $_POST['readyState'] . "' WHERE uId='" . $_POST['uId'] . "'";
+        mysqli_query($connect, $query);
+        exit;
 
     case 'updateData':
-        $query = "UPDATE hyperwave_game SET
+        $query = "UPDATE hyperwave SET
             wave = '" . $_POST['wave'] . "',
             hp = '" . $_POST['hp'] . "',
             job = '" . $_POST['job'] . "',
