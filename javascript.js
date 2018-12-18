@@ -1,4 +1,9 @@
-var code,
+/*
+    GLOBAL VARIABLES
+*/
+var timer_fetchData,
+    timer_updateData,
+    code,
     randomString = "0123456789";
 
 $.ajaxSetup({ cache: false });
@@ -117,11 +122,11 @@ function queCreate() {
     code = "";
     for (var i = 0; i < 5; i++) code += randomString.charAt(Math.floor(Math.random() * randomString.length));
     $.post("proxy.php", { do: "codeSet", uId: Cookies.get("uId"), code: code }, function(response) {
-        response ? queCreate() : alert(code);
+        response ? queCreate() : console.log(code);
     });
 }
 
-function queJoin(){
+function queJoin() {
     var code = prompt("참가할 큐 코드 입력");
     $.post(
         "proxy.php",
@@ -144,7 +149,7 @@ function fetchLevel() {
             uId: Cookies.get("uId")
         },
         function(response) {
-            console.log("레벨: " + response);
+            console.log(response);
         }
     );
 }
@@ -157,11 +162,12 @@ function fetchHighScore() {
             uId: Cookies.get("uId")
         },
         function(response) {
-            console.log("최고점수: " + response);
+            console.log(response);
         }
     );
 }
 
+// setInterval(fetchData, 100);
 function fetchData() {
     $.post(
         "proxy.php",
@@ -170,12 +176,17 @@ function fetchData() {
             uId: Cookies.get("uId")
         },
         function(response) {
-            console.log("데이터:" + response);
+            var data = JSON.parse(response);
+            console.log(data["map"]);
+            console.log(data["job"]);
+            console.log(data["playerPosX"]);
+            console.log(data["playerPosY"]);
+            console.log(data["playerRot"]);
         }
     );
 }
 
-function updateData(map, wave, hp, posX, posY, rot) {
+function updateData(map, wave, hp, playerPosX, playerPosY, playerRot, leftHandPosX, leftHandPosY, leftHandRot, RightHandPosX, RightHandPosY, RightHandRot) {
     $.post(
         "proxy.php",
         {
@@ -184,9 +195,15 @@ function updateData(map, wave, hp, posX, posY, rot) {
             map: map,
             wave: wave,
             hp: hp,
-            posX: posX,
-            posY: posY,
-            rot: rot
+            playerPosX: playerPosX,
+            playerPosY: playerPosY,
+            playerRot: playerRot,
+            leftHandPosX: leftHandPosX,
+            leftHandPosY: leftHandPosY,
+            leftHandRot: leftHandRot,
+            RightHandPosX: RightHandPosX,
+            RightHandPosY: RightHandPosY,
+            RightHandRot: RightHandRot
         },
         function(response) {
             console.log(response);
@@ -201,6 +218,6 @@ $(window).load(function() {
     }
     Cookies.set("reload", false, { expires: 1, secure: true });
 });
-window.onbeforeunload = function() {
-    return true;
-};
+// window.onbeforeunload = function() {
+//     return true;
+// };
