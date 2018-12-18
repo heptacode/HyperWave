@@ -4,15 +4,10 @@
     <meta charset="utf-8" />
     <title>Hyper Wave</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link rel="icon" href="image/favicon.png" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Gugi|Jua"
-    />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Gugi|Jua" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/font-nanumsquare/1.0.0/nanumsquare.css?ver=4.9.8" />
     <style>
       html {
         font-family: "Anonymous Pro", monospace;
@@ -253,22 +248,13 @@
     </div>
     <div class="overlay"></div>
     <canvas id="canvas"></canvas>
+    <script src="framework.js?1"></script>
+    <script src="myFunc.js?'1"></script>
+    <script src="startScene.js?1"></script>
+    <script src="readyScene.js?1"></script>
+    <script src="game.js?1"></script>
+    <script src="gameoverScene.js?1"></script>
     <script>
-      document.write(
-        '<script src="framework.js?' +
-          Date.now() +
-          '"><\/script><script src="myFunc.js?' +
-          Date.now() +
-          '"><\/script><script src="startScene.js?' +
-          Date.now() +
-          '"><\/script><script src="readyScene.js?' +
-          Date.now() +
-          '"><\/script><script src="game.js?' +
-          Date.now() +
-          '"><\/script><script src="gameoverScene.js?' +
-          Date.now() +
-          '"><\/script>'
-      );
       if (Cookies.get("uId")) {
         $("#canvas").addClass("canvas-active");
         $("html").css("cursor", "none");
@@ -288,22 +274,20 @@
           $("#canvas")
             .removeClass("canvas-active")
             .addClass("canvas-active")
-            .on('error', function() { alert("이미지 로드 실패") });
-            // window.onbeforeunload = false;
-            // location.reload();
+            .on('error', function() { location.reload() });
         }
       };
       document.addEventListener("keydown", function() {
         if (event.keyCode == 13 && !Cookies.get("uId")) signIn();
       });
       function register() {
-        if (!$("#inputId").val() || $("#inputId").val() < 4) {
+        if (!$("#inputId").val() || $("#inputId").val() < 6) {
           $("#inputId").focus();
-          event.preventDefault();
+          return false;
         }
-        if (!$("#inputPw").val() || $("#inputPw").val() < 4) {
+        if (!$("#inputPw").val() || $("#inputPw").val() < 6) {
           $("#inputPw").focus();
-          event.preventDefault();
+          return false;
         }
         $.post(
           "proxy.php",
@@ -329,13 +313,13 @@
         );
       }
       function signIn() {
-        if (!$("#inputPw").val() || $("#inputPw").val() < 4) {
-          $("#inputPw").focus();
-          event.preventDefault();
-        }
-        if (!$("#inputId").val() || $("#inputId").val() < 4) {
+        if (!$("#inputId").val() || $("#inputId").val() < 6) {
           $("#inputId").focus();
-          event.preventDefault();
+          return false;
+        }
+        if (!$("#inputPw").val() || $("#inputPw").val() < 6) {
+          $("#inputPw").focus();
+          return false;
         }
         $.post(
           "proxy.php",
