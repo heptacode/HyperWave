@@ -176,6 +176,30 @@ class GameController
     }
 }
 
+function queCreate() {
+    code = "";
+    for (var i = 0; i < 5; i++) code += randomString.charAt(Math.floor(Math.random() * randomString.length));
+    $.post("proxy.php", { do: "queCreate", uId: Cookies.get("uId"), code: code }, function(response) {
+        response ? queCreate() : Cookies.set("code", code, { expires: 1, secure: true });
+    });
+}
+
+function queJoin() {
+    var code = prompt("참가할 큐 코드 입력");
+    if(!code || code.length != 5) return false;
+    $.post(
+        "proxy.php",
+        {
+            do: "queJoin",
+            uId: Cookies.get("uId"),
+            code: code
+        },
+        function(response) {
+            response ? (Cookies.set("code", code, { expires: 1, secure: true }), nowScene.admitButton.starting()) : false;
+        }
+    );
+}
+
 startScene.init = function()
 {
     preloadImage("image/player/Warrior/player.png", "image/player/Warrior/sample.png", 
@@ -185,18 +209,21 @@ startScene.init = function()
                  "image/weapon/sword.png", "image/effect/swordEffect.png", 
                  "image/weapon/spear.png", 
                  "image/weapon/shooter-body.png", "image/weapon/shooter-weapon.png", "image/weapon/basicBullet.png", 
-                 "image/enemy/trackingEnemy.png", 
-                 "image/enemy/shootingEnemy.png",  "image/effect/enemyBullet1.png",
+                 "image/enemy/trackingEnemy.png", "image/enemy/trackingEnemy-arrow.png", 
+                 "image/enemy/shootingEnemy.png",  "image/effect/enemyBullet1.png", "image/enemy/shootingEnemy-arrow.png", 
                  "image/boss/cube.png", 
                  "image/EnemyHpBarIn.png", 
                  "image/cursor.png", 
                  "image/hpBarOut.png",  "image/PlayerHpBarIn.png",
                  "image/tablet.png",  "image/tabletSample.png", 
                  "image/basic.png", "image/level.png", 
-                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/set.png", "image/button/restart.png", 
+                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/restart.png", 
                  "image/icon/notSelected.png", "image/icon/lock.png", "image/icon/cantSelect.png",  
                  "image/icon/Warrior/passiveSkill/attackDamageUp.png", "image/icon/Warrior/passiveSkill/healthUp.png", "image/icon/Warrior/passiveSkill/attackSpeedUp.png", "image/icon/Warrior/passiveSkill/blooddrain.png",  "image/icon/Warrior/passiveSkill/attackRangeUp.png",
                  "image/icon/Warrior/activeSkill/swiftStrike.png", "image/icon/Warrior/activeSkill/swordShot.png",
+                 "image/icon/Lancer/activeSkill/continuousAttack.png", 
+                 "image/icon/Summoner/passiveSkill/shotSpeedUp.png", "image/icon/Summoner/passiveSkill/attackRangeUp.png", "image/icon/Summoner/passiveSkill/skillDamageUp.png", "image/icon/Summoner/passiveSkill/addShooter.png", "image/icon/Summoner/passiveSkill/penetrationAttack.png",
+                 "image/icon/Summoner/activeSkill/laserAttack.png", 
                  "image/background/ingame.png", "image/result.png", 
                  "image/fade/black.png", "image/fade/white.png");
 
@@ -222,11 +249,12 @@ startScene.init = function()
     }
     nowScene.updateList.push(this.background);
 
-    this.admitButton = nowScene.addThing(new Button("image/tabletSample.png", canvas.width / 2, canvas.height, 3));
-    this.admitButton.pos.y += this.admitButton.image.height / 4;
+    this.admitButton = nowScene.addThing(new GameImage("image/tabletSample.png", canvas.width / 2, canvas.height, "none"));
+    this.admitButton.setCenter();
     this.admitButton.moveSpeed = 0.4;
     this.admitButton.upRTime = Date.now();
-    this.admitButton.setClickEvent(function()
+    this.admitButton.setZ(3);
+    this.admitButton.starting = () =>
     {
         nowScene.admitButton.upRTime = Date.now() + 0.6 * 1000;
 
@@ -260,8 +288,23 @@ startScene.init = function()
                 nowScene.admitButton.moveSpeed -= 0.02;
             }
         }
+        nowScene.updateList.push(this.admitButton);
+    };
+
+    this.createQueButton = nowScene.addThing(new Button("image/button/start.png", 500, 500, 3));
+    this.createQueButton.setClickEvent(function()
+    {
+        queCreate();
+        nowScene.admitButton.starting();
     });
-    nowScene.updateList.push(this.admitButton);
+    nowScene.updateList.push(this.createQueButton);
+
+    this.joinButton = nowScene.addThing(new Button("image/button/select.png", 1000, 500, 3));
+    this.joinButton.setClickEvent(function()
+    {
+        queJoin();
+    });
+    nowScene.updateList.push(this.joinButton);
 }
 startScene.update = function()
 {

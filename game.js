@@ -907,7 +907,7 @@ class Swing extends ActiveSkill
 
         this.damage = this.yourPlayer.skillDamage * 10 / 10;
 
-        this.collisionCircle = {pos : {x : this.yourPlayer.pos.x, y : this.yourPlayer.pos.y}, image : {width : 500, height : 500}};
+        this.collisionCircle = {pos : {x : this.yourPlayer.pos.x, y : this.yourPlayer.pos.y}, image : {width : 700, height : 700}};
         this.collisionCircle.pos.x -= this.collisionCircle.image.width / 2;
         this.collisionCircle.pos.y -= this.collisionCircle.image.height / 2;
     }
@@ -1222,7 +1222,7 @@ class skillDamageUp extends PassiveSkill
         this.yourPlayer.skillDamage *= (100 + this.increaseSkillDamagePercent) / 100;
     }
 }
-class addShooter extends PassiveSkill
+class addShooters extends PassiveSkill
 {
     constructor(_player)
     {
@@ -1280,19 +1280,26 @@ class AttackSpeedBuff extends ActiveSkill
         this.delayRTime = Date.now();
 
         this.durationRTime = Date.now();
-        this.durationTime = 10;
+        this.durationTime = 5;
 
         this.increaseAttackSpeedPercent = 200;
         this.tempAttackSpeed = 0;
+        this.decreaseDamagePercent = 50;
+        this.tempAttackDamage = 0;
     }
     end()
     {
         this.yourPlayer.weapon.attackTime = this.tempAttackSpeed;
+        this.yourPlayer.basicDamage = this.tempAttackDamage;
+
         this.updating2 = () => {};
     }
     set()
     {
         this.delayRTime = Date.now() + 0.1 * 1000;
+        this.yourPlayer.attack.canAttack = false;
+
+        this.yourPlayer.playerHandsBasic();
 
         this.motion = () =>
         {
@@ -1322,7 +1329,11 @@ class AttackSpeedBuff extends ActiveSkill
                                             {
                                                 this.tempAttackSpeed = this.yourPlayer.weapon.attackTime;
                                                 this.yourPlayer.weapon.attackTime *= (100 - this.increaseAttackSpeedPercent) / 100;
+                                                this.tempAttackDamage = this.yourPlayer.basicDamage;
+                                                this.yourPlayer.basicDamage *= (100 - this.decreaseDamagePercent) / 100;
+
                                                 this.durationRTime = Date.now() + this.durationTime * 1000;
+                                                this.yourPlayer.attack.canAttack = true;
                 
                                                 this.updating2 = () =>
                                                 {
@@ -1356,6 +1367,402 @@ class AttackSpeedBuff extends ActiveSkill
 
                 this.yourPlayer.rightHand.playerToThis1 += 20 / (0.1 * frame);
                 this.yourPlayer.rightHand.playerToThis2 += 50 / (0.1 * frame);
+            }
+        }
+    }
+    start()
+    {
+        this.set();
+    }
+}
+class AttackDamageBuff extends ActiveSkill
+{
+    constructor(_player, _key)
+    {
+        super(_player, _key, 60, 8);
+
+        this.delayRTime = Date.now();
+
+        this.durationRTime = Date.now();
+        this.durationTime = 10;
+
+        this.increaseAttackDamagePercent = 100;
+        this.tempAttackDamage = 0;
+        this.decreaseAttackSpeedPercent = 75;
+        this.tempAttackSpeed = 0;
+    }
+    end()
+    {
+        this.yourPlayer.weapon.attackTime = this.tempAttackSpeed;
+        this.yourPlayer.basicDamage = this.tempAttackDamage;
+
+        this.updating2 = () => {};
+    }
+    set()
+    {
+        this.delayRTime = Date.now() + 0.1 * 1000;
+        this.yourPlayer.attack.canAttack = false;
+
+        this.yourPlayer.playerHandsBasic();
+
+        this.motion = () =>
+        {
+            if(Date.now() > this.delayRTime)
+            {
+                this.delayRTime += 0.1 * 1000;
+                nowScene.cam.shaking(5, 5, 0.1);
+                this.motion = () =>
+                {
+                    if(Date.now() > this.delayRTime)
+                    {
+                        this.delayRTime += 0.3 * 1000;
+                        nowScene.cam.shaking(5, 5, 0.1);
+                        this.motion = () =>
+                        {
+                            if(Date.now() > this.delayRTime)
+                            {
+                                this.delayRTime += 0.2 * 1000;
+                                this.yourPlayer.setPlayerTemp();
+                                this.motion = () =>
+                                {
+                                    if(this.yourPlayer.playerHandSlowBasic(0.2, this.delayRTime) == true)
+                                    {
+                                        this.tempAttackDamage = this.yourPlayer.basicDamage;
+                                        this.yourPlayer.basicDamage *= (100 + this.increaseAttackDamagePercent) / 100;
+                                        this.tempAttackSpeed = this.yourPlayer.weapon.attackTime;
+                                        this.yourPlayer.weapon.attackTime *= (100 + this.decreaseAttackSpeedPercent) / 100;
+
+                                        this.durationRTime = Date.now() + this.durationTime * 1000;
+                                        this.yourPlayer.attack.canAttack = true;
+        
+                                        this.updating2 = () =>
+                                        {
+                                            if(Date.now() > this.durationRTime)
+                                            {
+                                                this.end();
+                                            }
+                                        }
+                                        this.motion = () => {};
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        this.yourPlayer.leftHand.playerToThis1 -= 70 / (0.1 * frame);
+                        this.yourPlayer.leftHand.playerToThis2 -= 10 / (0.1 * frame);
+
+                        this.yourPlayer.rightHand.playerToThis1 -= 70 / (0.1 * frame);
+                        this.yourPlayer.rightHand.playerToThis2 -= 10 / (0.1 * frame);
+                    }
+                }
+            }
+            else
+            {
+                this.yourPlayer.leftHand.playerToThis1 += 50 / (0.1 * frame);
+                this.yourPlayer.leftHand.playerToThis2 += 10 / (0.1 * frame);
+
+                this.yourPlayer.rightHand.playerToThis1 += 50 / (0.1 * frame);
+                this.yourPlayer.rightHand.playerToThis2 += 10 / (0.1 * frame);
+            }
+        }
+    }
+    start()
+    {
+        this.set();
+    }
+}
+class AddShooter extends ActiveSkill
+{
+    constructor(_player, _key)
+    {
+        super(_player, _key, 60, 8);
+
+        this.delayRTime = Date.now();
+
+        this.tempWeaponDistance = 0;
+        this.tempShooterRotateSpeed = 0;
+    }
+    end()
+    {
+        this.yourPlayer.attack.canAttack = true;
+        this.updating2 = () => {};
+    }
+    set()
+    {
+        this.delayRTime = Date.now() + 1.5 * 1000;
+        this.tempWeaponDistance = this.yourPlayer.weapon.distanceToPlayer;
+        this.tempShooterRotateSpeed = this.yourPlayer.weapon.shooters[0].rotateSpeed;
+        this.yourPlayer.attack.canAttack = false;
+        nowScene.cam.shaking(7, 7, 2.8);
+        this.motion = () =>
+        {
+            if(Date.now() > this.delayRTime)
+            {
+                this.delayRTime += 0.3 * 1000;
+                this.motion = () =>
+                {
+                    if(Date.now() > this.delayRTime)
+                    {
+                        this.delayRTime += 0.3 * 1000;
+                        this.motion = () =>
+                        {
+                            if(Date.now() > this.delayRTime)
+                            {
+                                this.delayRTime += 0.3 * 1000;
+                                this.motion = () =>
+                                {
+                                    if(Date.now() > this.delayRTime)
+                                    {
+                                        this.delayRTime += 0.1 * 1000;
+                                        this.motion = () =>
+                                        {
+                                            if(Date.now() > this.delayRTime)
+                                            {
+                                                this.delayRTime += 0.7 * 1000;
+                                                this.yourPlayer.weapon.addShooter(1);
+                                                this.yourPlayer.weapon.shooters[this.yourPlayer.weapon.shooters.length - 1].rotateSpeed = this.yourPlayer.weapon.shooters[0].rotateSpeed;
+                                                this.motion = () =>
+                                                {
+                                                    if(Date.now() > this.delayRTime)
+                                                    {
+                                                        this.delayRTime += 0.1 * 1000;
+                                                        this.yourPlayer.setPlayerTemp();
+                                                        this.motion = () =>
+                                                        {
+                                                            if(this.yourPlayer.playerHandSlowBasic(0.1, this.delayRTime) == true)
+                                                            {
+                                                                this.yourPlayer.attack.canAttack = true;
+                                                                nowScene.cam.shaking(20, 20, 0.1);
+                                                                this.end();
+                                                                this.motion = () => {};
+                                                            }
+                                                            else
+                                                            {
+                                                                this.yourPlayer.weapon.shooters.forEach(shooter => shooter.rotateSpeed += (this.tempShooterRotateSpeed - 0.1) / (0.1 * frame));
+                                                                this.yourPlayer.weapon.distanceToPlayer -= (250 - this.tempWeaponDistance) / (0.1 * frame);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                this.yourPlayer.leftHand.playerToThis1 += 10 / (0.1 * frame);
+                                                this.yourPlayer.leftHand.playerToThis2 += 70 / (0.1 * frame);
+
+                                                this.yourPlayer.rightHand.playerToThis1 += 30 / (0.1 * frame);
+                                                this.yourPlayer.rightHand.playerToThis2 += 70 / (0.1 * frame);
+
+                                                this.yourPlayer.weapon.shooters.forEach(shooter => shooter.rotateSpeed -= 0.45 / (0.1 * frame));
+                                                this.yourPlayer.weapon.distanceToPlayer += 250 / (0.1 * frame);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        this.yourPlayer.leftHand.playerToThis1 += 10 / (0.3 * frame);
+                                        this.yourPlayer.leftHand.playerToThis2 += 70 / (0.3 * frame);
+
+                                        this.yourPlayer.rightHand.playerToThis1 -= 10 / (0.3 * frame);
+                                        this.yourPlayer.rightHand.playerToThis2 += 70 / (0.3 * frame);
+
+                                        this.yourPlayer.weapon.shooters.forEach(shooter => shooter.rotateSpeed += 0.05 / (0.3 * frame));
+                                        this.yourPlayer.weapon.distanceToPlayer -= 50 / (0.3 * frame);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                this.yourPlayer.leftHand.playerToThis1 += 10 / (0.3 * frame);
+                                this.yourPlayer.leftHand.playerToThis2 -= 70 / (0.3 * frame);
+
+                                this.yourPlayer.rightHand.playerToThis1 -= 10 / (0.3 * frame);
+                                this.yourPlayer.rightHand.playerToThis2 -= 70 / (0.3 * frame);
+
+                                this.yourPlayer.weapon.shooters.forEach(shooter => shooter.rotateSpeed += 0.05 / (0.3 * frame));
+                                this.yourPlayer.weapon.distanceToPlayer -= 50 / (0.3 * frame);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        this.yourPlayer.leftHand.playerToThis1 -= 30 / (0.3 * frame);
+                        this.yourPlayer.leftHand.playerToThis2 -= 70 / (0.3 * frame);
+
+                        this.yourPlayer.rightHand.playerToThis1 -= 10 / (0.3 * frame);
+                        this.yourPlayer.rightHand.playerToThis2 -= 70 / (0.3 * frame);
+
+                        this.yourPlayer.weapon.shooters.forEach(shooter => shooter.rotateSpeed += 0.05 / (0.3 * frame));
+                        this.yourPlayer.weapon.distanceToPlayer -= 50 / (0.3 * frame);
+                    }
+                }
+            }
+            else
+            {
+                this.yourPlayer.leftHand.playerToThis1 += 50 / (1.5 * frame);
+                this.yourPlayer.leftHand.playerToThis2 += 30 / (1.5 * frame);
+
+                this.yourPlayer.rightHand.playerToThis1 += 50 / (1.5 * frame);
+                this.yourPlayer.rightHand.playerToThis2 += 30 / (1.5 * frame);
+
+                this.yourPlayer.weapon.shooters.forEach(shooter => shooter.rotateSpeed += 0.1 / (1.5 * frame));
+                this.yourPlayer.weapon.distanceToPlayer += 40 / (1.5 * frame);
+            }
+        }
+    }
+    start()
+    {
+        this.set();
+    }
+}
+class KnockbackDistanceBuff extends ActiveSkill
+{
+    constructor(_player, _key)
+    {
+        super(_player, _key, 30, 8);
+
+        this.increaseKnockBackDistancePercent = 1000;
+        this.tempKnockbackDistance = 0;
+
+        this.delayRTime = Date.now();
+        this.durationRTime = Date.now();
+        this.durationTime = 20;
+    }
+    end()
+    {
+        this.yourPlayer.attack.canAttack = true;
+        this.yourPlayer.weapon.knockbackDistance = this.tempKnockbackDistance;
+        this.updating2 = () => {};
+    }
+    set()
+    {
+        this.delayRTime = Date.now() + 0.3 * 1000;
+        this.yourPlayer.attack.canAttack = false;
+
+        this.motion = () =>
+        {
+            if(Date.now() > this.delayRTime)
+            {
+                this.delayRTime += 0.1 * 1000;
+                nowScene.cam.shaking(10, 10, 0.1);
+                this.motion = () =>
+                {
+                    if(Date.now() > this.delayRTime)
+                    {
+                        this.delayRTime += 0.5 * 1000;
+                        this.yourPlayer.setPlayerTemp();
+                        this.motion = () => 
+                        {
+                            if(this.yourPlayer.playerHandSlowBasic(0.5, this.delayRTime) == true)
+                            {
+                                this.tempKnockbackDistance = this.yourPlayer.weapon.knockbackDistance;
+                                this.yourPlayer.weapon.knockbackDistance *= (100 + this.increaseKnockBackDistancePercent) / 100;
+
+                                this.durationRTime = Date.now() + this.durationTime * 1000;
+                                this.yourPlayer.attack.canAttack = true;
+
+                                this.updating2 = () =>
+                                {
+                                    if(Date.now() > this.durationRTime)
+                                    {
+                                        this.end();
+                                    }
+                                }
+                                this.motion = () => {};
+                            }
+                        };
+                    }
+                    else
+                    {
+                        this.yourPlayer.leftHand.playerToThis1 += 100 / (0.1 * frame);
+                        this.yourPlayer.leftHand.playerToThis2 -= 60 / (0.1 * frame);
+
+                        this.yourPlayer.rightHand.playerToThis1 += 100 / (0.1 * frame);
+                        this.yourPlayer.rightHand.playerToThis2 -= 60 / (0.1 * frame);
+                    }
+                }
+            }
+            else
+            {
+                this.yourPlayer.leftHand.playerToThis1 -= 30 / (0.3 * frame);
+                this.yourPlayer.leftHand.playerToThis2 += 10 / (0.3 * frame);
+
+                this.yourPlayer.rightHand.playerToThis1 -= 30 / (0.3 * frame);
+                this.yourPlayer.rightHand.playerToThis2 += 10 / (0.3 * frame);
+            }
+        }
+    }
+    start()
+    {
+        this.set();
+    }
+}
+class BulletParty extends ActiveSkill
+{
+    constructor(_player, _key)
+    {
+        super(_player, _key, 10, 5);
+
+        this.maxCnt = 50;
+        this.nowCnt = 0;
+
+        this.delayRTime = Date.now();
+        this.delayTime = 0.1;
+    }
+    end()
+    {
+        this.nowCnt = 0;
+        this.yourPlayer.weapon.shooters.forEach(shooter => shooter.weapon.watchMouse = true);
+        this.updating2 = () => {};
+    }
+    set()
+    {
+        this.delayRTime = Date.now() + 0.1 * 1000;
+        this.yourPlayer.weapon.shooters.forEach(shooter => shooter.weapon.watchMouse = false);
+
+        this.motion = () =>
+        {
+            if(Date.now() > this.delayRTime)
+            {
+                nowScene.cam.shaking(10, 10, 0.1);
+                this.updating2 = () =>
+                {
+                    if(this.nowCnt < this.maxCnt && Date.now() > this.delayRTime)
+                    {
+                        for(let i = 0; i < this.yourPlayer.weapon.shooters.length; i++)
+                        {
+                            let randomRot = Math.random() * 360 / 180 * Math.PI;
+                            this.yourPlayer.weapon.shooters[i].weapon.rot = randomRot;
+                        }
+                        this.yourPlayer.weapon.attack();
+                        this.delayRTime += this.delayTime * 1000;
+                        this.nowCnt++;
+                        nowScene.cam.shaking(7, 7, this.delayTime);
+                    }
+                    else if(this.nowCnt == this.maxCnt)
+                    {
+                        this.delayRTime = Date.now() + 0.2 * 1000;
+                        this.yourPlayer.setPlayerTemp();
+                        this.updating2 = () =>
+                        {
+                            if(this.yourPlayer.playerHandSlowBasic(0.2, this.delayRTime) == true)
+                            {
+                                this.end();
+                            }
+                        }
+                    }
+                }
+                this.motion = () => {};
+            }
+            else
+            {
+                this.yourPlayer.leftHand.playerToThis1 += 15 / (0.1 * frame);
+                this.yourPlayer.leftHand.playerToThis2 -= 30 / (0.1 * frame);
+
+                this.yourPlayer.rightHand.playerToThis1 += 15 / (0.1 * frame);
+                this.yourPlayer.rightHand.playerToThis2 -= 30 / (0.1 * frame);
             }
         }
     }
@@ -1843,11 +2250,11 @@ class Player extends GameImage
     {
         this.information.hp.update();
     }
-    isInattackedList(_enemy)
+    isAttackedList(_index)
     {
         for(let i = 0; i < this.weapon.attackedList.length; i++)
         {
-            if(_enemy == this.weapon.attackedList[i])
+            if(nowScene.enemyList[_index] == this.weapon.attackedList[i])
             {
                 return true;
             }
@@ -1856,7 +2263,7 @@ class Player extends GameImage
         {
             for(let j = 0; j < this.activeSkills[i].attackedList.length; j++)
             {
-                if(_enemy == this.activeSkills[i].attackedList[j])
+                if(nowScene.enemyList[_index] == this.activeSkills[i].attackedList[j])
                 {
                     return true;
                 }
@@ -1867,7 +2274,7 @@ class Player extends GameImage
     {
         for(let i = 0; i < nowScene.enemyList.length; i++)
         {
-            if(nowScene.enemyList[i].hp <= 0 && this.isInattackedList(nowScene.enemyList[i]))
+            if(nowScene.enemyList[i].hp <= 0 && this.isAttackedList(i))
             {
                 this.killCnt++;
             }
@@ -1897,6 +2304,21 @@ class Player extends GameImage
         this.setZ(2);
     }
 }
+class OtherPlayer extends GameImage
+{
+    constructor(_path, _x, _y, _rot, _leftHandPath, _leftHandX, _leftHandY, _leftHandRot, _rightHandPath, _rightHandX, _rightHandY, _rightHandRot, _weaponPath, _weaponX, _weaponY, _weaponRot, _weaponAnchorX, _weaponAnchorY)
+    {
+        super(_path, _x, _y, "otherPlayer");
+
+        this.leftHand = nowScene.addThing(new GameImage(_leftHandPath, _leftHandX, _leftHandY, "none"));
+        this.leftHand.rot = _leftHandRot;
+        this.rightHand = nowScene.addThing(new GameImage(_rightHandPath, _rightHandX, _rightHandY, "none"));
+        this.rightHand.rot = _rightHandRot;
+        this.weapon = nowScene.addThing(new GameImage(_weaponPath, _weaponX, _weaponY, "none"));
+        this.weapon.rot = _weaponRot;
+        this.weapon.anchor = {x : _weaponAnchorX, y : _weaponAnchorY};
+    }
+}
 
 class Enemy extends GameImage
 {
@@ -1905,7 +2327,7 @@ class Enemy extends GameImage
         super(path, _x, _y, "enemy");
 
         this.yourPlayer = _player;
-        this.velocity = new Vector(0, 0);\
+        this.velocity = new Vector(0, 0);
         this.name;
 
         this.maxHp = 10;
@@ -1920,7 +2342,11 @@ class Enemy extends GameImage
 
         this.enemyToPlayerAngle = Math.atan2(this.yourPlayer.pos.y - this.pos.y, this.yourPlayer.pos.x - this.pos.x);
 
-        this.information = {hp : nowScene.addThing(new HpBar("image/EnemyHpBarIn.png", "image/hpBarOut.png", this))};
+        this.information = {hp : nowScene.addThing(new HpBar("image/EnemyHpBarIn.png", "image/hpBarOut.png", this)), position : nowScene.addThing(new GameImage("image/enemy/trackingEnemy-arrow.png", Util.getCenter(this.yourPlayer, "x"), Util.getCenter(this.yourPlayer, "y"), "arrow"))};
+        this.information.position.distanceToPlayer = 600;
+        this.information.position.nowDistanceToPlayer = Util.getDistance(this.pos.x, this.pos.y, this.yourPlayer.pos.x, this.yourPlayer.pos.y);
+
+        addMonsterData(this);
     }
     damaged(_damage, _angle, _force)
     {
@@ -1943,6 +2369,7 @@ class Enemy extends GameImage
         {
             this.isDelete = true;
             this.information.hp.isDelete = true;
+            this.information.position.isDelete = true;
         }
         for(let i = 0; i < nowScene.collisionList.length; i++)
         {
@@ -1975,6 +2402,23 @@ class Enemy extends GameImage
     showInformation()
     {
         this.information.hp.update();
+
+        this.information.position.pos = {x : Util.getCenter(this.yourPlayer, "x"), y : Util.getCenter(this.yourPlayer, "y")};
+        this.information.position.setCenter();
+        this.information.position.rot = Util.getAngle(this.yourPlayer, this) / 180 * Math.PI;
+        this.information.position.nowDistanceToPlayer = Util.getDistance(this.pos.x, this.pos.y, this.yourPlayer.pos.x, this.yourPlayer.pos.y);
+        Util.moveByAngle(this.information.position.pos, this.information.position.rot, this.information.position.distanceToPlayer - ((this.information.position.nowDistanceToPlayer < this.information.position.distanceToPlayer + 300 && this.information.position.nowDistanceToPlayer >= this.information.position.distanceToPlayer) ? (300 + this.information.position.distanceToPlayer - this.information.position.nowDistanceToPlayer) : 0));
+        if(this.information.position.nowDistanceToPlayer < this.information.position.distanceToPlayer + 300)
+        {
+            if(this.information.position.nowDistanceToPlayer >= this.information.position.distanceToPlayer)
+            {
+                this.information.position.opacity = 1 * (1 - (300 + this.information.position.distanceToPlayer - this.information.position.nowDistanceToPlayer) / 300);
+            }
+            else
+            {
+                this.information.position.opacity = 0;
+            }
+        }
     }
     update()
     {
@@ -1989,10 +2433,15 @@ class TrackingEnemy extends Enemy
     {
         super("image/enemy/trackingEnemy.png", _x, _y, nowScene.player);
 
-        this.maxHp = 55;
+        this.name = "trackingEnemy";
+
+        this.maxHp = 60;
         this.hp = this.maxHp;
         
         this.trackOn = true;
+
+        this.information.position.path = "image/enemy/trackingEnemy-arrow.png";
+        this.information.position.setImage();
     }
     playerTracking()
     {
@@ -2018,6 +2467,11 @@ class ShootingEnemy extends Enemy
     {
         super("image/enemy/shootingEnemy.png", _x, _y, nowScene.player);
 
+        this.name = "shootingEnemy";
+
+        this.maxHp = 35;
+        this.hp = this.maxHp;
+
         this.pattern = 1;
 
         this.range = 400;
@@ -2030,8 +2484,8 @@ class ShootingEnemy extends Enemy
         this.shotDamage = 2 + nowScene.gameController.wave / 10;
         this.shotDelay = 2 - nowScene.gameController.wave / 10;
 
-        this.maxHp = 35;
-        this.hp = this.maxHp;
+        this.information.position.path = "image/enemy/shootingEnemy-arrow.png";
+        this.information.position.setImage();
     }
     playerTracking()
     {
@@ -2099,13 +2553,13 @@ class ShootingEnemy extends Enemy
     }
 }
 
-class Boss extends GameImage // 작업중
+class Boss extends GameImage
 {
     constructor(_path, _x, _y)
     {
         super(_path, _x, _y, "boss");
 
-        this.maxHp = 200;
+        this.maxHp = 100;
         this.hp = this.maxHp;
 
         this.information = {hp : nowScene.addThing(new HpBar("image/EnemyHpBarIn.png", "image/hpBarOut.png", this))};
@@ -2151,18 +2605,28 @@ class Cube extends Boss
     {
         super("image/boss/cube.png", nowScene.background.pos.x + nowScene.background.image.width / 2, nowScene.background.pos.y + nowScene.background.image.height / 2 - 500);
 
+        this.maxHp = 300;
+        this.hp = this.maxHp;
+
         this.pos.x -= this.image.width / 2;
 
         this.pattern = 1;
-        this.shotTime1 = 1;
+        this.patternCnt = 0;
+
+        this.shotTime1 = 0.5 - nowScene.gameController.wave / 5 / 4;
         this.shotSpeed1 = 2;
         this.actCnt = 0;
+        this.maxCnt1 = 10;
         this.shotRTIme = Date.now() + this.shotTime1 * 1000;
 
-        this.shotTime2 = 0.3;
-        this.shotSpeed2 = 3;
+        this.shotTime2 = 0.1;
+        this.shotSpeed2 = 5;
+        this.maxCnt2 = 50;
 
         this.shotDamage = 5;
+
+        this.restRTime = Date.now();
+        this.restTime = 5;
     }
     allAngleShot()
     {
@@ -2214,6 +2678,13 @@ class Cube extends Boss
         }
         nowScene.updateList.push(bullet);
     }
+    rest()
+    {
+        if(Date.now() > this.restRTime)
+        {
+            this.pattern = 1;
+        }
+    }
     updating()
     {
         if(this.pattern == 1)
@@ -2224,9 +2695,10 @@ class Cube extends Boss
                 this.shotRTIme = Date.now() + this.shotTime1 * 1000;
                 this.actCnt++;
             }
-            if(this.actCnt == 5)
+            if(this.actCnt == this.maxCnt1)
             {
                 this.pattern = 2;
+                this.patternCnt++;
                 this.actCnt = 0;
             }
         }
@@ -2238,12 +2710,22 @@ class Cube extends Boss
                 this.shotRTIme = Date.now() + this.shotTime2 * 1000;
                 this.actCnt++;
             }
-            if(this.actCnt == 20)
+            if(this.actCnt == this.maxCnt2)
             {
                 this.pattern = 1;
+                if(++this.patternCnt == 4)
+                {
+                    this.restRTime = Date.now() + this.restTime * 1000;
+                    this.pattern = 0;
+                    this.patternCnt = 0;
+                }
                 this.actCnt = 0;
                 this.shotRTIme = Date.now() + this.shotTime1 * 1000;
             }
+        }
+        if(this.pattern == 0)
+        {
+            this.rest();
         }
 
     }
@@ -2762,30 +3244,30 @@ var JobSummoner =
                 let shooter = nowScene.addThing(new GameImage("image/weapon/shooter-body.png", Util.getCenter(player, "x"), Util.getCenter(player, "y"), "shooter-body"));
                 shooter.moveAngle =  i * (360 / (_num - 1));
                 shooter.rotateSpeed = 0.3;
-                shooter.attackedList = [];
                 shooter.setCenter();
                 shooter.setZ(player.rightHand.z + 1);
                 
-                shooter.isAttackedList = (_index) =>
-                {
-                    for(let i = 0; i < shooter.attackedList.length; i++)
-                    {
-                        if(nowScene.enemyList[_index] == shooter.attackedList[i])
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-
                 shooter.attack = () =>
                 {
                     let bullet = nowScene.addThing(new Effect("image/weapon/basicBullet.png", Util.getCenter(shooter.weapon, "x"), Util.getCenter(shooter.weapon, "y"), 0.2, shooter.weapon));
                     bullet.tempAngle = shooter.weapon.rot;
                     bullet.firstSet();
                     Util.moveByAngle(bullet.pos, bullet.tempAngle, bullet.image.width / 2);
-
+                    
                     bullet.tempPos = {x : bullet.pos.x, y : bullet.pos.y};
+                    bullet.attackedList = [];
+
+                    bullet.isAttackedList = (_index) =>
+                    {
+                        for(let i = 0; i < bullet.attackedList.length; i++)
+                        {
+                            if(nowScene.enemyList[_index] == bullet.attackedList[i])
+                            {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
 
                     bullet.basicSet = () =>
                     {
@@ -2801,7 +3283,6 @@ var JobSummoner =
                         if(bullet.opacity <= 0)
                         {
                             bullet.isDelete = true;
-                            shooter.attackedList.length = 0;
                         }
                     }
 
@@ -2813,20 +3294,19 @@ var JobSummoner =
                     {
                         for(let j = 0; j < nowScene.enemyList.length; j++)
                         {
-                            if(Collision.circleToRotatedRect(nowScene.enemyList[j], bullet) == true && !shooter.isAttackedList(j))
+                            if(Collision.circleToRotatedRect(nowScene.enemyList[j], bullet) == true && !bullet.isAttackedList(j))
                             {
-                                nowScene.enemyList[j].damaged(player.weapon.damage, Util.getAngle(bullet, nowScene.enemyList[j]) * 180 / Math.PI, player.weapon.knockbackDistance);
+                                nowScene.enemyList[j].damaged(player.weapon.damage, Util.getAngle(nowScene.enemyList[j], player), player.weapon.knockbackDistance);
                                 if(shooter.weapon.penetration == false)
                                 {
                                     bullet.isDelete = true;
                                 }
-                                shooter.attackedList.push(nowScene.enemyList[j]);
-                                if(nowScene.enemyList[j].hp <= 0 && shooter.isAttackedList(i))
+                                bullet.attackedList.push(nowScene.enemyList[j]);
+                                if(nowScene.enemyList[j].hp <= 0 && bullet.isAttackedList(j))
                                 {
-                                    nowScene.enemyList[j].isDelete = true;
-                                    nowScene.delete(shooter.attackedList);
                                     player.killCnt++;
                                 }
+
                                 nowScene.cam.shaking(5, 5, 0.1);
                             }
                         }
@@ -2892,6 +3372,9 @@ var JobSummoner =
             player.weapon.pos.y = player.rightHand.pos.y + player.weapon.image.height / 3;
             player.weapon.setZ(3);
         }
+
+        player.isAttackedList = () => {};
+        player.countKillEnemy = () => {};
     },
     setAttackRange : (player) =>
     {
@@ -2911,7 +3394,7 @@ var JobSummoner =
                 case "shotSpeedUp" : passiveSkill = new shotSpeedUp(player); break;
                 case "attackRangeUp" : passiveSkill = new attackRangeUp_Summoner(player); break;
                 case "skillDamageUp" : passiveSkill = new skillDamageUp(player); break;
-                case "addShooter" : passiveSkill = new addShooter(player); break;
+                case "addShooters" : passiveSkill = new addShooters(player); break;
                 case "penetrationAttack" : passiveSkill = new penetrationAttack(player); break;
             }
             player.passiveSkills.push(passiveSkill);
@@ -2924,6 +3407,10 @@ var JobSummoner =
             {
                 case "LaserAttack" : activeSkill = new LaserAttack(player, nowScene.selectedInfo.player.skill.active[i + 1]); break;
                 case "AttackSpeedBuff" : activeSkill = new AttackSpeedBuff(player, nowScene.selectedInfo.player.skill.active[i + 1]); break;
+                case "AttackDamageBuff" : activeSkill = new AttackDamageBuff(player, nowScene.selectedInfo.player.skill.active[i + 1]); break;
+                case "AddShooter" : activeSkill = new AddShooter(player, nowScene.selectedInfo.player.skill.active[i + 1]); break;
+                case "KnockbackDistanceBuff" : activeSkill = new KnockbackDistanceBuff(player, nowScene.selectedInfo.player.skill.active[i + 1]); break;
+                case "BulletParty" : activeSkill = new BulletParty(player, nowScene.selectedInfo.player.skill.active[i + 1]); break;
             }
             player.activeSkills.push(activeSkill);
         }
@@ -2947,39 +3434,142 @@ var addOtherPlayer = () =>
 
 
 // server function
+function updatePlayer(data) {
+    $.post(
+        "proxy.php",
+        {
+            do: "updatePlayer",
+            uId: Cookies.get("uId"),
+            player: data
+        }
+    );
+}
 
-// function fetchData() {
-//     $.post(
-//         "proxy.php",
-//         {
-//             do: "fetchData",
-//             uId: Cookies.get("uId")
-//         },
-//         function(response) {
-//             console.log(response);
-//             console.log(response["playerPosX"]);
-//         }
-//     );
-// }
+var updatePlayerData = () =>
+{
+    nowScene.playerData["hp"] = nowScene.player.hp;
+    nowScene.playerData["posX"] = nowScene.player.pos.x;
+    nowScene.playerData["posY"] = nowScene.player.pos.y;
+    nowScene.playerData["rot"] = nowScene.player.rot;
+    nowScene.playerData["leftHandPosX"] = nowScene.player.leftHand.pos.x;
+    nowScene.playerData["leftHandPosY"] = nowScene.player.leftHand.pos.y;
+    nowScene.playerData["leftHandRot"] = nowScene.player.leftHand.rot;
+    nowScene.playerData["rightHandPosX"] = nowScene.player.rightHand.pos.x;
+    nowScene.playerData["rightHandPosY"] = nowScene.player.rightHand.pos.y;
+    nowScene.playerData["rightHandRot"] = nowScene.player.rightHand.rot;
+}
+
+function updateMonster(){
+    $.post(
+        "proxy.php",
+        {
+            do: "updateMonster",
+            code: Cookies.get("code"),
+            monster: JSON.stringify(nowScene.enemyData)
+        }, function(response){
+            console.log(JSON.stringify(nowScene.enemyData));
+        }
+    )
+}
+
+var updateMonsterData = () =>
+{
+    
+    // nowScene.monsterData["hp"] = nowScene.player.hp;
+
+    // nowScene.playerData["posX"] = nowScene.player.pos.x;
+    // nowScene.playerData["posY"] = nowScene.player.pos.y;
+    // nowScene.playerData["rot"] = nowScene.player.rot;
+    // nowScene.playerData["leftHandPosX"] = nowScene.player.leftHand.pos.x;
+    // nowScene.playerData["leftHandPosY"] = nowScene.player.leftHand.pos.y;
+    // nowScene.playerData["leftHandRot"] = nowScene.player.leftHand.rot;
+    // nowScene.playerData["rightHandPosX"] = nowScene.player.rightHand.pos.x;
+    // nowScene.playerData["rightHandPosY"] = nowScene.player.rightHand.pos.y;
+    // nowScene.playerData["rightHandRot"] = nowScene.player.rightHand.rot;
+}
+
+var addMonsterData = (_monster) =>
+{
+    let monsterData = 
+    {
+        "hp" : _monster.hp,
+        "posX" : _monster.pos.x,
+        "posY" : _monster.pos.y,
+        "rot" : _monster.rot
+    }
+    nowScene.enemyData.push(monsterData);
+}
+
+function fetchMonster() {
+    $.post(
+        "proxy.php",
+        {
+            do: "fetchMonster",
+            code: Cookies.get("code")
+        },
+        function(response) {
+            // let monsterData = JSON.parse(response);
+            
+
+            // for (i in myObj.cars) {
+            //     x += "<h1>" + myObj.cars[i].name + "</h1>";
+            //     for (j in myObj.cars[i].models) {
+            //       x += myObj.cars[i].models[j];
+            //     }
+            //   }
+
+
+
+        }
+    );
+}
+
+// upload = player(me) : posX, posY, rot, hp, leftHandPosX, leftHandPosY, leftHandRot, rightHandPosX, rightHandPosY, rightHandRot, weaponPosX, weaponPosY, weaponRot
+//            monster : posX, posY, rot, hp, targetIndex 
+// 
+// download = otherPlayer : posX, posY, rot, hp, leftHandPosX, leftHandPosY, leftHandRot, rightHandPosX, rightHandPosY, rightHandRot, weaponPosX, weaponPosY, weaponRot 
+//            monster : posX, posY, rot, hp, targetIndex 
 
 gameScene.init = function()
 {
     this.collisionList = [];
     this.enemyList = [];
     this.effectList = [];
-    this.otherPlayerList = [];
+
+    this.playerList = [];
+    this.enemyData = [];
+
     
     this.background = nowScene.addThing(new GameImage("image/background/ingame.png", 0, 0, "background"));
     this.background.setCanvasCenter();
-
+    
     this.player = nowScene.addThing(new Player("image/player/Warrior/player.png", 700, 400, this.selectedInfo.player.job));
     
     this.gameController = new GameController();
     
     this.cam = new Camera(this.player);
     this.cursor = nowScene.addThing(new MousePoint("image/cursor.png", mouseX, mouseY));
-
+    
     this.startRTime = Date.now() + 0.5 * 1000;
+
+    this.playerData = 
+    {
+        "hp" : nowScene.player.hp,
+        "posX" : nowScene.player.pos.x,
+        "posY" : nowScene.player.pos.y,
+        "rot" : nowScene.player.rot,
+        "leftHandPosX" : nowScene.player.leftHand.pos.x,
+        "leftHandPosY" : nowScene.player.leftHand.pos.y,
+        "leftHandRot" : nowScene.player.leftHand.rot,
+        "rightHandPosX" : nowScene.player.rightHand.pos.x,
+        "rightHandPosY" : nowScene.player.rightHand.pos.y,
+        "rightHandRot" : nowScene.player.rightHand.rot
+    }
+
+    this.updateRTime = Date.now();
+    this.updateTime = 1;
+    this.canDownload = false;
+    updatePlayer(JSON.stringify(nowScene.playerData));
 }
 gameScene.update = function()
 {
@@ -2993,4 +3583,12 @@ gameScene.update = function()
     this.delete(this.collisionList);
     this.delete(this.enemyList);
     this.delete(this.effectList);
+
+    if(Date.now() > this.updateRTime)
+    {
+        updatePlayerData();
+        updatePlayer(JSON.stringify(nowScene.playerData));
+        this.updateRTime += this.updateTime * 1000;
+        this.canDownload = true;
+    }
 }

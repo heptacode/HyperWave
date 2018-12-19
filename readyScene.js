@@ -1,61 +1,5 @@
 var readyScene = new Scene();
 
-class parts extends GameImage
-{    
-	constructor(_path, _x, _y)
-	{
-		super(_path, _x, _y, "parts");
-		this.target;
-		this.startPos = {x : 0, y : 0};
-        this.isClicked = false;
-        this.setZ(3);
-
-        this.status = nowScene.addThing(new GameText(this.pos.x, this.pos.y + 20, 10, "Gugi", "isClicked : "));
-	}
-	ability()
-	{
-
-	}
-	clickMove()
-	{
-		if(mouseValue["Left"] == 1 && Collision.dotToRect(nowScene.cursor, this) && this.isClicked == false)
-		{
-			this.startPos.x = nowScene.cursor.pos.x;
-			this.startPos.y = nowScene.cursor.pos.y;
-			this.isClicked = true;
-		}
-		else if(mouseValue["Left"] <= 0 && this.isClicked == true)
-		{
-			this.isClicked = false;
-		}
-		if(mouseValue["Left"] == 2 && this.isClicked == true)
-		{
-			this.pos.x += nowScene.cursor.pos.x - this.startPos.x;
-            this.pos.y += nowScene.cursor.pos.y - this.startPos.y;
-            this.startPos.x = nowScene.cursor.pos.x;
-			this.startPos.y = nowScene.cursor.pos.y;
-		}
-    }
-	update()
-	{
-        this.clickMove();
-        this.status.pos.x = this.pos.x;
-        this.status.pos.y = this.pos.y;
-        this.status.text = "isClicked : " + this.isClicked;
-	}
-}
-class Helmet extends parts // 작업중
-{
-	constructor()
-	{
-		super("image/parts/head/helmet.png", 100, 100); // x : (pannel.pos.x + pannel.range.x * pannel.partsCnt) y : (pannel.pos.y + pannel.range.y * pannel.partsCnt) 
-    }
-    ability()
-    {
-
-    }
-}
-
 class Pannel
 {
     constructor( _x, _y, _width, _heigth)
@@ -112,6 +56,32 @@ var selectSkills = [[[new Button("image/icon/notSelected.png", 0, 0, 2), new But
 
 var jobIndex = 0;
 
+function updateJob(job){
+    $.post(
+        "proxy.php",
+        {
+            do: "updateJob",
+            uId: Cookies.get("uId"),
+            job: job
+        }, function(response){
+            console.log(response ? "%c jobUpdate : " + job : "%c jobUpdateFail", "display: block; background: blue; color: white");
+        }
+    );
+}
+
+function updateReadyState(readyState){
+    $.post(
+        "proxy.php",
+        {
+            do: "updateReadyState",
+            uId: Cookies.get("uId"),
+            readyState: readyState
+        }, function(response){
+            console.log(response ? "%c readyUpdate : " + readyState : "%c readyUpdateFail", "display: block; background: #C56C30; color: white");
+        }
+    );
+}
+
 readyScene.init = function()
 {
     this.cam = new Camera(this.selectPannel);
@@ -137,17 +107,17 @@ readyScene.init = function()
                   new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "backDashAttack"), new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
 
                   [new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "Swing"), new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "Bu-Wang"),
-                  new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "ContinuousAttack"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
+                  new Button("image/icon/Lancer/activeSkill/continuousAttack.png", 0, 0, 0, "ContinuousAttack"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
                 
                 
-                  [[new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "chargeElectSpeedUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "shotSpeedUp"),
-                  new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "skillDamageUp"),
-                  new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "addShooter"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "penetrationAttack")],
+                  [[new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "chargeElectSpeedUp"), new Button("image/icon/Summoner/passiveSkill/shotSpeedUp.png", 0, 0, 0, "shotSpeedUp"),
+                  new Button("image/icon/Summoner/passiveSkill/attackRangeUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/Summoner/passiveSkill/skillDamageUp.png", 0, 0, 0, "skillDamageUp"),
+                  new Button("image/icon/Summoner/passiveSkill/addShooter.png", 0, 0, 0, "addShooters"), new Button("image/icon/Summoner/passiveSkill/penetrationAttack.png", 0, 0, 0, "penetrationAttack")],
                 
-                  [new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "LaserAttack"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "AttackSpeedBuff"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]]];
+                  [new Button("image/icon/Summoner/activeSkill/laserAttack.png", 0, 0, 0, "LaserAttack"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "AttackSpeedBuff"),
+                  new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "AttackDamageBuff"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "AddShooter"),
+                  new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "KnockbackDistanceBuff"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "BulletParty")]]];
     
     this.activeSkillsKey = ["ShiftLeft", "Space"];
     this.isSelected = false;
@@ -215,6 +185,7 @@ readyScene.init = function()
     {
         nowScene.switchSetting("left");
         nowScene.isSelected = false;
+        updateReadyState(nowScene.isSelected);
     });
     nowScene.middlePannel.setOnPannel(this.leftButton);
     nowScene.updateList.push(this.leftButton);
@@ -224,19 +195,19 @@ readyScene.init = function()
     {
         nowScene.switchSetting("right");
         nowScene.isSelected = false;
+        updateReadyState(nowScene.isSelected);
     });
     nowScene.middlePannel.setOnPannel(this.rightButton);
     nowScene.updateList.push(this.rightButton);
 
     this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", Util.getCenter(nowScene.middlePannel, "x"), nowScene.jobName.pos.y + 200, 5, "readyButton")));
     this.readyButton.pos.y -= this.readyButton.image.height / 2;
-    this.readyButton.strokeWidth = 10;
-    this.readyButton.strokeStyle = "#06e2e0"
     this.readyButton.setClickEvent(function()
     {
         if(nowScene.selectPassiveSkills[0].isSelected == true && nowScene.selectActiveSkills[0].isSelected == true && nowScene.selectActiveSkills[1].isSelected == true)
         {
             nowScene.isSelected = true;
+            updateReadyState(nowScene.isSelected);
         }
         else
         {
@@ -278,6 +249,7 @@ readyScene.init = function()
             GameController.sendInfo("player", "skill", "passive", nowScene.selectPassiveSkills[0].name);
             GameController.sendInfo("player", "skill", "active", nowScene.selectActiveSkills[0].name, nowScene.activeSkillsKey[0]);
             GameController.sendInfo("player", "skill", "active", nowScene.selectActiveSkills[1].name, nowScene.activeSkillsKey[1]);
+
             gameScene.start();
         }
         else
@@ -287,6 +259,14 @@ readyScene.init = function()
     });
     nowScene.rightPannel.setOnPannel(this.startButton);
     nowScene.updateList.push(this.startButton);
+
+    this.exitButton = nowScene.rightPannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", nowScene.startButton.pos.x, nowScene.startButton.pos.y + nowScene.startButton.image.height, 5, "exitButton")));
+    this.exitButton.pos.x += this.exitButton.image.width / 2;
+    this.exitButton.pos.y += this.exitButton.image.height / 2;
+    this.exitButton.setClickEvent(function()
+    {
+        queLeave();
+    });
 
 
     // functions
@@ -358,6 +338,7 @@ readyScene.init = function()
                     _skill.isSelected = false;
                 }
                 nowScene.isSelected = false;
+                updateReadyState(nowScene.isSelected);
                 nowScene.selectPassiveSkills[_num].setImage();
                 nowScene.selectPassiveSkills[_num].setAnchor(-nowScene.selectPassiveSkills[_num].image.width / 2, -nowScene.selectPassiveSkills[_num].image.height / 2); break;
 
@@ -433,6 +414,7 @@ readyScene.init = function()
                     _skill.isSelected = false;
                 }
                 nowScene.isSelected = false;
+                updateReadyState(nowScene.isSelected);
                 nowScene.selectActiveSkills[_num].setImage();
                 nowScene.selectActiveSkills[_num].setAnchor(-nowScene.selectActiveSkills[_num].image.width / 2, -nowScene.selectActiveSkills[_num].image.height / 2); break;
         }
@@ -1003,6 +985,9 @@ readyScene.init = function()
         nowScene.placeSkills();
 
         nowScene.setStats();
+
+        updateJob(nowScene.jobs[jobIndex][1]);
+        updateReadyState(nowScene.isSelected);
     }
 
     this.switchSetting();

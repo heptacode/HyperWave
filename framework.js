@@ -773,6 +773,33 @@ class Scene
 var nullScene = new Scene();
 nowScene = nullScene;
 
+function fetchPlayer(){
+    $.post(
+        "proxy.php",
+        {
+            do: "fetchPlayer",
+            uId: Cookies.get("uId")
+        },
+        function(response) {
+            let serverData = JSON.parse(response);
+
+            for(let i = 0; i < nowScene.playerList.length; i++)
+            {
+                nowScene.playerList[i].hp = serverData["hp"];
+                nowScene.playerList[i].pos.x = serverData["posX"];
+                nowScene.playerList[i].pos.y = serverData["posY"];
+                nowScene.playerList[i].rot = serverData["rot"];
+                nowScene.playerList[i].leftHand.pos.x = serverData["leftHandPosX"];
+                nowScene.playerList[i].leftHand.pos.y = serverData["leftHandPosY"];
+                nowScene.playerList[i].leftHand.rot = serverData["leftHandRot"];
+                nowScene.playerList[i].rightHand.pos.x = serverData["rightHandPosX"];
+                nowScene.playerList[i].rightHand.pos.y = serverData["rightHandPosY"];
+                nowScene.playerList[i].rightHand.rot = serverData["rightHandRot"];
+            }
+        }
+    );
+}
+
 
 // gameLoop
 var update = function()
@@ -795,6 +822,11 @@ var gameLoop = function()
     nowScene.delete(nowScene.sceneThingList);
     ctx.resetTransform();
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+    if(nowScene.player != undefined && nowScene.canDownload == true && nowScene.playerList.length != 0)
+    {
+        fetchPlayer();
+        nowScene.canDownload = false;
+    }
     render();
 }
 
