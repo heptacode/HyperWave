@@ -1,50 +1,5 @@
 var readyScene = new Scene();
 
-class Pannel
-{
-    constructor( _x, _y, _width, _heigth)
-    {
-        this.pos = {x : _x, y : _y};
-        this.image = {width : _width, height : _heigth};
-
-        this.onPannel = [];
-    }
-    getCenter(_xy)
-    {
-        if(_xy == "x")
-        {
-            return this.pos.x + this.image.width / 2;
-        }
-        else if(_xy == "y")
-        {
-            return this.pos.y + this.image.height / 2;
-        }
-    }
-    setOpacity(_opacity)
-    {
-        for(let i = 0; i < this.onPannel.length; i++)
-        {
-            this.onPannel[i].opacity = _opacity;
-        }
-        this.opacity = _opacity;
-    }
-    setPosition(_x, _y)
-    {
-        for(let i = 0; i < this.onPannel.length; i++)
-        {
-            this.onPannel[i].pos.x += _x - this.pos.x;
-            this.onPannel[i].pos.y += _y - this.pos.y;
-        }
-        this.pos.x = _x;
-        this.pos.y = _y;
-    }
-    setOnPannel(_obj)
-    {
-        this.onPannel.push(_obj);
-        return _obj;
-    }
-}
-
 var selectSkills = [[[new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/cantSelect.png", 0, 0, 2)],
                    [new Button("image/icon/notSelected.png", 0, 0, 2), new Button("image/icon/notSelected.png", 0, 0, 2)]], 
 
@@ -57,29 +12,65 @@ var selectSkills = [[[new Button("image/icon/notSelected.png", 0, 0, 2), new But
 var jobIndex = 0;
 
 function updateJob(job){
-    $.post(
-        "proxy.php",
-        {
-            do: "updateJob",
-            uId: Cookies.get("uId"),
-            job: job
-        }, function(response){
-            console.log(response ? "%c jobUpdate : " + job : "%c jobUpdateFail", "display: block; background: blue; color: white");
-        }
-    );
+    $.post("proxy.php", { do: "updateJob", uId: Cookies.get("uId"), code: Cookies.get("code"), job: job }, function(response){
+        response ? console.log("%c" + job, "display: block; background: blue; color: white; text-align: center; font-size: 14px")
+        : console.log("%c직업 변경 실패 : ", "display: block; background: red; color: white; text-align: center; font-size: 14px");
+    });
 }
 
 function updateReadyState(readyState){
-    $.post(
-        "proxy.php",
+    $.post("proxy.php", { do: "updateReadyState", uId: Cookies.get("uId"), code: Cookies.get("code"), readyState: readyState }, function(response){
+        response ? console.log(readyState ? "%c준비 완료!" : "%c준비 안됨", "display: block; background: #C56C30; color: white; text-align: center; font-size: 14px")
+        : console.log("%c준비 업데이트 실패", "display: block; background: red; color: white; text-align: center; font-size: 14px")
+    });
+}
+
+function queLeave() {
+    $.post("proxy.php", { do: "queLeave", uId: Cookies.get("uId"), code: Cookies.get("code") }, function(response) {
+        response ? ($(".notice-game").html("큐에서 떠났습니다. <b>[" + Cookies.get("code") + "]</b>").slideDown().delay(3000).slideUp(), $(".btn-codeView").fadeOut(), Cookies.remove("code"), startScene.start()) : console.log("큐 나가기 실패");
+    });
+}
+
+function fetchPlayer(){
+    $.post("proxy.php", { do: "fetchPlayer", code: Cookies.get("code") }, function(response) {
+        let data = JSON.parse(response);
+
+        nowScene.tempPlayers.forEach(info => info.isDelete = true);
+        nowScene.tempPlayers.length = 0;
+
+        for(let i = 0; i < data.length; i++)
         {
-            do: "updateReadyState",
-            uId: Cookies.get("uId"),
-            readyState: readyState
-        }, function(response){
-            console.log(response ? "%c readyUpdate : " + readyState : "%c readyUpdateFail", "display: block; background: #C56C30; color: white");
+            nowScene.tempPlayers[i] = {
+                "uId" : data[i]["uId"],
+                "job" : data[i]["job"],
+                "readyState" : data[i]["readyState"],
+                "wave" : data[i]["readyState"],
+                "hp" : data[i]["hp"],
+                "killCnt" : data[i]["killCnt"]
+            };
         }
-    );
+    },
+    nowScene.updatePlayers(),
+    )
+}
+
+// 게임 시작 함수 - 방장만 사용
+function gameStart(){
+    $.post("proxy.php", { do: "gameStart", code: Cookies.get("code") });
+}
+
+// 게임이 시작되었는지 확인하는 함수
+function fetchGameState(){
+    $.post("proxy.php", { do: "fetchGameState", code: Cookies.get("code") }, function(response){
+        response ? (GameController.sendInfo("player", "job", nowScene.jobs[jobIndex][1]),
+                    GameController.sendInfo("player", "skill", "passive", nowScene.selectPassiveSkills[0].name),
+                    GameController.sendInfo("player", "skill", "active", nowScene.selectActiveSkills[0].name, nowScene.activeSkillsKey[0]),
+                    GameController.sendInfo("player", "skill", "active", nowScene.selectActiveSkills[1].name, nowScene.activeSkillsKey[1]),
+                    gameScene.selectedInfo.player.skill.activeImage = [],
+                    gameScene.selectedInfo.player.skill.activeImage.push(nowScene.selectActiveSkills[0].path, nowScene.selectActiveSkills[1].path),
+                    gameScene.start())
+                 : null;
+    });
 }
 
 readyScene.init = function()
@@ -95,29 +86,29 @@ readyScene.init = function()
 
     this.skills = [[[new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "attackDamageUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "healthUp"),
                   new Button("image/icon/Warrior/passiveSkill/blooddrain.png", 0, 0, 0, "blooddrain"), new Button("image/icon/Warrior/passiveSkill/attackSpeedUp.png", 0, 0, 0, "attackSpeedUp"),
-                  new Button("image/icon/Warrior/passiveSkill/attackRangeUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "MOD:Berserker")], 
+                  new Button("image/icon/Warrior/passiveSkill/attackRangeUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/Warrior/passiveSkill/MODBerserker.png", 0, 0, 0, "MOD:Berserker")], 
 
                   [new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "SwordShot"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "SwiftStrike"),
-                  new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "SpinShot"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "WheelWind"),
+                  new Button("image/icon/Warrior/activeSkill/spinShot.png", 0, 0, 0, "SpinShot"), new Button("image/icon/Warrior/activeSkill/wheelWind.png", 0, 0, 0, "WheelWind"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
 
 
-                  [[new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "attackDamageUp"), new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "attackSpeedUp"),
-                  new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
-                  new Button("image/icon/Warrior/passiveSkill/healthUp.png", 0, 0, 0, "backDashAttack"), new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "MOD:Destroyer")],
+                  [[new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "attackDamageUp"), new Button("image/icon/Warrior/passiveSkill/attackSpeedUp.png", 0, 0, 0, "attackSpeedUp"),
+                  new Button("image/icon/Summoner/passiveSkill/chargeElectSpeedUp.png", 0, 0, 0, "chargeElectSpeedUp"), new Button("image/icon/Warrior/passiveSkill/blooddrain.png", 0, 0, 0, "blooddrain"),
+                  new Button("image/icon/Lancer/passiveSkill/backDashAttack.png", 0, 0, 0, "backDashAttack"), new Button("image/icon/Lancer/passiveSkill/MODDestroyer.png", 0, 0, 0, "MOD:Destroyer")],
 
-                  [new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "Swing"), new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "Bu-Wang"),
-                  new Button("image/icon/Lancer/activeSkill/continuousAttack.png", 0, 0, 0, "ContinuousAttack"), new Button("image/icon/notSelected.png", 0, 0, 0, "none"),
+                  [new Button("image/icon/Lancer/activeSkill/swing.png", 0, 0, 0, "Swing"), new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "AttackDamageBuff"),
+                  new Button("image/icon/Lancer/activeSkill/continuousAttack.png", 0, 0, 0, "ContinuousAttack"), new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "ThrowSpear"),
                   new Button("image/icon/notSelected.png", 0, 0, 0, "none"), new Button("image/icon/notSelected.png", 0, 0, 0, "none")]],
                 
                 
-                  [[new Button("image/icon/Warrior/passiveSkill/attackDamageUp.png", 0, 0, 0, "chargeElectSpeedUp"), new Button("image/icon/Summoner/passiveSkill/shotSpeedUp.png", 0, 0, 0, "shotSpeedUp"),
+                  [[new Button("image/icon/Summoner/passiveSkill/chargeElectSpeedUp.png", 0, 0, 0, "chargeElectSpeedUp"), new Button("image/icon/Summoner/passiveSkill/shotSpeedUp.png", 0, 0, 0, "shotSpeedUp"),
                   new Button("image/icon/Summoner/passiveSkill/attackRangeUp.png", 0, 0, 0, "attackRangeUp"), new Button("image/icon/Summoner/passiveSkill/skillDamageUp.png", 0, 0, 0, "skillDamageUp"),
                   new Button("image/icon/Summoner/passiveSkill/addShooter.png", 0, 0, 0, "addShooters"), new Button("image/icon/Summoner/passiveSkill/penetrationAttack.png", 0, 0, 0, "penetrationAttack")],
                 
-                  [new Button("image/icon/Summoner/activeSkill/laserAttack.png", 0, 0, 0, "LaserAttack"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "AttackSpeedBuff"),
-                  new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "AttackDamageBuff"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "AddShooter"),
-                  new Button("image/icon/Warrior/activeSkill/swordShot.png", 0, 0, 0, "KnockbackDistanceBuff"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "BulletParty")]]];
+                  [new Button("image/icon/Summoner/activeSkill/MODKnockbackUp.png", 0, 0, 0, "MOD:KnockbackUp"), new Button("image/icon/Summoner/activeSkill/MODSpeedUp.png", 0, 0, 0, "MOD:SpeedUp"),
+                  new Button("image/icon/Summoner/activeSkill/MODDamageUp.png", 0, 0, 0, "MOD:DamageUp"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "AddShooter"),
+                  new Button("image/icon/Summoner/activeSkill/laserAttack.png", 0, 0, 0, "LaserAttack"), new Button("image/icon/Warrior/activeSkill/swiftStrike.png", 0, 0, 0, "BulletParty")]]];
     
     this.activeSkillsKey = ["ShiftLeft", "Space"];
     this.isSelected = false;
@@ -149,6 +140,25 @@ readyScene.init = function()
     }
     nowScene.updateList.push(this.leftDownPannel);
 
+    this.descriptionPannel = nowScene.addThing(new GameImage("image/descriptionPannel.png", nowScene.leftDownPannel.pos.x - 2.25, nowScene.leftDownPannel.pos.y + nowScene.leftDownPannel.image.height + 5, "none"));
+    this.descriptionPannel.setZ(3);
+
+    this.description_coolTime = nowScene.addThing(new GameText(nowScene.descriptionPannel.pos.x + 70, nowScene.descriptionPannel.pos.y + 5, 20, "Jua", ""));
+    this.description_coolTime.pos.y += this.description_coolTime.size;
+    this.description_coolTime.color = {r : 6, g : 226, b : 224};
+    this.description_coolTime.opacity = 0;
+    this.description_coolTime.setZ(nowScene.descriptionPannel.z + 1);
+    this.description_elect = nowScene.addThing(new GameText(nowScene.descriptionPannel.pos.x + nowScene.descriptionPannel.image.width - 70, nowScene.descriptionPannel.pos.y + 5, 20, "Jua", ""));
+    this.description_elect.pos.y += this.description_elect.size;
+    this.description_elect.color = {r : 6, g : 226, b : 224};
+    this.description_elect.opacity = 0;
+    this.description_elect.setZ(nowScene.descriptionPannel.z + 1);
+    this.description_text = nowScene.addThing(new GameText(Util.getCenter(nowScene.descriptionPannel, "x"), nowScene.descriptionPannel.pos.y + 60, 25, "Jua", ""));
+    this.description_text.pos.y += this.description_text.size;
+    this.description_text.color = {r : 6, g : 226, b : 224};
+    this.description_text.opacity = 0;
+    this.description_text.setZ(nowScene.descriptionPannel.z + 1);
+
     this.stats = [[], [], []];
 
     this.passiveSkills = [];
@@ -175,10 +185,19 @@ readyScene.init = function()
     this.playerImage.setZ(5);
     this.playerImage.setCenter();
 
+    this.level = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameText(Util.getCenter(nowScene.playerImage, "x"), nowScene.playerImage.pos.y + 20, 40, "Gugi", "")));
+    this.level.pos.y -= this.level.size;
+    this.level.color = {r : 6, g : 226, b : 224};
+    this.level.setZ(5);
+
     this.jobName = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameText(Util.getCenter(nowScene.middlePannel, "x"), nowScene.playerImage.pos.y + nowScene.playerImage.image.height + 50, 30, "Gugi", nowScene.jobs[jobIndex][1])));
     this.jobName.color = {r : 6, g : 226, b : 224};
-    nowScene.middlePannel.setOnPannel(this.jobName);
     this.jobName.setZ(5);
+
+    this.hightScore = nowScene.middlePannel.setOnPannel(nowScene.addThing(new GameText(Util.getCenter(nowScene.playerImage, "x"), nowScene.jobName.pos.y + 15, 30, "Gugi", "")));
+    this.hightScore.pos.y += this.hightScore.size;
+    this.hightScore.color = {r : 6, g : 226, b : 224};
+    this.hightScore.setZ(5);
 
     this.leftButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/leftArrow.png", nowScene.middlePannel.pos.x + 35, nowScene.middlePannel.pos.y, 3)));
     this.leftButton.setClickEvent(function()
@@ -187,7 +206,6 @@ readyScene.init = function()
         nowScene.isSelected = false;
         updateReadyState(nowScene.isSelected);
     });
-    nowScene.middlePannel.setOnPannel(this.leftButton);
     nowScene.updateList.push(this.leftButton);
 
     this.rightButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/rightArrow.png", nowScene.middlePannel.pos.x + nowScene.middlePannel.image.width - 20, nowScene.middlePannel.pos.y, 3)));
@@ -197,7 +215,6 @@ readyScene.init = function()
         nowScene.isSelected = false;
         updateReadyState(nowScene.isSelected);
     });
-    nowScene.middlePannel.setOnPannel(this.rightButton);
     nowScene.updateList.push(this.rightButton);
 
     this.readyButton = nowScene.middlePannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", Util.getCenter(nowScene.middlePannel, "x"), nowScene.jobName.pos.y + 200, 5, "readyButton")));
@@ -226,7 +243,6 @@ readyScene.init = function()
             this.readyButton.isChanged = false;
         }
     }
-    nowScene.middlePannel.setOnPannel(this.readyButton);
     nowScene.updateList.push(this.readyButton);
 
 
@@ -243,30 +259,42 @@ readyScene.init = function()
     this.startButton.pos.y += this.startButton.image.height / 2;
     this.startButton.setClickEvent(function()
     {
-        if(nowScene.isSelected == true) // 캐릭터가 선택됬는지
+        if(nowScene.isSelected == true && (nowScene.tempPlayers[0]["uId"] == Cookies.get("uId")) && nowScene.isReady())
         {
+            $(".btn-codeView").css("display", "none");
+
             GameController.sendInfo("player", "job", nowScene.jobs[jobIndex][1]);
             GameController.sendInfo("player", "skill", "passive", nowScene.selectPassiveSkills[0].name);
             GameController.sendInfo("player", "skill", "active", nowScene.selectActiveSkills[0].name, nowScene.activeSkillsKey[0]);
             GameController.sendInfo("player", "skill", "active", nowScene.selectActiveSkills[1].name, nowScene.activeSkillsKey[1]);
+            gameScene.selectedInfo.player.skill.activeImage = [];
+            gameScene.selectedInfo.player.skill.activeImage.push(nowScene.selectActiveSkills[0].path, nowScene.selectActiveSkills[1].path);
 
             gameScene.start();
+        }
+        else if((nowScene.tempPlayers[0]["uId"] != Cookies.get("uId")))
+        {
+            nowScene.addCaution("방장이 아닙니다!");
+        }
+        else if((nowScene.tempPlayers[0]["uId"] == Cookies.get("uId")) && !nowScene.isReady())
+        {
+            nowScene.addCaution("팀원이 준비되지 않았습니다!");
         }
         else
         {
             nowScene.addCaution("SELECT 버튼을 누르세요!");
         }
     });
-    nowScene.rightPannel.setOnPannel(this.startButton);
     nowScene.updateList.push(this.startButton);
 
-    this.exitButton = nowScene.rightPannel.setOnPannel(nowScene.addThing(new Button("image/button/select.png", nowScene.startButton.pos.x, nowScene.startButton.pos.y + nowScene.startButton.image.height, 5, "exitButton")));
+    this.exitButton = nowScene.rightPannel.setOnPannel(nowScene.addThing(new Button("image/button/exit.png", nowScene.startButton.pos.x + nowScene.startButton.image.width + 90, nowScene.startButton.pos.y + nowScene.startButton.image.height, 5, "exitButton")));
     this.exitButton.pos.x += this.exitButton.image.width / 2;
     this.exitButton.pos.y += this.exitButton.image.height / 2;
     this.exitButton.setClickEvent(function()
     {
         queLeave();
     });
+    nowScene.updateList.push(this.exitButton);
 
 
     // functions
@@ -319,6 +347,108 @@ readyScene.init = function()
         nowScene.cautionList.push(caution);
     }
 
+    this.updatePlayers = () =>
+    {
+        for(let i = 0; i < nowScene.players.length; i++)
+        {
+            nowScene.players[i][0].text = "";
+            nowScene.players[i][1].opacity = 0;
+            nowScene.players[i][2].text = "";
+        }
+        for(let i = 0; i < nowScene.tempPlayers.length; i++)
+        {
+            nowScene.players[i][0].text = nowScene.tempPlayers[i]["uId"];
+            nowScene.players[i][2].text = nowScene.tempPlayers[i]["readyState"] ? "READY!" : "";
+            let image;
+            switch(nowScene.tempPlayers[i]["job"])
+            {
+                case "Warrior" : image = "image/player/Warrior/player.png"; break;
+                case "Lancer" : image = "image/player/Lancer/player.png"; break;
+                case "Summoner" : image = "image/player/Summoner/player.png"; break;
+            }
+            nowScene.players[i][1].path = image;
+            nowScene.players[i][1].setImage();
+            nowScene.players[i][1].rot = 270 / 180 * Math.PI;
+            nowScene.players[i][1].opacity = 1;
+        }
+    }
+
+    this.isReady = () =>
+    {
+        let num1 = 0, num2 = 0;
+        for(let i = 0; i < nowScene.tempPlayers.length; i++)
+        {
+            if(nowScene.tempPlayers[i]["readyState"] == true)
+            {
+                num1++;
+            }
+            num2++;
+        }
+        return (num1 == num2);
+    }
+    
+    this.setDescription = (_selectSkill) =>
+    {
+        switch(nowScene.jobs[jobIndex][1])
+        {
+            case "Warrior" : 
+            switch(_selectSkill.name)
+            {
+                case "attackDamageUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격력 20% 상승" ; break;
+                case "healthUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "체력 50% 상승"; break;
+                    case "blooddrain" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격 시 최대체력의 5% 회복, 공격력 20% 감소"; break;
+                    case "attackSpeedUp" :nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격속도 20% 상승"; break;
+                    case "attackRangeUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격사거리 50% 상승"; break;
+                    case "MOD:Berserker" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "체력이 40% 이하로 떨어졌을 때 공격력 100% 상승"; break;
+                    
+                    case "SwordShot" : nowScene.description_coolTime.text = "쿨타임 : 3초"; nowScene.description_elect.text = "사용전력 : 2"; nowScene.description_text.text = "전방으로 70%의 데미지를 가진 검기 3개를 발사" ; break;
+                    case "SwiftStrike" : nowScene.description_coolTime.text = "쿨타임 : 0.5초"; nowScene.description_elect.text = "사용전력 : 1"; nowScene.description_text.text = "전방으로 돌진하며 충돌한 적에게 50%의 데미지" ; break;
+                    case "SpinShot" : nowScene.description_coolTime.text = "쿨타임 : 5초"; nowScene.description_elect.text = "사용전력 : 3"; nowScene.description_text.text = "8방향으로 100%의 데미지를 가진 검기를 발사" ; break;
+                    case "WheelWind" : nowScene.description_coolTime.text = "쿨타임 : 5초"; nowScene.description_elect.text = "사용전력 : 5"; nowScene.description_text.text = "2초동안 회전하여 주변 적에게 일정 시간마다 10%의 데미지" ; break;
+                } break;
+            case "Lancer" : 
+            switch(_selectSkill.name)
+            {
+                    case "attackDamageUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격력 20% 상승"; break;
+                    case "attackSpeedUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격속도 40% 상승"; break;
+                    case "chargeElectSpeedUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "전력회복속도 3초 -> 1.5초로 감소"; break;
+                    case "blooddrain" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격 시 최대체력의 5% 회복, 공격력 20% 감소"; break;
+                    case "backDashAttack" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격 시 뒤로 약진"; break;
+                    case "MOD:Destroyer" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "3번째 공격마다 전방에 큰 타격을 입히는 공격게시"; break;
+
+                    case "Swing" : nowScene.description_coolTime.text = "쿨타임 : 2초"; nowScene.description_elect.text = "사용전력 : 1"; nowScene.description_text.text = "주변 적에게 100%의 데미지, 멀리 넉백" ; break;
+                    case "AttackDamageBuff" : nowScene.description_coolTime.text = "쿨타임 : 30초"; nowScene.description_elect.text = "사용전력 : 3"; nowScene.description_text.text = "10초동안 공격력 50% 상승 버프시전" ; break;
+                    case "ContinuousAttack" : nowScene.description_coolTime.text = "쿨타임 : 2초"; nowScene.description_elect.text = "사용전력 : 3"; nowScene.description_text.text = "전방으로 적에게 일정 시간마다 20%의 데미지" ; break;
+                    case "ThrowSpear" : nowScene.description_coolTime.text = "쿨타임 : 3초"; nowScene.description_elect.text = "사용전력 : 2"; nowScene.description_text.text = "창을 던져 200%의 데미지" ; break;
+                } break;
+            case "Summoner" : 
+                switch(_selectSkill.name)
+                {
+                    case "chargeElectSpeedUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "전력회복속도 3초 -> 1.5초로 감소"; break;
+                    case "shotSpeedUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "투사체속도 50% 상승"; break;
+                    case "attackRangeUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "공격사거리 100% 상승"; break;
+                    case "skillDamageUp" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "스킬공격력 50% 상승"; break;
+                    case "addShooters" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "로봇의 개체수 2개 추가"; break;
+                    case "penetrationAttack" : nowScene.description_coolTime.text = "쿨타임 : X"; nowScene.description_elect.text = "사용전력 : X"; nowScene.description_text.text = "투사체 관통공격판정 설정"; break;
+
+                    case "MOD:KnockbackUp" : nowScene.description_coolTime.text = "쿨타임 : 30초"; nowScene.description_elect.text = "사용전력 : 5"; nowScene.description_text.text = "20초동안 넉백거리 1000% 상승" ; break;
+                    case "MOD:SpeedUP" : nowScene.description_coolTime.text = "쿨타임 : 60초"; nowScene.description_elect.text = "사용전력 : 8"; nowScene.description_text.text = "5초동안 공격속도 200% 상승, 공격력 50% 감소" ; break;
+                    case "MOD:DamageUp" : nowScene.description_coolTime.text = "쿨타임 : 60초"; nowScene.description_elect.text = "사용전력 : 8"; nowScene.description_text.text = "10초동안 공격력 100% 상승, 공격속도 75% 감소" ; break;
+                    case "AddShooter" : nowScene.description_coolTime.text = "쿨타임 : 120초"; nowScene.description_elect.text = "사용전력 : 8"; nowScene.description_text.text = "로봇의 개체수 1개 추가" ; break;
+                    case "LaserAttack" : nowScene.description_coolTime.text = "쿨타임 : 1초"; nowScene.description_elect.text = "사용전력 : 1"; nowScene.description_text.text = "전방으로 적에게 100%의 데미지를 주는 레이저 발사" ; break;
+                    case "BulletParty" : nowScene.description_coolTime.text = "쿨타임 : 30초"; nowScene.description_elect.text = "사용전력 : 8"; nowScene.description_text.text = "5초동안 난사" ; break;
+                } break;
+        }
+    }
+
+    this.setInformations = () =>
+    {
+        let jobName = nowScene.jobs[jobIndex][1];
+
+        nowScene.hightScore.text = "high score : " + nowScene.playerHighScore[jobName];
+        nowScene.level.text = "Lv." + nowScene.playerLevel[jobName];
+    }
+
     this.selectSkill = (_skill, _type, _num, _how) =>
     {
         switch(_type)
@@ -339,6 +469,7 @@ readyScene.init = function()
                 }
                 nowScene.isSelected = false;
                 updateReadyState(nowScene.isSelected);
+                nowScene.setDescription(nowScene.selectPassiveSkills[_num]);
                 nowScene.selectPassiveSkills[_num].setImage();
                 nowScene.selectPassiveSkills[_num].setAnchor(-nowScene.selectPassiveSkills[_num].image.width / 2, -nowScene.selectPassiveSkills[_num].image.height / 2); break;
 
@@ -415,6 +546,7 @@ readyScene.init = function()
                 }
                 nowScene.isSelected = false;
                 updateReadyState(nowScene.isSelected);
+                nowScene.setDescription(nowScene.selectActiveSkills[_num]);
                 nowScene.selectActiveSkills[_num].setImage();
                 nowScene.selectActiveSkills[_num].setAnchor(-nowScene.selectActiveSkills[_num].image.width / 2, -nowScene.selectActiveSkills[_num].image.height / 2); break;
         }
@@ -447,21 +579,30 @@ readyScene.init = function()
             }
             nowScene.selectPassiveSkills[i].update = () =>
             {
+                let realImage = {width : nowScene.selectPassiveSkills[i].image.width * nowScene.selectPassiveSkills[i].scale.x, height : nowScene.selectPassiveSkills[i].image.height * nowScene.selectPassiveSkills[i].scale.y};
                 if(nowScene.selectPassiveSkills[i].isSelected == true)
                 {
-                    if(Collision.dotToRect(nowScene.cursor, nowScene.selectPassiveSkills[i]))
+                    if(Collision.dotToRect(nowScene.cursor, nowScene.selectPassiveSkills[i], nowScene.cursor.image, realImage))
                     {
                         if(nowScene.selectPassiveSkills[i].isShowedImage == false)
                         {
                             // 선택된 스킬의 설명을 보여줌 -> GameImage위에 GameText띄우기
+                            nowScene.setDescription(nowScene.selectPassiveSkills[i]);
+                            nowScene.description_coolTime.opacity = 1;
+                            nowScene.description_elect.opacity = 1;
+                            nowScene.description_text.opacity = 1;
                             nowScene.selectPassiveSkills[i].isShowedImage = true;
                         }
                     }
-                    else
+                    else if(!Collision.dotToRect(nowScene.cursor, nowScene.selectPassiveSkills[i], nowScene.cursor.image, realImage) && nowScene.selectPassiveSkills[i].isShowedImage == true)
                     {
                         // 설명 이미지가 있고 그 이미지에서 마우스가 나오면 설명 이미지를 삭제
+                        nowScene.description_coolTime.opacity = 0;
+                        nowScene.description_elect.opacity = 0;
+                        nowScene.description_text.opacity = 0;
+                        nowScene.selectPassiveSkills[i].isShowedImage = false;
                     }
-                    if(mouseValue["Right"] == 1 && Collision.dotToRect(nowScene.cursor, nowScene.selectPassiveSkills[i]))
+                    if(mouseValue["Right"] == 1 && Collision.dotToRect(nowScene.cursor, nowScene.selectPassiveSkills[i], nowScene.cursor.image, realImage))
                     {
                         nowScene.selectSkill(nowScene.selectPassiveSkills[i], "passive", 0, false);
                     }
@@ -554,6 +695,8 @@ readyScene.init = function()
             nowScene.selectActiveSkills[i].blinkRTime = Date.now();
             nowScene.selectActiveSkills[i].blinkNum = 0;
             nowScene.selectActiveSkills[i].delayRTime = Date.now();
+
+            nowScene.setDescription(nowScene.selectActiveSkills[i])
             
             if(nowScene.selectActiveSkills[i].name != "none")
             {
@@ -561,18 +704,30 @@ readyScene.init = function()
             }
             nowScene.selectActiveSkills[i].update = () =>
             {
+                let realImage = {width : nowScene.selectActiveSkills[i].image.width * nowScene.selectActiveSkills[i].scale.x, height : nowScene.selectActiveSkills[i].image.height * nowScene.selectActiveSkills[i].scale.y};
                 if(nowScene.selectActiveSkills[i].isSelected == true)
                 {
-                    if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i]) && nowScene.selectActiveSkills[i].isShowedImage == false)
+                    if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i], nowScene.cursor.image, realImage))
                     {
                         // 선택된 스킬의 설명을 보여줌 -> GameImage위에 GameText띄우기
-                        nowScene.selectActiveSkills[i].isShowedImage = true;
+                        if(nowScene.selectActiveSkills[i].isShowedImage == false)
+                        {
+                            nowScene.setDescription(nowScene.selectActiveSkills[i]);
+                            nowScene.description_coolTime.opacity = 1;
+                            nowScene.description_elect.opacity = 1;
+                            nowScene.description_text.opacity = 1;
+                            nowScene.selectActiveSkills[i].isShowedImage = true;
+                        }
                     }
-                    else
+                    else if(!Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i], nowScene.cursor.image, realImage) && nowScene.selectActiveSkills[i].isShowedImage == true)
                     {
                         // 설명 이미지가 있고 그 이미지에서 마우스가 나오면 설명 이미지를 삭제
+                        nowScene.description_coolTime.opacity = 0;
+                        nowScene.description_elect.opacity = 0;
+                        nowScene.description_text.opacity = 0;
+                        nowScene.selectActiveSkills[i].isShowedImage = false;
                     }
-                    if(mouseValue["Right"] == 1 && Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i]))
+                    if(mouseValue["Right"] == 1 && Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i], nowScene.cursor.image, realImage))
                     {
                         nowScene.selectSkill(nowScene.selectActiveSkills[i], "active", i, false);
                     }
@@ -582,7 +737,7 @@ readyScene.init = function()
                 {
                     if(mouseValue["Left"] == 1 && Date.now() > nowScene.selectActiveSkills[i].delayRTime)
                     {
-                        if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[0]))
+                        if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i], nowScene.cursor.image, realImage))
                         {
                             for(let j = 0; j < nowScene.activeSkills.length; j++)
                             {
@@ -605,7 +760,7 @@ readyScene.init = function()
                                 }
                             }
                         }
-                        else if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[1]))
+                        else if(Collision.dotToRect(nowScene.cursor, nowScene.selectActiveSkills[i], nowScene.cursor.image, realImage))
                         {
                             for(let j = 0; j < nowScene.activeSkills.length; j++)
                             {
@@ -692,6 +847,7 @@ readyScene.init = function()
     {
         // passive
         let numY = 0;
+        let jobName = nowScene.jobs[jobIndex][1];
         for(let i = 0; i < nowScene.passiveSkills.length; i++)
         {
             if(i % 2 == 0 && i != 0)
@@ -720,7 +876,7 @@ readyScene.init = function()
             nowScene.leftDownPannel.setOnPannel(nowScene.passiveSkills[i]);
             nowScene.passiveSkills[i].setZ(3);
 
-            if(nowScene.passiveSkills[i].name != "none")
+            if(nowScene.passiveSkills[i].name != "none" && nowScene.playerLevel[jobName] >= (i >= 2 ? (i - 1) * 5 : 1))
             {
                 nowScene.passiveSkills[i].updating = () =>
                 {
@@ -783,10 +939,17 @@ readyScene.init = function()
             else
             {   
                 nowScene.passiveSkills[i].setZ(nowScene.passiveSkills[i].z - 1);
+
                 let lock = nowScene.addThing(new GameImage("image/icon/lock.png", nowScene.passiveSkills[i].pos.x, nowScene.passiveSkills[i].pos.y, "lock"));
                 nowScene.leftDownPannel.setOnPannel(lock);
                 lock.setZ(nowScene.passiveSkills[i].z + 1);
                 nowScene.locks.push(lock);
+
+                let text = nowScene.addThing(new GameText(Util.getCenter(lock, "x"), lock.pos.y + lock.image.height + 2, 15, "Gugi", "Lv." + ((i - 1) * 5)));
+                text.pos.y += text.size;
+                text.color = {r : 6, g : 226, b : 224};
+                nowScene.leftDownPannel.setOnPannel(text);
+                text.setZ(lock.z);
             }
             nowScene.addThing(nowScene.passiveSkills[i]);
         }
@@ -821,7 +984,7 @@ readyScene.init = function()
             nowScene.leftDownPannel.setOnPannel(nowScene.activeSkills[i]);
             nowScene.activeSkills[i].setZ(3);
 
-            if(nowScene.activeSkills[i].name != "none")
+            if(nowScene.activeSkills[i].name != "none" && nowScene.playerLevel[jobName] >= (i >= 2 ? (i - 1) * 5 : 1))
             {
                 nowScene.activeSkills[i].updating = () =>
                 {
@@ -902,6 +1065,12 @@ readyScene.init = function()
                 nowScene.leftDownPannel.setOnPannel(lock);
                 lock.setZ(nowScene.activeSkills[i].z + 1);
                 nowScene.locks.push(lock);
+
+                let text = nowScene.addThing(new GameText(Util.getCenter(lock, "x"), lock.pos.y + lock.image.height + 2, 15, "Gugi", "Lv." + ((i - 1) * 5)));
+                text.pos.y += text.size;
+                text.color = {r : 6, g : 226, b : 224};
+                nowScene.leftDownPannel.setOnPannel(text);
+                text.setZ(lock.z);
             }
             nowScene.addThing(nowScene.activeSkills[i]);
         }
@@ -985,15 +1154,63 @@ readyScene.init = function()
         nowScene.placeSkills();
 
         nowScene.setStats();
+        nowScene.setInformations();
 
         updateJob(nowScene.jobs[jobIndex][1]);
         updateReadyState(nowScene.isSelected);
     }
 
     this.switchSetting();
+
+    this.players = [[],[],[],[]];
+    this.tempPlayers = [];
+
+    let numY = 0;
+    for(let i = 0; i < 4; i++)
+    {
+        if(i % 2 == 0 && i != 0)
+        {
+            numY++;
+        }
+        let playerUId = nowScene.addThing(new GameText(canvas.width - 480 + (i % 2 * 280), 75 + numY * 210, 20, "Gugi", ""));
+        playerUId.color = {r : 6, g : 226, b : 224};
+        playerUId.setZ(4);
+        this.players[i].push(playerUId);
+
+        let playerImage = nowScene.addThing(new GameImage("image/player/Warrior/player.png", canvas.width - 480 + (i % 2 * 280), 125 + numY * 210, "nome"));
+        playerImage.pos.x -= playerImage.image.width / 2;
+        playerImage.opacity = 0;
+        playerImage.setZ(4);
+        this.players[i].push(playerImage);
+
+        let ready = nowScene.addThing(new GameText(canvas.width - 480 + (i % 2 * 280), 245 + numY * 210, 20, "Gugi", ""));
+        ready.color = {r : 6, g : 226, b : 224};
+        ready.setZ(4);
+        this.players[i].push(ready);
+    }
+    // numY = 0;
+    // for(let i = 0; i < 4; i++)
+    // {
+    //     if(i % 2 == 0 && i != 0)
+    //     {
+    //         numY++;
+    //     }
+    //     let path;
+    //     playerImage.setZ(4);
+    //     this.players.push(playerUId);
+    // }
+
+    this.fetchRTime = Date.now();
+    this.fetchTime = 0.1;
 }
 readyScene.update = function()
 {
+    if(Date.now() >= nowScene.fetchRTime)
+    {
+        fetchPlayer()
+        fetchGameState()
+        nowScene.fetchRTime += nowScene.fetchTime * 1000;
+    }
     this.passiveSkills.forEach(skill => skill.update());
     this.delete(this.passiveSkills);
     this.activeSkills.forEach(skill => skill.update());

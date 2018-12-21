@@ -1,10 +1,7 @@
 /*
     GLOBAL VARIABLES
 */
-var timer_fetchData,
-    timer_updateData,
-    code,
-    randomString = "0123456789";
+var timer_fetchData, timer_updateData, code;
 
 $.ajaxSetup({ cache: false });
 window.addEventListener("offline", function() {
@@ -23,11 +20,23 @@ if (Cookies.get("uId")) {
     $("#canvas").addClass("canvas-active");
     $("html").css("cursor", "none");
     $(".form-account").css("display", "none");
-    $(".notice-error").css("display", "none");
+} else {
+    $(".form-account").css("display", "flex");
 }
+var minSizeDelay = true;
 window.onresize = function() {
-    if (window.innerWidth < 1000 || window.innerHeight < 720) alert("[HYPERWAVE]\n최소 창 크기에 도달했습니다.\n창 크기를 늘려주세요.");
-    else {
+    if (window.innerWidth < 1000 || window.innerHeight < 720) {
+        if (minSizeDelay) {
+            minSizeDelay = false;
+            $(".notice-minSize")
+                .slideDown()
+                .delay(2000)
+                .slideUp();
+            setTimeout(function() {
+                minSizeDelay = true;
+            }, 5000);
+        }
+    } else {
         $(".sizing")
             .css("display", "flex")
             .delay(100)
@@ -42,9 +51,11 @@ window.onresize = function() {
             });
     }
 };
+
 document.addEventListener("keydown", function() {
     if (event.keyCode == 13 && !Cookies.get("uId")) signIn();
 });
+
 function register() {
     if (!$("#inputId").val() || $("#inputId").val() < 6) {
         $("#inputId").focus();
@@ -59,7 +70,12 @@ function register() {
         {
             do: "register",
             uId: $("#inputId").val(),
-            uPw: $("#inputPw").val()
+            uPw: $("#inputPw").val(),
+            level: JSON.stringify({
+                Warrior: 1,
+                Lancer: 1,
+                Summoner: 1
+            })
         },
         function(response) {
             if (response) {
@@ -72,7 +88,10 @@ function register() {
                 $("#canvas").addClass("canvas-active");
                 $(".notice-error").css("display", "none");
             } else {
-                alert("가입에 실패하였습니다.");
+                $(".notice-registered")
+                    .slideDown()
+                    .delay(800)
+                    .slideUp();
             }
         }
     );
@@ -87,128 +106,31 @@ function signIn() {
         $("#inputPw").focus();
         return false;
     }
-    $.post(
-        "proxy.php",
-        {
-            do: "signIn",
-            uId: $("#inputId").val(),
-            uPw: $("#inputPw").val()
-        },
-        function(response) {
-            if (response) {
-                Cookies.set("uId", $("#inputId").val(), {
-                    expires: 1,
-                    secure: true
-                });
-                $("html").css("cursor", "none");
-                $(".form-account").fadeOut();
-                $("#canvas").addClass("canvas-active");
-                $(".notice-error").css("display", "none");
-            } else {
-                $(".notice-error").slideDown();
-            }
+    $.post("proxy.php", { do: "signIn", uId: $("#inputId").val(), uPw: $("#inputPw").val() }, function(response) {
+        if (response) {
+            Cookies.set("uId", $("#inputId").val(), { expires: 1, secure: true });
+            $("html").css("cursor", "none");
+            $(".form-account").fadeOut();
+            $("#canvas").addClass("canvas-active");
+            $(".notice-error").css("display", "none");
+        } else {
+            $(".notice-error")
+                .slideDown()
+                .delay(800)
+                .slideUp();
         }
-    );
-}
-
-function logOut() {
-    Cookies.remove("uId");
-    $("#canvas").removeClass("canvas-active");
-    $(".notice-error").css("display", "none");
-    location.reload();
-}
-
-function queCreate() {
-    code = "";
-    for (var i = 0; i < 5; i++) code += randomString.charAt(Math.floor(Math.random() * randomString.length));
-    $.post("proxy.php", { do: "codeSet", uId: Cookies.get("uId"), code: code }, function(response) {
-        response ? queCreate() : console.log(code);
     });
 }
 
-function queJoin() {
-    var code = prompt("참가할 큐 코드 입력");
-    $.post(
-        "proxy.php",
-        {
-            do: "queJoin",
-            uId: Cookies.get("uId"),
-            code: code
-        },
-        function(response) {
-            console.log(response);
-        }
-    );
-}
-
-function fetchLevel() {
-    $.post(
-        "proxy.php",
-        {
-            do: "fetchLevel",
-            uId: Cookies.get("uId")
-        },
-        function(response) {
-            console.log(response);
-        }
-    );
-}
-
-function fetchHighScore() {
-    $.post(
-        "proxy.php",
-        {
-            do: "fetchHighScore",
-            uId: Cookies.get("uId")
-        },
-        function(response) {
-            console.log(response);
-        }
-    );
-}
-
-// setInterval(fetchData, 100);
-function fetchData() {
-    $.post(
-        "proxy.php",
-        {
-            do: "fetchData",
-            uId: Cookies.get("uId")
-        },
-        function(response) {
-            var data = JSON.parse(response);
-            console.log(data["map"]);
-            console.log(data["job"]);
-            console.log(data["playerPosX"]);
-            console.log(data["playerPosY"]);
-            console.log(data["playerRot"]);
-        }
-    );
-}
-
-function updateData(map, wave, hp, playerPosX, playerPosY, playerRot, leftHandPosX, leftHandPosY, leftHandRot, RightHandPosX, RightHandPosY, RightHandRot) {
-    $.post(
-        "proxy.php",
-        {
-            do: "updateData",
-            uId: Cookies.get("uId"),
-            map: map,
-            wave: wave,
-            hp: hp,
-            playerPosX: playerPosX,
-            playerPosY: playerPosY,
-            playerRot: playerRot,
-            leftHandPosX: leftHandPosX,
-            leftHandPosY: leftHandPosY,
-            leftHandRot: leftHandRot,
-            RightHandPosX: RightHandPosX,
-            RightHandPosY: RightHandPosY,
-            RightHandRot: RightHandRot
-        },
-        function(response) {
-            console.log(response);
-        }
-    );
+function codeView() {
+    $(".btn-codeView")
+        .text(Cookies.get("code"))
+        .addClass("btn-codeView-active");
+    setTimeout(function() {
+        $(".btn-codeView")
+            .text("#")
+            .removeClass("btn-codeView-active");
+    }, 4000);
 }
 
 $(window).load(function() {
@@ -218,6 +140,8 @@ $(window).load(function() {
     }
     Cookies.set("reload", false, { expires: 1, secure: true });
 });
-// window.onbeforeunload = function() {
-//     return true;
-// };
+
+window.onbeforeunload = function(e) {
+    queLeave();
+    return "게임을 종료하시겠습니까?";
+};

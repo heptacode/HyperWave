@@ -11,14 +11,19 @@
         <link rel="stylesheet" href="style.css?1" />
         <script src="https://cdn.hyunwoo.org/js/jquery.min.js"></script>
         <script src="https://cdn.hyunwoo.org/js/js.cookie.js"></script>
+        <!-- <script src="https://cdn.hyunwoo.org/js/disable.js"></script> -->
     </head>
     <body>
         <div class="notice-offline">인터넷 연결 끊김</div>
         <div class="notice-online">인터넷 다시 연결됨</div>
+        <div class="notice-minSize">최소 창 크기에 도달함</div>
+        <div class="notice-game"></div>
+        <div class="btn-codeView" onclick="codeView()">#</div>
         <section class="form-account">
             <form>
                 <h1>Sign in to HYPERWAVE</h1>
-                <div class="notice-error">계정이 올바르지 않습니다. 아직 계정이 없으시면 가입하여 주십시오.</div>
+                <div class="notice-registered">이미 등록된 계정입니다.</div>
+                <div class="notice-error">계정이 올바르지 않습니다.</div>
                 <div class="form-input-row"><label for="inputId">id</label><input type="text" id="inputId" maxlength="15" autofocus required /></div>
                 <div class="form-input-row"><label for="inputPw">password</label><input type="password" id="inputPw" maxlength="64" required /></div>
                 <div class="form-btn-row">
@@ -35,7 +40,7 @@
         <canvas id="canvas"></canvas>
         <script src="javascript.js?1"></script>
         <script src="framework.js?1"></script>
-        <script src="myFunc.js?'1"></script>
+        <script src="myFunc.js?1"></script>
         <script src="startScene.js?1"></script>
         <script src="readyScene.js?1"></script>
         <script src="game.js?1"></script>

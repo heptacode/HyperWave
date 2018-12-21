@@ -1,5 +1,10 @@
 var gameoverScene = new Scene();
 
+// 직업을 넘겨주면 해당 레벨 1 증가
+function updateLevel(){
+    $.post("proxy.php", { do: "updateLevel", uId: Cookies.get("uId"), job: job });
+}
+
 gameoverScene.init = function()
 {
     this.cam = new Camera();
@@ -7,6 +12,11 @@ gameoverScene.init = function()
 
     this.resultPannel = nowScene.addThing(new GameImage("image/result.png", 0, 0, "none"));
     this.resultPannel.setCanvasCenter();
+    this.resultPannel.update = () =>
+    {
+        this.resultPannel.setCanvasCenter();
+    }
+    nowScene.updateList.push(this.resultPannel);
 
     this.text = nowScene.addThing(new GameText(nowScene.resultPannel.pos.x + nowScene.resultPannel.image.width * 5 / 6, nowScene.resultPannel.pos.y + 25, 100, "Nanum Square", nowScene.clearFail));
     this.text.color = {r : 6, g : 226, b : 224};
@@ -20,7 +30,7 @@ gameoverScene.init = function()
     }
 
     this.restartButton = nowScene.addThing(new Button("image/button/restart.png", nowScene.resultPannel.pos.x + nowScene.resultPannel.image.width, nowScene.resultPannel.pos.y + nowScene.resultPannel.image.height, 3));
-    this.restartButton.strokeWidth = 5;
+    this.restartButton.strokeWidth = 3;
     this.restartButton.strokeStyle = "#06e2e0";
     this.restartButton.pos.x -= this.restartButton.image.width / 2 + 20;
     this.restartButton.pos.y -= this.restartButton.image.height / 2 + 20;
@@ -32,6 +42,10 @@ gameoverScene.init = function()
     nowScene.updateList.push(this.restartButton);
 
     $(".overlay").css("display", "none");
+    for(let i = 0; i < nowScene.wave - 1; i++)
+    {
+        updateLevel();
+    }
 }
 gameoverScene.update = function()
 {

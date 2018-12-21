@@ -4,7 +4,7 @@ var startScene = new Scene();
 // ["monsterType"(String), monsterMax(int), spawnDelay(int), firstDelay(int)];
 var waveInfo =
 [
-    ["TrackingEnemy", 1, 0, 0, "TrackingEnemy", 1, 1, 0.5, "TrackingEnemy", 1, 1, 1, "TrackingEnemy", 1, 1, 1.5],
+    ["TrackingEnemy", 1, 0, 0, "TrackingEnemy", 0, 1, 0.5, "TrackingEnemy", 0, 1, 1, "TrackingEnemy", 0, 1, 1.5],
     ["TrackingEnemy", 2, 1, 0.5, "TrackingEnemy", 2, 1, 1, "TrackingEnemy", 2, 1, 1.5, "TrackingEnemy", 2, 1, 0],
     ["ShootingEnemy", 3, 1, 1, "ShootingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "TrackingEnemy", 3, 1, 0.5],
     ["TrackingEnemy", 3, 1, 1.5, "TrackingEnemy", 3, 1, 0, "ShootingEnemy", 3, 1, 0.5, "ShootingEnemy", 3, 1, 1],
@@ -16,6 +16,11 @@ var waveInfo =
     ["Cube", 1, 0, 0]
 ];
 
+
+// 웨이브 수 1 증가
+function updateWave(){
+    $.post("proxy.php", { do: "updateWave", uId: Cookies.get("uId"), code: Cookies.get("code") });
+}
 
 // spawnMonster 관리
 class GameController
@@ -34,7 +39,7 @@ class GameController
             new monsterMaker(nowScene.background.pos.x + 350, nowScene.background.pos.y + 930), new monsterMaker(nowScene.background.pos.x + nowScene.background.image.width - 400, nowScene.background.pos.y + 930),
             new monsterMaker(nowScene.background.pos.x + 350, nowScene.background.pos.y + 1800), new monsterMaker(nowScene.background.pos.x + nowScene.background.image.width - 400, nowScene.background.pos.y + 1800)
         ];
-        this.information = {wave : nowScene.addThing(new GameText(75, 20, 30, "Nanum Squre Bold", "wave : " + this.wave))};
+        this.information = {wave : nowScene.addThing(new GameText(120, 20, 50, "Gugi", "wave : " + this.wave))};
         this.information.wave.pos.y += this.information.wave.size;
         this.information.wave.isFixed = true;
     }
@@ -101,6 +106,7 @@ class GameController
         }
         nowScene.sceneThingList.length = 0;
         gameoverScene.killCnt = [[nowScene.player.jobName, nowScene.player.killCnt]];
+        gameoverScene.wave = nowScene.gameController.wave;
         gameoverScene.start();
     }
     isEnd()
@@ -118,6 +124,7 @@ class GameController
             this.canStartWave = false;
             this.startWave = true;
             this.wave++;
+            updateWave();
             this.waveStart(this.wave);
         }
         if(this.startWave == true) // 웨이브 실행 중일 때
@@ -176,28 +183,120 @@ class GameController
     }
 }
 
+class Pannel
+{
+    constructor( _x, _y, _width, _heigth)
+    {
+        this.pos = {x : _x, y : _y};
+        this.image = {width : _width, height : _heigth};
+
+        this.onPannel = [];
+    }
+    getCenter(_xy)
+    {
+        if(_xy == "x")
+        {
+            return this.pos.x + this.image.width / 2;
+        }
+        else if(_xy == "y")
+        {
+            return this.pos.y + this.image.height / 2;
+        }
+    }
+    setOpacity(_opacity)
+    {
+        for(let i = 0; i < this.onPannel.length; i++)
+        {
+            this.onPannel[i].opacity = _opacity;
+        }
+        this.opacity = _opacity;
+    }
+    setPosition(_x, _y)
+    {
+        for(let i = 0; i < this.onPannel.length; i++)
+        {
+            this.onPannel[i].pos.x += _x - this.pos.x;
+            this.onPannel[i].pos.y += _y - this.pos.y;
+        }
+        this.pos.x = _x;
+        this.pos.y = _y;
+    }
+    setOnPannel(_obj)
+    {
+        this.onPannel.push(_obj);
+        return _obj;
+    }
+}
+
 function queCreate() {
-    code = "";
+    var randomString = "0123456789", code = "";
     for (var i = 0; i < 5; i++) code += randomString.charAt(Math.floor(Math.random() * randomString.length));
     $.post("proxy.php", { do: "queCreate", uId: Cookies.get("uId"), code: code }, function(response) {
-        response ? queCreate() : Cookies.set("code", code, { expires: 1, secure: true });
+        response ? (Cookies.set("code", code, { expires: 1, secure: true }), $(".notice-game").html("새로운 큐를 생성하였습니다. <b>[" + code + "]</b>").slideDown().delay(3000).slideUp(), $(".btn-codeView").delay(5000).fadeIn()) : queCreate();
     });
 }
 
 function queJoin() {
     var code = prompt("참가할 큐 코드 입력");
     if(!code || code.length != 5) return false;
-    $.post(
-        "proxy.php",
-        {
-            do: "queJoin",
-            uId: Cookies.get("uId"),
-            code: code
-        },
-        function(response) {
-            response ? (Cookies.set("code", code, { expires: 1, secure: true }), nowScene.admitButton.starting()) : false;
+    $.post("proxy.php", { do: "queJoin", uId: Cookies.get("uId"), code: code }, function(response) {
+        if(response){
+            switch(response){
+                case 0:
+                    Cookies.remove("code");
+                    $(".notice-game").html("통신 오류가 발생하였습니다.").slideDown().delay(3000).slideUp();
+                    break;
+                case 1:
+                    Cookies.remove("code");
+                    $(".notice-game").html("해당 큐는 인원 초과로 접속하실 수 없습니다.").slideDown().delay(3000).slideUp();
+                    break;
+                default:
+                    Cookies.set("code", code, { expires: 1, secure: true });
+                    $(".notice-game").html("<b>" + response + "</b> 님이 호스팅 중인 큐에 입장하였습니다. <b>[" + code + "]</b>").slideDown().delay(3000).slideUp();
+                    $(".btn-codeView").delay(5000).fadeIn();
+                    nowScene.isStarted = true;
+                    nowScene.admitButton.starting();
+            }
         }
-    );
+        else {
+            $(".notice-game").html("통신 오류가 발생하였습니다.").slideDown().delay(3000).slideUp();
+        }
+    });
+}
+
+function fetchLevel() {
+    $.post("proxy.php", { do: "fetchLevel", uId: Cookies.get("uId") }, function(response) {
+        let data = JSON.parse(response);
+        console.log(data);
+        readyScene.playerLevel = {
+            "Warrior": data["Warrior"],
+            "Lancer": data["Lancer"],
+            "Summoner": data["Summoner"]
+        };
+        fetchHighScore();
+    });
+}
+
+function fetchHighScore() {
+    $.post("proxy.php", { do: "fetchHighScore", uId: Cookies.get("uId") }, function(response) {
+        let data = JSON.parse(response);
+        console.log(data);
+        readyScene.playerHighScore = {
+            "Warrior": data["Warrior"],
+            "Lancer": data["Lancer"],
+            "Summoner": data["Summoner"]
+        };
+        readyScene.start();
+
+    });
+}
+
+function logOut() {
+    Cookies.remove("uId");
+    $("#canvas").removeClass("canvas-active");
+    $(".notice-error").css("display", "none");
+    window.onbeforeunload = true;
+    location.reload();
 }
 
 startScene.init = function()
@@ -217,18 +316,25 @@ startScene.init = function()
                  "image/hpBarOut.png",  "image/PlayerHpBarIn.png",
                  "image/tablet.png",  "image/tabletSample.png", 
                  "image/basic.png", "image/level.png", 
-                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/restart.png", 
-                 "image/icon/notSelected.png", "image/icon/lock.png", "image/icon/cantSelect.png",  
-                 "image/icon/Warrior/passiveSkill/attackDamageUp.png", "image/icon/Warrior/passiveSkill/healthUp.png", "image/icon/Warrior/passiveSkill/attackSpeedUp.png", "image/icon/Warrior/passiveSkill/blooddrain.png",  "image/icon/Warrior/passiveSkill/attackRangeUp.png",
-                 "image/icon/Warrior/activeSkill/swiftStrike.png", "image/icon/Warrior/activeSkill/swordShot.png",
-                 "image/icon/Lancer/activeSkill/continuousAttack.png", 
-                 "image/icon/Summoner/passiveSkill/shotSpeedUp.png", "image/icon/Summoner/passiveSkill/attackRangeUp.png", "image/icon/Summoner/passiveSkill/skillDamageUp.png", "image/icon/Summoner/passiveSkill/addShooter.png", "image/icon/Summoner/passiveSkill/penetrationAttack.png",
-                 "image/icon/Summoner/activeSkill/laserAttack.png", 
+                 "image/descriptionPannel.png", 
+                 "image/button/leftArrow.png",  "image/button/rightArrow.png", "image/button/select.png", "image/button/start.png", "image/button/restart.png", "image/button/logOut.png", "image/button/admit.png", "image/button/join.png", "image/button/exit.png", 
+                 "image/icon/notSelected.png", "image/icon/lock.png", "image/icon/cantSelect.png", "image/icon/fade.png", 
+                 "image/icon/Warrior/passiveSkill/attackDamageUp.png", "image/icon/Warrior/passiveSkill/healthUp.png", "image/icon/Warrior/passiveSkill/attackSpeedUp.png", "image/icon/Warrior/passiveSkill/blooddrain.png",  "image/icon/Warrior/passiveSkill/attackRangeUp.png", "image/icon/Warrior/passiveSkill/MODBerserker.png", 
+                 "image/icon/Warrior/activeSkill/swiftStrike.png", "image/icon/Warrior/activeSkill/swordShot.png", "image/icon/Warrior/activeSkill/spinShot.png", "image/icon/Warrior/activeSkill/wheelWind.png",  
+                 "image/icon/Lancer/passiveSkill/backDashAttack.png", "image/icon/Lancer/passiveSkill/MODDestroyer.png", 
+                 "image/icon/Lancer/activeSkill/continuousAttack.png", "image/icon/Lancer/activeSkill/swing.png", 
+                 "image/icon/Summoner/passiveSkill/shotSpeedUp.png", "image/icon/Summoner/passiveSkill/attackRangeUp.png", "image/icon/Summoner/passiveSkill/skillDamageUp.png", "image/icon/Summoner/passiveSkill/addShooter.png", "image/icon/Summoner/passiveSkill/penetrationAttack.png", "image/icon/Summoner/passiveSkill/chargeElectSpeedUp.png", 
+                 "image/icon/Summoner/activeSkill/laserAttack.png", "image/icon/Summoner/activeSkill/MODSpeedUp.png", "image/icon/Summoner/activeSkill/MODDamageUp.png", "image/icon/Summoner/activeSkill/MODKnockbackUp.png", 
+                 "image/effect/laser-center.png", "image/effect/laser-beam.png", 
                  "image/background/ingame.png", "image/result.png", 
-                 "image/fade/black.png", "image/fade/white.png");
+                 "image/fade/black.png", "image/fade/white.png", 
+                 "image/ui/dashboard.png", "image/ui/barOut.png", "image/ui/hp.png", "image/ui/elect.png",
+                 "image/favicon.png");
 
     this.cam = new Camera();
     this.cursor = nowScene.addThing(new MousePoint( "image/cursor.png", mouseX, mouseY, ));
+
+    this.isStarted = false;
     
     this.background = nowScene.addThing(new GameImage("image/background/ingame.png", 0, 0));
     this.background.opacity = 0.3;
@@ -249,6 +355,18 @@ startScene.init = function()
     }
     nowScene.updateList.push(this.background);
 
+    this.mainPannel = new Pannel(0, 0, canvas.width, canvas.height);
+    this.mainPannel.update = () =>
+    {
+        this.mainPannel.setPosition(canvas.width / 2 - this.mainPannel.image.width / 2, canvas.height / 2 - this.mainPannel.image.height / 2);
+    }
+    nowScene.updateList.push(this.mainPannel);
+
+    this.logo = nowScene.addThing(new GameImage("image/favicon.png", 600, 50, "none"));
+    this.logo.pos.x += this.logo.image.width / 2;
+    this.logo.setZ(3);
+    this.mainPannel.setOnPannel(nowScene.logo);
+
     this.admitButton = nowScene.addThing(new GameImage("image/tabletSample.png", canvas.width / 2, canvas.height, "none"));
     this.admitButton.setCenter();
     this.admitButton.moveSpeed = 0.4;
@@ -268,7 +386,8 @@ startScene.init = function()
                 {
                     if(Date.now() > nowScene.admitButton.RTime)
                     {
-                        readyScene.start();
+                        fetchLevel();
+                        nowScene.admitButton.update = () => {};
                     }
                     else
                     {
@@ -290,21 +409,68 @@ startScene.init = function()
         }
         nowScene.updateList.push(this.admitButton);
     };
+    this.mainPannel.setOnPannel(this.admitButton);
 
-    this.createQueButton = nowScene.addThing(new Button("image/button/start.png", 500, 500, 3));
+    this.createQueButton = nowScene.addThing(new Button("image/button/admit.png", canvas.width / 2 - 75, 600, 3));
+    this.createQueButton.pos.x -= this.createQueButton.image.width / 2;
     this.createQueButton.setClickEvent(function()
     {
-        queCreate();
-        nowScene.admitButton.starting();
+        if(nowScene.isStarted == false && Cookies.get("uId"))
+        {
+            queCreate();
+            nowScene.isStarted = true;
+            nowScene.admitButton.starting();
+        }
     });
+    this.createQueButton.updating = () =>
+    {
+        if(nowScene.isStarted == true)
+        {
+            this.createQueButton.opacity = 0.5;
+        }
+        else
+        {
+            this.createQueButton.opacity = 1;
+        }
+    }
+    this.mainPannel.setOnPannel(this.createQueButton);
     nowScene.updateList.push(this.createQueButton);
 
-    this.joinButton = nowScene.addThing(new Button("image/button/select.png", 1000, 500, 3));
+    this.joinButton = nowScene.addThing(new Button("image/button/join.png", canvas.width / 2 + 75, 600, 3));
+    this.joinButton.pos.x += this.joinButton.image.width / 2;
     this.joinButton.setClickEvent(function()
     {
-        queJoin();
+        if(nowScene.isStarted == false && Cookies.get("uId"))
+        {
+            queJoin();
+        }
     });
+    this.joinButton.updating = () =>
+    {
+        if(nowScene.isStarted == true)
+        {
+            this.joinButton.opacity = 0.5;
+        }
+        else
+        {
+            this.joinButton.opacity = 1;
+        }
+    }
+    this.mainPannel.setOnPannel(this.joinButton);
     nowScene.updateList.push(this.joinButton);
+
+    this.logOutButton = nowScene.addThing(new Button("image/button/logOut.png", canvas.width, 0, 3));
+    this.logOutButton.pos.x -= this.logOutButton.image.width / 2;
+    this.logOutButton.pos.y += this.logOutButton.image.height / 2;
+    this.logOutButton.setClickEvent(function()
+    {
+        if(Cookies.get("uId"))
+        {
+            logOut();
+        }
+    });
+    this.mainPannel.setOnPannel(this.logOutButton);
+    nowScene.updateList.push(this.logOutButton);
 }
 startScene.update = function()
 {

@@ -100,6 +100,10 @@ var setList = function(cls)
     {
         nowScene.effectList.push(cls);
     }
+    if(cls.type == "ui")
+    {
+        cls.isFixed = true;
+    }
 }
 
 
@@ -743,7 +747,7 @@ class Scene
     start()
     {
         this.updateList = [];
-        this.sceneThingList.length = 0;
+        nowScene.sceneThingList.length = 0;
         nowScene = this;
         this.init();
     }

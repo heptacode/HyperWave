@@ -24,15 +24,15 @@ class Util
             }
         }
     }
-    static getCenter(obj)
+    static getCenter(_obj)
     {
         if(arguments[1] == "x")
         {
-            return (obj.pos.x + obj.image.width / 2);
+            return (_obj.pos.x + _obj.image.width / 2);
         }
         else if(arguments[1] == "y")
         {
-            return (obj.pos.y + obj.image.height / 2);
+            return (_obj.pos.y + _obj.image.height / 2);
         }
     }
     static getAngle(obj1, obj2)
@@ -75,7 +75,14 @@ class Collision
     }
     static dotToRect(dot, obj)
     {
-        return (Util.getCenter(dot, "x") >= obj.pos.x && Util.getCenter(dot, "x") <= (obj.pos.x + obj.image.width) && Util.getCenter(dot, "y") >= obj.pos.y && Util.getCenter(dot, "y") <= obj.pos.y + obj.image.height);
+        if(arguments.length == 2)
+        {
+            return (Util.getCenter(dot, "x") >= obj.pos.x && Util.getCenter(dot, "x") <= (obj.pos.x + obj.image.width) && Util.getCenter(dot, "y") >= obj.pos.y && Util.getCenter(dot, "y") <= obj.pos.y + obj.image.height);
+        }
+        else if(arguments.length == 4)
+        {
+            return (dot.pos.x + arguments[2].width / 2 >= obj.pos.x && dot.pos.x + arguments[2].width / 2 <= (obj.pos.x + arguments[3].width) && dot.pos.y + arguments[2].height / 2 >= obj.pos.y && dot.pos.y + arguments[2].height / 2 <= obj.pos.y + arguments[3].height);
+        }
     }
     static circleToRotatedRect(_circle, _rect)
     {
