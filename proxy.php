@@ -4,8 +4,8 @@
 //     exit('<meta http-equiv="refresh" content="0;url=/">');
 // }
 date_default_timezone_set('KST');
-$connect = mysqli_connect('localhost:3307', 'sunrin', 'AccountForSunrin', 'sunrin') or exit(false);
-$sever = 'https://hyperwave.hyunwoo.org/';
+$connect = mysqli_connect('localhost', 'query', 'AccountForQuery', 'sunrin') or exit(false);
+$sever = 'https://hyperwave.hyunwoo.dev/';
 
 switch ($_POST['do']) {
     case 'register':
